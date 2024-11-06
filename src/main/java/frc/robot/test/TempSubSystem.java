@@ -8,7 +8,6 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.LogManager;
 import frc.robot.utils.TalonConfig;
 import frc.robot.utils.TalonMotor;
 
@@ -28,14 +27,21 @@ public class TempSubSystem extends SubsystemBase {
   
     );
 
-    LogManager.addEntry("motor test pow", ()-> dutyTest).setConsumer((Double pow, Long time)-> dutyTest = pow);
-    LogManager.addEntry("motor test vel", ()-> velTest).setConsumer((Double vel, Long time)-> velTest = vel);
-    LogManager.addEntry("motor motion magic", ()-> motionMagicTest).setConsumer((Double position, Long time)-> motionMagicTest = position);
+    SmartDashboard.putData("test subsystem", this);
 
     SmartDashboard.putData("motor set pow", new InstantCommand(()-> motor.setDuty(dutyTest), this));
     SmartDashboard.putData("motor set vel", new InstantCommand(()-> motor.setVelocity(velTest), this));
     SmartDashboard.putData("motor set motion magic", new InstantCommand(()-> motor.setMotionMagic(motionMagicTest), this));
     SmartDashboard.putData("motor stop", new InstantCommand(()-> motor.setDuty(0), this));
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    super.initSendable(builder);
+    
+    builder.addDoubleProperty("test pow", ()-> dutyTest, (double pow)-> dutyTest = pow);
+    builder.addDoubleProperty("test vel", ()-> velTest, (double vel)-> velTest = vel);
+    builder.addDoubleProperty("test motion magic pos", ()-> motionMagicTest, (double position)-> motionMagicTest = position);
   }
 
   @Override
