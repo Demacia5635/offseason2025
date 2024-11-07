@@ -107,18 +107,18 @@ public class TalonMotor extends TalonFX {
   }
 
   private void addLog() {    
-		Logger.addStatusSignal(name + "/position", this::getPosition);// rotation
-    Logger.addStatusSignal(name + "/Velocity", this::getVelocity);// rotation per seconds
-    Logger.addStatusSignal(name + "/Acceleration", this::getAcceleration);// rotation per seconds^2
-    Logger.addStatusSignal(name + "/Voltage", this::getMotorVoltage);
-    Logger.addStatusSignal(name + "/Current", this::getStatorCurrent);
-    Logger.addStatusSignal(name + "/CloseLoopError", this::getClosedLoopError);
-    Logger.addStatusSignal(name + "/CloseLoopOutput", this::getClosedLoopOutput);
-    Logger.addStatusSignal(name + "/CloseLoopP", this::getClosedLoopProportionalOutput);
-    Logger.addStatusSignal(name + "/CloseLoopI", this::getClosedLoopIntegratedOutput);
-    Logger.addStatusSignal(name + "/CloseLoopD", this::getClosedLoopDerivativeOutput);
-    Logger.addStatusSignal(name + "/CloseLoopFF", this::getClosedLoopFeedForward);
-    Logger.addStatusSignal(name + "/CloseLoopSP", this::getClosedLoopReference);
+	LogManager.addEntry(name + "/position", this::getPosition);// rotation
+    LogManager.addEntry(name + "/Velocity", this::getVelocity);// rotation per seconds
+    LogManager.addEntry(name + "/Acceleration", this::getAcceleration);// rotation per seconds^2
+    LogManager.addEntry(name + "/Voltage", this::getMotorVoltage);
+    LogManager.addEntry(name + "/Current", this::getStatorCurrent);
+    LogManager.addEntry(name + "/CloseLoopError", this::getClosedLoopError);
+    LogManager.addEntry(name + "/CloseLoopOutput", this::getClosedLoopOutput);
+    LogManager.addEntry(name + "/CloseLoopP", this::getClosedLoopProportionalOutput);
+    LogManager.addEntry(name + "/CloseLoopI", this::getClosedLoopIntegratedOutput);
+    LogManager.addEntry(name + "/CloseLoopD", this::getClosedLoopDerivativeOutput);
+    LogManager.addEntry(name + "/CloseLoopFF", this::getClosedLoopFeedForward);
+    LogManager.addEntry(name + "/CloseLoopSP", this::getClosedLoopReference);
 
     dutyCycleEntry = LogManager.getEntry(name + "/setDutyCycle");
     velocityEntry = LogManager.getEntry(name + "/setVelocity");
@@ -163,8 +163,8 @@ public class TalonMotor extends TalonFX {
 	}
 	  
 	public void setVelocityWithFeedForward(double velocity) {
-    setVelocity(velocity,velocityFeedForward(velocity));
-  }
+    	setVelocity(velocity,velocityFeedForward(velocity));
+  	}
 
 	public void setMotionMagicWithFeedForward(double velocity) {
 		setVelocity(velocity, positionFeedForward(velocity));

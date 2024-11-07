@@ -127,6 +127,16 @@ public class TalonConfig {
         return this;
     }
 
+    public TalonConfig withMeterMotor(double circonference) {
+        this.motorRatio *= 1 / circonference;
+        return this;
+    }
+
+    public TalonConfig withRadiansMotor() {
+        this.motorRatio *= 1 / (Math.PI * 2);
+        return this;
+    }
+
     /** 
      * @param kv2
      * @param ksin

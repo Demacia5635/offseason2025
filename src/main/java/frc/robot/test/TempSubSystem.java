@@ -20,11 +20,14 @@ public class TempSubSystem extends SubsystemBase {
   double motionMagicTest = 0;
 
   /** Creates a new tempSubSystem. */
+  //kp = 0.1, ki = 0.7, kd = 0.07
   public TempSubSystem() {
     motor = new TalonMotor(
       new TalonConfig(8, "rio", "test talon motor")
-      .withPID(0, 0, 0, 0, 0, 0, 0)
-  
+      .withPID(0, 0, 0, 0.0353203957, 0.0151666609/12, 0.0095467237, 0)
+      .withMotionMagic(5, 20, 0)
+      .withBrake(false)
+      .withMotorRatio(12.8).withRadiansMotor()
     );
 
     SmartDashboard.putData("test subsystem", this);
@@ -33,7 +36,7 @@ public class TempSubSystem extends SubsystemBase {
     SmartDashboard.putData("motor set vel", new InstantCommand(()-> motor.setVelocity(velTest), this));
     SmartDashboard.putData("motor set motion magic", new InstantCommand(()-> motor.setMotionMagic(motionMagicTest), this));
     SmartDashboard.putData("motor stop", new InstantCommand(()-> motor.setDuty(0), this));
-  }
+  } 
 
   @Override
   public void initSendable(SendableBuilder builder) {
