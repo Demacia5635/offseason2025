@@ -144,3 +144,27 @@ public class Tag extends SubsystemBase {
   }
 
 }
+
+/*https://docs.limelightvision.io/docs/docs-limelight/apis/complete-networktables-api
+more:
+Increasing detector downscale will always increase pipeline framerate. It will decrease effective range, but in some cases this may be negligible.
+Reducing exposure will always improve motion-blur resilience. This is actually really easy to observe. This may reduce range.
+Reducing the brightness and contrast of the image will generally improve pipeline framerate and reduce range.
+Increasing Sensor gain allows you to increase brightness without increasing exposure. 
+
+
+
+To track AprilTags:
+
+Change "Pipeline Type" to "Fiducial Markers"
+Set "Black Level" to zero
+At this point, it is a matter of balancing sensor gain and exposure time. 
+You want to be able to see the tags with the smallest exposure possible to minimize motion blur.
+This usually calls for a high sensor gain setting.
+For simple 2D tracking, it is often advisable to max-out your sensor gain, 
+and then increase your exposure from zero until targets are sufficiently tracked.
+Make sure the correct family is selected in the "Standard" tab if tracking isn't working.
+
+Cropping removes content from the image for huge performance boosts. Use the NT "crop" key to crop dynamically during matches
+
+ */
