@@ -7,13 +7,17 @@ package frc.robot.test;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.Cancoder;
+import frc.robot.utils.LogManager;
 import frc.robot.utils.TalonConfig;
 import frc.robot.utils.TalonMotor;
 
 public class TempSubSystem extends SubsystemBase {
   
   TalonMotor motor;
+  Cancoder cancoder;
 
   double dutyTest = 0;
   double velTest = 0;
@@ -24,17 +28,19 @@ public class TempSubSystem extends SubsystemBase {
   public TempSubSystem() {
     motor = new TalonMotor(
       new TalonConfig(8, "rio", "test talon motor")
-      .withPID(0, 0, 0, 0.0353203957, 0.0151666609/12, 0.0095467237, 0)
-      .withMotionMagic(5, 20, 0)
+      .withPID(0.17, 0.004, 0.0, 0.3295543024, 0.2385745774, -0.003105620266, 0)
+      .withMotionMagic(30, 20, 0)
       .withBrake(false)
       .withMotorRatio(12.8).withRadiansMotor()
     );
 
+    cancoder = new Cancoder(9, "rio");
+
     SmartDashboard.putData("test subsystem", this);
 
-    SmartDashboard.putData("motor set pow", new InstantCommand(()-> motor.setDuty(dutyTest), this));
-    SmartDashboard.putData("motor set vel", new InstantCommand(()-> motor.setVelocity(velTest), this));
-    SmartDashboard.putData("motor set motion magic", new InstantCommand(()-> motor.setMotionMagic(motionMagicTest), this));
+    SmartDashboard.putData("motor set pow", new RunCommand(()-> motor.setDuty(dutyTest), this));
+    SmartDashboard.putData("motor set vel", new RunCommand(()-> motor.setVelocity(velTest), this));
+    SmartDashboard.putData("motor set motion magic", new RunCommand(()-> motor.setMotionMagic(motionMagicTest), this));
     SmartDashboard.putData("motor stop", new InstantCommand(()-> motor.setDuty(0), this));
   } 
 
@@ -45,6 +51,9 @@ public class TempSubSystem extends SubsystemBase {
     builder.addDoubleProperty("test pow", ()-> dutyTest, (double pow)-> dutyTest = pow);
     builder.addDoubleProperty("test vel", ()-> velTest, (double vel)-> velTest = vel);
     builder.addDoubleProperty("test motion magic pos", ()-> motionMagicTest, (double position)-> motionMagicTest = position);
+
+    LogManager.addEntry("cancoder angle", cancoder::getAbsRotation2d);
+    LogManager.addEntry("cancoder vel", cancoder::getVelocityRotation2dPerSec);
   }
 
   @Override
