@@ -167,4 +167,10 @@ Make sure the correct family is selected in the "Standard" tab if tracking isn't
 
 Cropping removes content from the image for huge performance boosts. Use the NT "crop" key to crop dynamically during matches
 
+
+latency:
+
+tl  double  The pipeline's latency contribution (ms). Add to "cl" to get total latency.
+
+cl  double  Capture pipeline latency (ms). Time between the end of the exposure of the middle row of the sensor to the beginning of the tracking pipeline.
  */
