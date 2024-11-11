@@ -8,6 +8,7 @@ import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -15,6 +16,7 @@ import edu.wpi.first.math.interpolation.Interpolatable;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.Kinematics;
 import edu.wpi.first.math.kinematics.Odometry;
+import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
 import edu.wpi.first.math.kinematics.WheelPositions;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -38,7 +40,7 @@ import java.util.Objects;
  * @param <T> Wheel positions type.
  */
 public class DemaciaPoseEstimator<T extends WheelPositions<T>> {
-  private final Kinematics<?, T> m_kinematics;
+  private final Kinematics m_kinematics;
   private final DemaciaOdometry m_odometry;
   private final Matrix<N3, N1> m_q = new Matrix<>(Nat.N3(), Nat.N1());
   private final Matrix<N3, N3> m_visionK = new Matrix<>(Nat.N3(), Nat.N3());
@@ -110,7 +112,7 @@ public class DemaciaPoseEstimator<T extends WheelPositions<T>> {
    * @param wheelPositions The current encoder readings.
    * @param poseMeters The position on the field that your robot is at.
    */
-  public void resetPosition(Rotation2d gyroAngle, T wheelPositions, Pose2d poseMeters) {
+  public void resetPosition(Rotation2d gyroAngle, SwerveDriveWheelPositions wheelPositions, Pose2d poseMeters) {
     // Reset state estimate and error covariance
     m_odometry.resetPosition(gyroAngle, wheelPositions, poseMeters);
     m_poseBuffer.clear();
@@ -121,8 +123,12 @@ public class DemaciaPoseEstimator<T extends WheelPositions<T>> {
    *
    * @return The estimated robot pose in meters.
    */
-  public Pose2d getEstimatedPosition() {
-    return m_odometry.getPoseMeters();
+  private Pose2d getEstimatedPosition() {
+    return m_odometry.getCurPose();
+  }
+
+  public Pose2d calcEstimatedPose(Rotation2d currentGyroAngle, SwerveDriveWheelPositions currentWheelPositions){
+    return m_odometry.calcEstimatedPose(null, currentWheelPositions);
   }
 
   /**
@@ -248,8 +254,8 @@ public class DemaciaPoseEstimator<T extends WheelPositions<T>> {
    * @param wheelPositions The current encoder readings.
    * @return The estimated pose of the robot in meters.
    */
-  public Pose2d updateWithTime(double currentTimeSeconds, Rotation2d gyroAngle, T wheelPositions) {
-    m_odometry.update(gyroAngle, wheelPositions);
+  public Pose2d updateWithTime(double currentTimeSeconds, Rotation2d gyroAngle, WheelPositions wheelPositions) {
+    m_odometry.calcEstimatedPose(gyroAngle,wheelPositions);
     m_poseBuffer.addSample(
         currentTimeSeconds,
         new InterpolationRecord(getEstimatedPosition(), gyroAngle, wheelPositions.copy()));

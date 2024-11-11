@@ -12,53 +12,92 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.WheelPositions;
+import edu.wpi.first.math.proto.Kinematics;
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 
 /** Add your docs here. */
 public class DemaciaOdometry {
-    Pose2d pose;
+    Pose2d curPose;
     Rotation2d gyroOffset;
     private Rotation2d prevAngle;
-    private WheelPositions prevWheelPositions;
+    private SwerveDriveWheelPositions prevWheelPositions;
+    private BuiltInAccelerometer accelerometer;
+    private DemaciaKinematics kinematics;
 
-    public DemaciaOdometry(Rotation2d gyroAngle, WheelPositions wheelPositions, Pose2d initPose){
-        this.pose = initPose;
-        this.gyroOffset = pose.getRotation().minus(gyroAngle);
+    private double wheelCalcWeight = 0.5;
+    private double accelCalcWeight = 0.5;
+
+    private final double cycleTime = 0.02;
+
+    public DemaciaOdometry(DemaciaKinematics kinematics, Rotation2d gyroAngle, SwerveDriveWheelPositions wheelPositions, Pose2d initPose){
+        this.curPose = initPose;
+        this.gyroOffset = curPose.getRotation().minus(gyroAngle);
         this.prevAngle = gyroAngle;
         this.prevWheelPositions = wheelPositions;
+        this.kinematics = kinematics;
+        this.accelerometer = new BuiltInAccelerometer();
     }
     
-    public void resetPosition(Rotation2d gyroAngle, WheelPositions wheelPos, Pose2d poseToReset){
-        pose = poseToReset;
-        prevAngle = pose.getRotation();
-        gyroOffset = pose.getRotation().minus(prevAngle);
+    public void resetPosition(Rotation2d gyroAngle, SwerveDriveWheelPositions wheelPos, Pose2d poseToReset){
+        curPose = poseToReset;
+        prevAngle = curPose.getRotation();
+        gyroOffset = curPose.getRotation().minus(prevAngle);
         prevWheelPositions = wheelPos;
     }
 
-    public Pose2d getPose(){
-        return pose;
+    public Pose2d getCurPose(){
+        return curPose;
     }
 
-    public Pose2d updatePose(Rotation2d gyroAngle, WheelPositions currentWheelPositions){
+    private double gForceToMS2(double gForce){
+        return gForce * 9.80665;
+    }
+    private double ms2ToGForce(double accel){
+        return accel / 9.80665;
+    }
+
+    public Pose2d calcEstimatedPose(Rotation2d gyroAngle, SwerveDriveWheelPositions currentWheelPositions){
+
+        Pose2d estimatedPoseAccel = new Pose2d(curPose.getTranslation().plus(calcChassisDiffAccel()), gyroAngle.minus(gyroOffset));
+        Pose2d estimatedPoseWheels = update(gyroAngle, currentWheelPositions);
+
+        curPose = fuse(estimatedPoseWheels, estimatedPoseAccel);
+
+
+        
+        return curPose;
         
     }
 
+    public Pose2d fuse(Pose2d estimatedWheels, Pose2d estimatedAccel){
+        double x = (estimatedWheels.getX() * wheelCalcWeight) + (estimatedAccel.getX() * accelCalcWeight);
+        double y = (estimatedWheels.getY() * wheelCalcWeight) + (estimatedAccel.getY() * accelCalcWeight);
+        Rotation2d rotation = (estimatedWheels.getRotation().times(wheelCalcWeight)).plus(estimatedAccel.getRotation().times(accelCalcWeight));
+
+        return new Pose2d(x, y, rotation);
+    }
+
+    
      
+    public Pose2d update(Rotation2d gyroAngle, SwerveDriveWheelPositions currentWheelPositions){
+
+        Rotation2d angle = gyroAngle.plus(gyroOffset);
+        Twist2d twist = kinematics.toTwist2d(prevWheelPositions, currentWheelPositions);
+        twist.dtheta = angle.minus(prevAngle).getRadians();
+        Pose2d newPose = curPose.exp(twist);
+        prevWheelPositions = currentWheelPositions.copy();
+        prevAngle = angle;
+        return new Pose2d(newPose.getTranslation(), angle);
+         
+    }
     
 
 
 
-    private Translation2d[] calcDiff(SwerveModulePosition[] prevWheelPos, SwerveModulePosition[] curWheelPos){
-        Translation2d[] diff = new Translation2d[prevWheelPos.length];
-        for(int i = 0; i < prevWheelPos.length; i++){
-            SwerveModulePosition startModule = prevWheelPos[i];
-            SwerveModulePosition endModule = curWheelPos[i];
+    private Translation2d calcChassisDiffAccel(){
+        double xDiff = 0.5 * gForceToMS2(accelerometer.getX()) * cycleTime * cycleTime;
+        double yDiff = 0.5 * gForceToMS2(accelerometer.getY()) * cycleTime * cycleTime;
 
-            double distance = (startModule.distanceMeters - endModule.distanceMeters);
-            double angleRad = endModule.angle.plus(startModule.angle).div(2).getRadians();
-
-            diff[i] = new Translation2d(distance - (distance*Math.cos(angleRad)) , distance * Math.sin(angleRad));
-
-        }
-        return diff;
+        return new Translation2d(xDiff, yDiff);
     }
 }
