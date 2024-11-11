@@ -33,8 +33,8 @@ public class TempSubSystem extends SubsystemBase {
   public TempSubSystem() {
     steerMotor = new TalonMotor(
       new TalonConfig(8, "rio", "steer motor")
-      .withPID(0.8, 1.5, 0.0, 0.3295543024, 0.2385745774, -0.003105620266, 0)
-      .withMotionMagic(4*Math.PI, 60, 150)
+      .withPID(0.8, 2.8, 0.0, 0.3295543024, 0.2385745774, -0.003105620266, 0)
+      .withMotionMagic(4*Math.PI, 60, 300)
       .withBrake(true).withInvert(false)
       .withMotorRatio(12.8).withRadiansMotor()
     );
@@ -53,6 +53,7 @@ public class TempSubSystem extends SubsystemBase {
     SmartDashboard.putData("motor set motion magic", new RunCommand(()-> steerMotor.setMotionMagic(motionMagicTest), this));
     SmartDashboard.putData("motor stop", new InstantCommand(()-> steerMotor.setDuty(0), this));
     SmartDashboard.putData("cancoder", cancoder);
+    SmartDashboard.putData("drive pow", new RunCommand(()-> driveMotor.setDuty(dutyTest), this));
     SmartDashboard.putData("swerve drive", new Sendable() {
       @Override
       public void initSendable(SendableBuilder builder) {
