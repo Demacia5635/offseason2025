@@ -241,7 +241,7 @@ public class DemaciaPoseEstimator<T extends WheelPositions<T>> {
    * @param wheelPositions The current encoder readings.
    * @return The estimated pose of the robot in meters.
    */
-  public Pose2d update(Rotation2d gyroAngle, T wheelPositions) {
+  public Pose2d update(Rotation2d gyroAngle, SwerveDriveWheelPositions wheelPositions) {
     return updateWithTime(MathSharedStore.getTimestamp(), gyroAngle, wheelPositions);
   }
 
@@ -254,7 +254,7 @@ public class DemaciaPoseEstimator<T extends WheelPositions<T>> {
    * @param wheelPositions The current encoder readings.
    * @return The estimated pose of the robot in meters.
    */
-  public Pose2d updateWithTime(double currentTimeSeconds, Rotation2d gyroAngle, WheelPositions wheelPositions) {
+  public Pose2d updateWithTime(double currentTimeSeconds, Rotation2d gyroAngle, SwerveDriveWheelPositions wheelPositions) {
     m_odometry.calcEstimatedPose(gyroAngle,wheelPositions);
     m_poseBuffer.addSample(
         currentTimeSeconds,
@@ -275,7 +275,7 @@ public class DemaciaPoseEstimator<T extends WheelPositions<T>> {
     private final Rotation2d gyroAngle;
 
     // The current encoder readings.
-    private final T wheelPositions;
+    private final SwerveDriveWheelPositions wheelPositions;
 
     /**
      * Constructs an Interpolation Record with the specified parameters.
@@ -284,7 +284,7 @@ public class DemaciaPoseEstimator<T extends WheelPositions<T>> {
      * @param gyro The current gyro angle.
      * @param wheelPositions The current encoder readings.
      */
-    private InterpolationRecord(Pose2d poseMeters, Rotation2d gyro, T wheelPositions) {
+    private InterpolationRecord(Pose2d poseMeters, Rotation2d gyro, SwerveDriveWheelPositions wheelPositions) {
       this.poseMeters = poseMeters;
       this.gyroAngle = gyro;
       this.wheelPositions = wheelPositions;
