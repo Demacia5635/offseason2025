@@ -18,6 +18,9 @@ public class RobotContainer {
   LogManager logManager;
   TempSubSystem tempSubSystem;
   
+  public static Boolean isRed = false;
+  public static RobotContainer robotContainer;
+
   public RobotContainer() {
     logManager = new LogManager();
     tempSubSystem = new TempSubSystem();
@@ -30,6 +33,14 @@ public class RobotContainer {
 
   private void configureBindings() {
 
+  }
+
+  public void isRed(boolean isRed) {
+    RobotContainer.isRed = isRed;
+  }
+  
+  public boolean isRed() {
+    return isRed;
   }
 
   public Command getAutonomousCommand() {
