@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Cancoder;
+import frc.robot.utils.CancoderConfig;
 import frc.robot.utils.LogManager;
 import frc.robot.utils.TalonConfig;
 import frc.robot.utils.TalonMotor;
@@ -43,9 +44,10 @@ public class TempSubSystem extends SubsystemBase {
       new TalonConfig(7, "rio", "drive motor")
       .withPID(0, 0, 0, 0, 0, 0, 0)
     );
-
-    cancoder = new Cancoder(9, "rio");
-
+    cancoder = new Cancoder(
+      new CancoderConfig(0, "rio", "cancoder")
+      .withInvert(false).withOffset(0)
+      );
     SmartDashboard.putData("test subsystem", this);
 
     SmartDashboard.putData("motor set pow", new RunCommand(()-> steerMotor.setDuty(dutyTest), this));
@@ -73,8 +75,8 @@ public class TempSubSystem extends SubsystemBase {
     builder.addDoubleProperty("test vel", ()-> velTest, (double vel)-> velTest = vel);
     builder.addDoubleProperty("test motion magic pos", ()-> motionMagicTest, (double position)-> motionMagicTest = position);
     
-    LogManager.addEntry("cancoder angle", cancoder::getAbsRadians);
-    LogManager.addEntry("cancoder vel", cancoder::getVelocityRotation2dPerSec);
+    LogManager.addEntry("cancoder angle", cancoder::getAbsPositionRadians);
+    LogManager.addEntry("cancoder vel", cancoder::getVelocityRadiansPerSec);
   }
 
   @Override

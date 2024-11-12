@@ -107,7 +107,7 @@ public class TalonMotor extends TalonFX {
   }
 
   private void addLog() {    
-	LogManager.addEntry(name + "/position", this::getPosition);// rotation
+	  LogManager.addEntry(name + "/position", this::getPosition);// rotation
     LogManager.addEntry(name + "/Velocity", this::getVelocity);// rotation per seconds
     LogManager.addEntry(name + "/Acceleration", this::getAcceleration);// rotation per seconds^2
     LogManager.addEntry(name + "/Voltage", this::getMotorVoltage);
