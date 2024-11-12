@@ -34,8 +34,8 @@ public class TempSubSystem extends SubsystemBase {
   public TempSubSystem() {
     steerMotor = new TalonMotor(
       new TalonConfig(8, "rio", "steer motor")
-      .withPID(0.8, 2.8, 0.0, 0.3295543024, 0.2385745774, -0.003105620266, 0)
-      .withMotionMagic(4*Math.PI, 60, 300)
+      .withPID(0.8, 3, 0.0, 0.3295543024, 0.2385745774, -0.003105620266, 0)
+      .withMotionMagic(2*2*Math.PI, 6*2*Math.PI, 4*2*Math.PI)
       .withBrake(true).withInvert(false)
       .withMotorRatio(12.8).withRadiansMotor()
     );
@@ -45,9 +45,12 @@ public class TempSubSystem extends SubsystemBase {
       .withPID(0, 0, 0, 0, 0, 0, 0)
     );
     cancoder = new Cancoder(
-      new CancoderConfig(0, "rio", "cancoder")
+      new CancoderConfig(9, "rio", "cancoder")
       .withInvert(false).withOffset(0)
       );
+
+    steerMotor.setPosition(cancoder.getAbsPositionRadians());
+    
     SmartDashboard.putData("test subsystem", this);
 
     SmartDashboard.putData("motor set pow", new RunCommand(()-> steerMotor.setDuty(dutyTest), this));
@@ -61,8 +64,8 @@ public class TempSubSystem extends SubsystemBase {
       public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("SwerveDrive");
 
-        builder.addDoubleProperty("Back Right Angle", ()-> steerMotor.getCurrentPosition() % 360, null);
-        builder.addDoubleProperty("Back Right Velocity", ()-> steerMotor.getCurrentVelocity(), null);
+        builder.addDoubleProperty("Back Right Angle", ()-> cancoder.getAbsPositionRadians(), null);
+        builder.addDoubleProperty("Back Right Velocity", ()-> driveMotor.getCurrentVelocity(), null);
       }
     });
   } 
@@ -74,9 +77,7 @@ public class TempSubSystem extends SubsystemBase {
     builder.addDoubleProperty("test pow", ()-> dutyTest, (double pow)-> dutyTest = pow);
     builder.addDoubleProperty("test vel", ()-> velTest, (double vel)-> velTest = vel);
     builder.addDoubleProperty("test motion magic pos", ()-> motionMagicTest, (double position)-> motionMagicTest = position);
-    
-    LogManager.addEntry("cancoder angle", cancoder::getAbsPositionRadians);
-    LogManager.addEntry("cancoder vel", cancoder::getVelocityRadiansPerSec);
+
   }
 
   @Override
