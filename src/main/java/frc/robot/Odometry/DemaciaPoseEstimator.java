@@ -40,7 +40,7 @@ import java.util.Objects;
  * @param <T> Wheel positions type.
  */
 public class DemaciaPoseEstimator<T extends WheelPositions<T>> {
-  private final Kinematics m_kinematics;
+  private final DemaciaKinematics m_kinematics;
   private final DemaciaOdometry m_odometry;
   private final Matrix<N3, N1> m_q = new Matrix<>(Nat.N3(), Nat.N1());
   private final Matrix<N3, N3> m_visionK = new Matrix<>(Nat.N3(), Nat.N3());
@@ -62,7 +62,7 @@ public class DemaciaPoseEstimator<T extends WheelPositions<T>> {
    *     the vision pose measurement less.
    */
   public DemaciaPoseEstimator(
-      Kinematics<?, T> kinematics,
+      DemaciaKinematics kinematics,
       DemaciaOdometry odometry,
       Matrix<N3, N1> stateStdDevs,
       Matrix<N3, N1> visionMeasurementStdDevs) {
@@ -127,6 +127,7 @@ public class DemaciaPoseEstimator<T extends WheelPositions<T>> {
     return m_odometry.getCurPose();
   }
 
+  //calculated the estimated Pose using odometry
   public Pose2d calcEstimatedPose(Rotation2d currentGyroAngle, SwerveDriveWheelPositions currentWheelPositions){
     return m_odometry.calcEstimatedPose(null, currentWheelPositions);
   }

@@ -26,7 +26,7 @@ import edu.wpi.first.math.numbers.N3;
  * <p>{@link DemaciaSwervePoseEstimator#addVisionMeasurement} can be called as infrequently as you
  * want; if you never call it, then this class will behave as regular encoder odometry.
  */
-public class DemaciaSwervePoseEstimator extends PoseEstimator<SwerveDriveWheelPositions> {
+public class DemaciaSwervePoseEstimator extends DemaciaPoseEstimator<SwerveDriveWheelPositions> {
   private final int m_numModules;
 
   /**
@@ -43,15 +43,16 @@ public class DemaciaSwervePoseEstimator extends PoseEstimator<SwerveDriveWheelPo
    * @param initialPoseMeters The starting pose estimate.
    */
   public DemaciaSwervePoseEstimator(
-      SwerveDriveKinematics kinematics,
+      DemaciaKinematics kinematics,
       Rotation2d gyroAngle,
       SwerveModulePosition[] modulePositions,
-      Pose2d initialPoseMeters) {
+      Pose2d initialPoseMeters, DemaciaOdometry odometry) {
     this(
         kinematics,
         gyroAngle,
         modulePositions,
         initialPoseMeters,
+        odometry,
         VecBuilder.fill(0.1, 0.1, 0.1),
         VecBuilder.fill(0.9, 0.9, 0.9));
   }
@@ -71,15 +72,17 @@ public class DemaciaSwervePoseEstimator extends PoseEstimator<SwerveDriveWheelPo
    *     the vision pose measurement less.
    */
   public DemaciaSwervePoseEstimator(
-      SwerveDriveKinematics kinematics,
+      DemaciaKinematics kinematics,
       Rotation2d gyroAngle,
       SwerveModulePosition[] modulePositions,
       Pose2d initialPoseMeters,
+      DemaciaOdometry odometry,
       Matrix<N3, N1> stateStdDevs,
       Matrix<N3, N1> visionMeasurementStdDevs) {
+        
     super(
         kinematics,
-        new SwerveDriveOdometry(kinematics, gyroAngle, modulePositions, initialPoseMeters),
+        odometry,
         stateStdDevs,
         visionMeasurementStdDevs);
 

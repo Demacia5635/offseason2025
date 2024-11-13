@@ -24,6 +24,7 @@ public class DemaciaOdometry {
     private BuiltInAccelerometer accelerometer;
     private DemaciaKinematics kinematics;
 
+    //How correct the estimation is (50% currently)
     private double wheelCalcWeight = 0.5;
     private double accelCalcWeight = 0.5;
 
@@ -56,19 +57,19 @@ public class DemaciaOdometry {
         return accel / 9.80665;
     }
 
+
+    //calculates total Pose using accelerometer and wheels
     public Pose2d calcEstimatedPose(Rotation2d gyroAngle, SwerveDriveWheelPositions currentWheelPositions){
 
         Pose2d estimatedPoseAccel = new Pose2d(curPose.getTranslation().plus(calcChassisDiffAccel()), gyroAngle.minus(gyroOffset));
-        Pose2d estimatedPoseWheels = update(gyroAngle, currentWheelPositions);
-
+        Pose2d estimatedPoseWheels = estimateWheels(gyroAngle, currentWheelPositions);
         curPose = fuse(estimatedPoseWheels, estimatedPoseAccel);
 
-
-        
         return curPose;
         
     }
 
+    //fusing 2 Pose estimations using the weight parameter for each estimation
     public Pose2d fuse(Pose2d estimatedWheels, Pose2d estimatedAccel){
         double x = (estimatedWheels.getX() * wheelCalcWeight) + (estimatedAccel.getX() * accelCalcWeight);
         double y = (estimatedWheels.getY() * wheelCalcWeight) + (estimatedAccel.getY() * accelCalcWeight);
@@ -79,7 +80,9 @@ public class DemaciaOdometry {
 
     
      
-    public Pose2d update(Rotation2d gyroAngle, SwerveDriveWheelPositions currentWheelPositions){
+
+    //calcs
+    public Pose2d estimateWheels(Rotation2d gyroAngle, SwerveDriveWheelPositions currentWheelPositions){
 
         Rotation2d angle = gyroAngle.plus(gyroOffset);
         Twist2d twist = kinematics.toTwist2d(prevWheelPositions, currentWheelPositions);
