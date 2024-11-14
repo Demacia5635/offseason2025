@@ -103,7 +103,7 @@ public class SwerveModule extends SubsystemBase {
      * @return Velocity in m/s
      */
     public double getVelocity() {
-        return moveMotor.getCurrentVelocityInMS(WHEEL_DIAMETER/2);
+        return moveMotor.getCurrentVelocity();
     }
     /**
    * set position to drive to in rotations
@@ -143,7 +143,7 @@ public class SwerveModule extends SubsystemBase {
         if(Math.abs(targetVelocity) < 0.03) {
             targetVelocity = 0;
         }
-        moveMotor.setVelocityMPS(targetVelocity, WHEEL_DIAMETER/2);
+        moveMotor.setVelocity(targetVelocity);
 
     }
 

@@ -6,9 +6,9 @@ import static frc.robot.chassis.ChassisConstants.*;
 import java.util.Arrays;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.ReplanningConfig;
+// import com.pathplanner.lib.auto.AutoBuilder;
+// import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+// import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -21,6 +21,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -35,8 +36,8 @@ import frc.robot.Field;
 import frc.robot.RobotContainer;
 import frc.robot.chassis.utils.DemaciaOdometry;
 import frc.robot.utils.LogManager;
-import frc.robot.vision.subsystem.VisionByNote;
-import frc.robot.vision.subsystem.VisionByTag;
+// import frc.robot.vision.subsystem.VisionByNote;
+// import frc.robot.vision.subsystem.VisionByTag;
 
 
 
@@ -53,8 +54,8 @@ public class Chassis extends SubsystemBase {
   public static double targetVelocity = 0;
   public static double currentVelocity = 0;
 
-  public VisionByTag visionByTag;
-  public VisionByNote visionByNote;
+  // public VisionByTag visionByTag;
+  // public VisionByNote visionByNote;
   private PIDController rotationPID = new PIDController(0.3,0.0, 0.00);
   private boolean hasCalibratedPose = false;
 
@@ -67,14 +68,14 @@ public class Chassis extends SubsystemBase {
         new SwerveModule(BACK_LEFT, this),
         new SwerveModule(BACK_RIGHT, this),
     };    
-    gyro = new Pigeon2(GYRO_ID, Constants.CANBUS);
+    gyro = new Pigeon2(GYRO_ID, "rio");
     gyro.setYaw(0);
 
-    this.visionByTag = new VisionByTag(gyro);
-    this.visionByNote = new VisionByNote(new Pose2d());
+    // this.visionByTag = new VisionByTag(gyro);
+    // this.visionByNote = new VisionByNote(new Pose2d());
     
     poseEstimator = new SwerveDrivePoseEstimator(KINEMATICS, getRawAngle(), getModulePositions(), new Pose2d());
-    visionByNote = new VisionByNote(poseEstimator.getEstimatedPosition());
+    // visionByNote = new VisionByNote(poseEstimator.getEstimatedPosition());
     demaciaOdometry = new DemaciaOdometry(getRawAngle(), getModulePositions(), getPose());
     setBrake(true);
     field = new Field2d();
@@ -122,22 +123,43 @@ public class Chassis extends SubsystemBase {
     ntTab.add("Set Steer CMD", new RunCommand(()->modules[1].setSteerPosition(
       e.getDouble(0)),this));
     
-    AutoBuilder.configureHolonomic(
-      this::getPose, 
-      this::setPose, 
-      this::getChassisSpeeds,
-      this::setVelRobot, 
-      new HolonomicPathFollowerConfig(
-        MAX_DRIVE_VELOCITY, 
-        DRIVE_BASE_RADIUS, 
-        new ReplanningConfig(
-          true, 
-          true
-          )
-        ),
-      this::isRed, 
-      this
-    );
+    // AutoBuilder.configureHolonomic(
+    //   this::getPose, 
+    //   this::setPose, 
+    //   this::getChassisSpeeds,
+    //   this::setVelRobot, 
+    //   new HolonomicPathFollowerConfig(
+    //     MAX_DRIVE_VELOCITY, 
+    //     DRIVE_BASE_RADIUS, 
+    //     new ReplanningConfig(
+    //       true, 
+    //       true
+    //       )
+    //     ),
+    //   this::isRed, 
+    //   this
+    // );
+
+    SmartDashboard.putData("SwerveWidget", new Sendable() {
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("SwerveDrive");
+
+        builder.addDoubleProperty("Front Left Angle", ()-> modules[0].getModuleAngle().getRadians(), null);
+        builder.addDoubleProperty("Front Left Velocity", ()-> modules[0].getVelocity(), null);
+        
+        builder.addDoubleProperty("Front Right Angle", ()-> modules[1].getModuleAngle().getRadians(), null);
+        builder.addDoubleProperty("Front Right Velocity", ()-> modules[1].getVelocity(), null);
+        
+        builder.addDoubleProperty("Back Left Angle", ()-> modules[2].getModuleAngle().getRadians(), null);
+        builder.addDoubleProperty("Back Left Velocity", ()-> modules[2].getVelocity(), null);
+        
+        builder.addDoubleProperty("Back Right Angle", ()-> modules[3].getModuleAngle().getRadians(), null);
+        builder.addDoubleProperty("Back Right Velocity", ()-> modules[3].getVelocity(), null);
+
+        builder.addDoubleProperty("Robot Angle", ()-> getAngle().getRadians(), null);
+      }
+    });
   }
 
   public void setVelRobot(ChassisSpeeds speeds){

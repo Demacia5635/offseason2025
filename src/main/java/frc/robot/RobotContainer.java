@@ -9,6 +9,9 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.chassis.commands.DriveCommand;
+import frc.robot.chassis.subsystems.Chassis;
 import frc.robot.test.TempSubSystem;
 import frc.robot.utils.LogManager;
 
@@ -17,12 +20,18 @@ public class RobotContainer {
   
   LogManager logManager;
   TempSubSystem tempSubSystem;
+  Chassis chassis;
+  CommandXboxController controller;
   
   public static Boolean isRed = false;
   public static RobotContainer robotContainer;
 
   public RobotContainer() {
+    robotContainer = this;
     logManager = new LogManager();
+    //chassis = new Chassis();
+    controller = new CommandXboxController(0);
+    //chassis.setDefaultCommand(new DriveCommand(chassis, controller));
     tempSubSystem = new TempSubSystem();
 
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance());

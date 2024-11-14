@@ -61,55 +61,56 @@ public static final double SICLE_CAUNT = 50.0;
 
 public final static SwerveModuleConstants FRONT_LEFT = new SwerveModuleConstants(
       "BackRight",
-      new TalonConfig(4,CANBUS, "BackRight/Drive")
+      new TalonConfig(7,CANBUS, "BackRight/Drive")
         .withPID(MOVE_PID.KP, MOVE_PID.KI, MOVE_PID.KD,MOVE_FF_MORE.KS,MOVE_FF_MORE.KV,MOVE_FF_MORE.KA,0)
-      .withInvert(true).withMotorRatio(MOVE_GEAR_RATIO),
-      new TalonConfig(5,CANBUS, "BackRight/Steer")
+        .withInvert(true).withMotorRatio(MOVE_GEAR_RATIO).withMeterMotor(WHEEL_DIAMETER / 2 * Math.PI),
+      new TalonConfig(8,CANBUS, "BackRight/Steer")
         .withPID(STEER_PID.KP, STEER_PID.KI, STEER_PID.KD, STEER_FF.KS,STEER_FF.KV,STEER_FF.KA,0)
-        .withInvert(true).withMotorRatio(STEER_RATIO),
-      6,
+        .withInvert(true).withMotorRatio(STEER_RATIO).withRadiansMotor()
+        .withMotionMagic(4 * Math.PI, 50, 100),
+      9,
       new Translation2d(-0.266, -0.249),
       0.395263671875);
 
   public final static SwerveModuleConstants FRONT_RIGHT = new SwerveModuleConstants(
 
       "BackLeft",
-      new TalonConfig(1,CANBUS, "BackLeft/Drive")
+      new TalonConfig(10,CANBUS, "BackLeft/Drive")
         .withPID(MOVE_PID.KP, MOVE_PID.KI, MOVE_PID.KD,MOVE_FF_MORE.KS,MOVE_FF_MORE.KV,MOVE_FF_MORE.KA,0)
-        .withInvert(true).withMotorRatio(MOVE_GEAR_RATIO),
-      new TalonConfig(2,CANBUS, "BackLeft/Steer")
+        .withInvert(true).withMotorRatio(MOVE_GEAR_RATIO).withMeterMotor(WHEEL_DIAMETER / 2 * Math.PI),
+      new TalonConfig(11,CANBUS, "BackLeft/Steer")
         .withPID(STEER_PID.KP, STEER_PID.KI, STEER_PID.KD,STEER_FF.KS,STEER_FF.KV,STEER_FF.KA,0)
-        .withInvert(true).withMotorRatio(STEER_RATIO)
-        .withMotionMagic(720, 1440, 3000),
-      3,
+        .withInvert(true).withMotorRatio(STEER_RATIO).withRadiansMotor()
+        .withMotionMagic(4 * Math.PI, 50, 100),
+      12,
       new Translation2d(-0.266, 0.249),
       0.351806640625);
 
   public final static SwerveModuleConstants BACK_LEFT = new SwerveModuleConstants(
 
     "FrontRight",
-      new TalonConfig(7,CANBUS, "FrontRight/Drive")
+      new TalonConfig(4,CANBUS, "FrontRight/Drive")
         .withPID(MOVE_PID.KP, MOVE_PID.KI, MOVE_PID.KD,MOVE_FF_MORE.KS,MOVE_FF_MORE.KV,MOVE_FF_MORE.KA,0)
-        .withInvert(true).withMotorRatio(MOVE_GEAR_RATIO),
-      new TalonConfig(8,CANBUS, "FrontRight/Steer")
+        .withInvert(true).withMotorRatio(MOVE_GEAR_RATIO).withMeterMotor(WHEEL_DIAMETER / 2 * Math.PI),
+      new TalonConfig(5,CANBUS, "FrontRight/Steer")
         .withPID(STEER_PID.KP, STEER_PID.KI, STEER_PID.KD,STEER_FF.KS,STEER_FF.KV,STEER_FF.KA,0)
-        .withInvert(true).withMotorRatio(STEER_RATIO)
-        .withMotionMagic(720, 1440, 3000),
-      9,
+        .withInvert(true).withMotorRatio(STEER_RATIO).withRadiansMotor()
+        .withMotionMagic(4 * Math.PI, 50, 100),
+      6,
       new Translation2d(0.266, -0.249),
       0.399658203125);
 
   public final static SwerveModuleConstants BACK_RIGHT = new SwerveModuleConstants(
 
       "FrontLeft",
-      new TalonConfig(10,CANBUS, "FrontLeft/Drive")
+      new TalonConfig(1,CANBUS, "FrontLeft/Drive")
         .withPID(MOVE_PID.KP, MOVE_PID.KI, MOVE_PID.KD,MOVE_FF_MORE.KS,MOVE_FF_MORE.KV,MOVE_FF_MORE.KA,0)
-        .withInvert(true).withMotorRatio(MOVE_GEAR_RATIO),
-      new TalonConfig(11,CANBUS, "FrontLeft/Steer")
+        .withInvert(true).withMotorRatio(MOVE_GEAR_RATIO).withMeterMotor(WHEEL_DIAMETER / 2 * Math.PI),
+      new TalonConfig(2,CANBUS, "FrontLeft/Steer")
         .withPID(STEER_PID.KP, STEER_PID.KI, STEER_PID.KD,STEER_FF.KS,STEER_FF.KV,STEER_FF.KA,0)
-        .withInvert(true).withMotorRatio(STEER_RATIO)
-        .withMotionMagic(720, 1440, 3000),
-      12,
+        .withInvert(true).withMotorRatio(STEER_RATIO).withRadiansMotor()
+        .withMotionMagic(4 * Math.PI, 50, 100),
+      3,
       new Translation2d(0.266, 0.249),
       0.45361328125);
 
@@ -170,6 +171,6 @@ public final static SwerveModuleConstants FRONT_LEFT = new SwerveModuleConstants
       }
   }
 
-  public static String CANCODER_CANBUS;
+  public static String CANCODER_CANBUS = "rio";
   public static String absoluteEncoderName = "absoluteEncoderId";
 }

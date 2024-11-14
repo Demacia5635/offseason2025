@@ -13,19 +13,13 @@ import static frc.robot.chassis.ChassisConstants.MAX_DRIVE_VELOCITY;
 import static frc.robot.chassis.ChassisConstants.MAX_OMEGA_VELOCITY;
 
 import frc.robot.RobotContainer;
-import frc.robot.Intake.Subsystem.Intake;
-import frc.robot.Shooter.Commands.Shoot;
-import frc.robot.Shooter.ShooterConstants.STATE;
 import frc.robot.chassis.subsystems.Chassis;
 import frc.robot.utils.LogManager;
-import frc.robot.vision.subsystem.VisionByNote;
 
 import static frc.robot.utils.Utils.deadband;
 
 public class DriveCommand extends Command  implements Sendable{
   private final Chassis chassis;
-  VisionByNote note;
-  Intake intake;
   private final CommandXboxController commandXboxController;
 
   private double direction;
@@ -46,8 +40,6 @@ public class DriveCommand extends Command  implements Sendable{
 
   public DriveCommand(Chassis chassis, CommandXboxController commandXboxController) {
     this.chassis = chassis;
-    note = chassis.visionByNote;
-    intake = RobotContainer.intake;
     this.commandXboxController = commandXboxController;
     timerIsRotateToMinus90 = new Timer();
     addRequirements(chassis);
@@ -107,52 +99,52 @@ public class DriveCommand extends Command  implements Sendable{
     //     " see=" + note.seeNote() + 
     //     " auto=" + isAutoIntake + 
     //     "\n------------------------------");
-    if ((robotSpeed.vxMetersPerSecond < 0 &&
-        !intake.isNote() &&
-        note.seeNote() &&
-        isAutoIntake &&
-        !isNoteInIntake)) {
+    // if ((robotSpeed.vxMetersPerSecond < 0 &&
+    //     !intake.isNote() &&
+    //     note.seeNote() &&
+    //     isAutoIntake &&
+    //     !isNoteInIntake)) {
       
-      chassis.setAutoIntake(true);
-      double angle = note.getNoteYaw();
-      double vectorAngle = angle * 2 + 180;
-      double v = Math.hypot(velX, velY);
-      if(v > 3) {
-        v = 3;
-      }
-      Translation2d robotToNote = new Translation2d(v, Rotation2d.fromDegrees(vectorAngle));
-      chassis.setVelocitiesRobotRel(new ChassisSpeeds(robotToNote.getX(), robotToNote.getY(), 0));
+    //   chassis.setAutoIntake(true);
+    //   double angle = note.getNoteYaw();
+    //   double vectorAngle = angle * 2 + 180;
+    //   double v = Math.hypot(velX, velY);
+    //   if(v > 3) {
+    //     v = 3;
+    //   }
+    //   Translation2d robotToNote = new Translation2d(v, Rotation2d.fromDegrees(vectorAngle));
+    //   chassis.setVelocitiesRobotRel(new ChassisSpeeds(robotToNote.getX(), robotToNote.getY(), 0));
       
-      RobotContainer.robotContainer.intakeCommand.schedule();
-      isNoteInIntake = true;
-      continu = 10;
-    }
-    else if(continu>0 && !intake.isNote()){
-      chassis.setAutoIntake(true);
-      isNoteInIntake = false;
-      double vectorAngle = 180;
-      double v = Math.hypot(velX, velY);
-      Translation2d robotToNote = new Translation2d(v, Rotation2d.fromDegrees(vectorAngle));
-      chassis.setVelocitiesRobotRel(new ChassisSpeeds(robotToNote.getX(), robotToNote.getY(), 0));
-      continu --;
-    }
-    else {
-      chassis.setAutoIntake(false);
-      Command c = RobotContainer.shooter.getCurrentCommand();
-      if (c != null && c instanceof Shoot && RobotContainer.shooter.shooterState == STATE.SPEAKER && RobotContainer.isTurningToSpeaker) {
-        chassis.setVelocitiesRotateToSpeaker(speeds);
-      } else {
-        if (timerIsRotateToMinus90.hasElapsed(2)) {
-          timerIsRotateToMinus90.stop();
-          timerIsRotateToMinus90.reset();
-          isRotateToMinus90 = false;
-        } else if (isRotateToMinus90) {
-          chassis.setVelocitiesRotateToAngle(speeds, Rotation2d.fromDegrees(90));
-        } else {
+    //   RobotContainer.robotContainer.intakeCommand.schedule();
+    //   isNoteInIntake = true;
+    //   continu = 10;
+    // }
+    // else if(continu>0 && !intake.isNote()){
+    //   chassis.setAutoIntake(true);
+    //   isNoteInIntake = false;
+    //   double vectorAngle = 180;
+    //   double v = Math.hypot(velX, velY);
+    //   Translation2d robotToNote = new Translation2d(v, Rotation2d.fromDegrees(vectorAngle));
+    //   chassis.setVelocitiesRobotRel(new ChassisSpeeds(robotToNote.getX(), robotToNote.getY(), 0));
+    //   continu --;
+    // }
+    // else {
+    //   chassis.setAutoIntake(false);
+    //   Command c = RobotContainer.shooter.getCurrentCommand();
+    //   if (c != null && c instanceof Shoot && RobotContainer.shooter.shooterState == STATE.SPEAKER && RobotContainer.isTurningToSpeaker) {
+    //     chassis.setVelocitiesRotateToSpeaker(speeds);
+    //   } else {
+    //     if (timerIsRotateToMinus90.hasElapsed(2)) {
+    //       timerIsRotateToMinus90.stop();
+    //       timerIsRotateToMinus90.reset();
+    //       isRotateToMinus90 = false;
+    //     } else if (isRotateToMinus90) {
+    //       chassis.setVelocitiesRotateToAngle(speeds, Rotation2d.fromDegrees(90));
+    //     } else {
           chassis.setVelocities(speeds);
-        }
-      }
-    }
+    //     }
+    //   }
+    // }
   }
 
   @Override
