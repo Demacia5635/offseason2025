@@ -9,6 +9,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.util.sendable.SendableBuilder;
 public class TalonMotor extends TalonFX {
 	TalonConfig config;
   String name;
@@ -123,6 +124,25 @@ public class TalonMotor extends TalonFX {
     dutyCycleEntry = LogManager.getEntry(name + "/setDutyCycle");
     velocityEntry = LogManager.getEntry(name + "/setVelocity");
     positionEntry = LogManager.getEntry(name + "/setPosition");
+  }
+
+  /**
+   * override the sendable of the talonFX to our costum widget in elastic
+   * <br></br>
+   * to activate do <pre> SmartDashboard.putData("talonMotor name", talonMotor);</pre>
+   */
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.setSmartDashboardType("TalonMotor");
+
+    builder.addStringProperty("controlMode", ()-> getControlMode().getValue().toString(), null);
+    builder.addBooleanProperty("isinvert", this::getInverted, null);
+    builder.addDoubleProperty("closeLoopSP", ()-> getClosedLoopReference().getValueAsDouble(), null);
+    builder.addDoubleProperty("closeLoopError", ()-> getClosedLoopError().getValueAsDouble(), null);
+    builder.addDoubleProperty("position", ()-> getPosition().getValueAsDouble(), null);
+    builder.addDoubleProperty("velocity", ()-> getVelocity().getValueAsDouble(), null);
+    builder.addDoubleProperty("acceleration", ()-> getAcceleration().getValueAsDouble(), null);
+    builder.addDoubleProperty("voltage", ()-> getMotorVoltage().getValueAsDouble(), null);
   }
 
 	/**
