@@ -319,6 +319,23 @@ public class DemaciaPoseEstimator<T extends WheelPositions<T>> {
       }
     }
 
-   
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof DemaciaPoseEstimator.InterpolationRecord)) {
+        return false;
+      }
+      var record = (DemaciaPoseEstimator<?>.InterpolationRecord) obj;
+      return Objects.equals(gyroAngle, record.gyroAngle)
+          && Objects.equals(wheelPositions, record.wheelPositions)
+          && Objects.equals(poseMeters, record.poseMeters);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(gyroAngle, wheelPositions, poseMeters);
+    }
   }
 }
