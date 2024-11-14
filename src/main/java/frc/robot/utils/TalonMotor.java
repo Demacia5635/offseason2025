@@ -1,5 +1,6 @@
 package frc.robot.utils;
 
+import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -9,7 +10,12 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+
 public class TalonMotor extends TalonFX {
 	TalonConfig config;
   String name;
@@ -31,6 +37,123 @@ public class TalonMotor extends TalonFX {
 		configMotor();
 		addLog();
 		LogManager.log(name + " motor initialized");
+  }
+  
+  /**
+   * creates a widget in elastic of the pid and ff hot reload
+   * @param slot the slot of the close loop perams (from 0 to 2)
+   */
+  public void hotReloadPidFf(int slot) {
+
+    Command configPid = new InstantCommand(()-> {
+      SlotConfigs cfg = new SlotConfigs();
+      cfg.SlotNumber = slot;
+      switch (slot) {
+        case 0:
+          cfg.kP = config.pid.kp;
+          cfg.kI = config.pid.ki;
+          cfg.kD = config.pid.kd;
+          cfg.kS = config.pid.ks;
+          cfg.kV = config.pid.kv;
+          cfg.kA = config.pid.ka;
+          cfg.kG = config.pid.kg;
+          break;
+
+        case 1:
+          cfg.kP = config.pid1.kp;
+          cfg.kI = config.pid1.ki;
+          cfg.kD = config.pid1.kd;
+          cfg.kS = config.pid1.ks;
+          cfg.kV = config.pid1.kv;
+          cfg.kA = config.pid1.ka;
+          cfg.kG = config.pid1.kg;
+          break;
+
+        case 2:
+          cfg.kP = config.pid2.kp;
+          cfg.kI = config.pid2.ki;
+          cfg.kD = config.pid2.kd;
+          cfg.kS = config.pid2.ks;
+          cfg.kV = config.pid2.kv;
+          cfg.kA = config.pid2.ka;
+          cfg.kG = config.pid2.kg;
+          break;
+      
+        default:
+          cfg.kP = config.pid.kp;
+          cfg.kI = config.pid.ki;
+          cfg.kD = config.pid.kd;
+          cfg.kS = config.pid.ks;
+          cfg.kV = config.pid.kv;
+          cfg.kA = config.pid.ka;
+          cfg.kG = config.pid.kg;
+          break;
+      }
+
+      getConfigurator().apply(cfg);
+    }).ignoringDisable(true);
+
+    SmartDashboard.putData(name + " pid+ff config", new Sendable() {
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("pid+ff Talon motor");
+        
+        switch(slot) {
+          case 0:
+            builder.addDoubleProperty("kP", ()-> config.pid.kp, (double newValue) -> config.pid.kp = newValue);
+            builder.addDoubleProperty("kI", ()-> config.pid.ki, (double newValue) -> config.pid.ki = newValue);
+            builder.addDoubleProperty("kD", ()-> config.pid.kd, (double newValue) -> config.pid.kd = newValue);
+            builder.addDoubleProperty("kS", ()-> config.pid.ks, (double newValue) -> config.pid.ks = newValue);
+            builder.addDoubleProperty("kV", ()-> config.pid.kv, (double newValue) -> config.pid.kv = newValue);
+            builder.addDoubleProperty("kA", ()-> config.pid.ka, (double newValue) -> config.pid.ka = newValue);
+            builder.addDoubleProperty("kG", ()-> config.pid.kg, (double newValue) -> config.pid.kg = newValue);
+            break;
+
+          case 1:
+            builder.addDoubleProperty("kP", ()-> config.pid1.kp, (double newValue) -> config.pid1.kp = newValue);
+            builder.addDoubleProperty("kI", ()-> config.pid1.ki, (double newValue) -> config.pid1.ki = newValue);
+            builder.addDoubleProperty("kD", ()-> config.pid1.kd, (double newValue) -> config.pid1.kd = newValue);
+            builder.addDoubleProperty("kS", ()-> config.pid1.ks, (double newValue) -> config.pid1.ks = newValue);
+            builder.addDoubleProperty("kV", ()-> config.pid1.kv, (double newValue) -> config.pid1.kv = newValue);
+            builder.addDoubleProperty("kA", ()-> config.pid1.ka, (double newValue) -> config.pid1.ka = newValue);
+            builder.addDoubleProperty("kG", ()-> config.pid1.kg, (double newValue) -> config.pid1.kg = newValue);
+            break;
+
+          case 2:
+            builder.addDoubleProperty("kP", ()-> config.pid2.kp, (double newValue) -> config.pid2.kp = newValue);
+            builder.addDoubleProperty("kI", ()-> config.pid2.ki, (double newValue) -> config.pid2.ki = newValue);
+            builder.addDoubleProperty("kD", ()-> config.pid2.kd, (double newValue) -> config.pid2.kd = newValue);
+            builder.addDoubleProperty("kS", ()-> config.pid2.ks, (double newValue) -> config.pid2.ks = newValue);
+            builder.addDoubleProperty("kV", ()-> config.pid2.kv, (double newValue) -> config.pid2.kv = newValue);
+            builder.addDoubleProperty("kA", ()-> config.pid2.ka, (double newValue) -> config.pid2.ka = newValue);
+            builder.addDoubleProperty("kG", ()-> config.pid2.kg, (double newValue) -> config.pid2.kg = newValue);
+            break;
+
+          default:
+            builder.addDoubleProperty("kP", ()-> config.pid.kp, (double newValue) -> config.pid.kp = newValue);
+            builder.addDoubleProperty("kI", ()-> config.pid.ki, (double newValue) -> config.pid.ki = newValue);
+            builder.addDoubleProperty("kD", ()-> config.pid.kd, (double newValue) -> config.pid.kd = newValue);
+            builder.addDoubleProperty("kS", ()-> config.pid.ks, (double newValue) -> config.pid.ks = newValue);
+            builder.addDoubleProperty("kV", ()-> config.pid.kv, (double newValue) -> config.pid.kv = newValue);
+            builder.addDoubleProperty("kA", ()-> config.pid.ka, (double newValue) -> config.pid.ka = newValue);
+            builder.addDoubleProperty("kG", ()-> config.pid.kg, (double newValue) -> config.pid.kg = newValue);
+        }
+        
+        builder.addBooleanProperty("update", ()-> configPid.isScheduled(), 
+          value -> {
+            if (value) {
+              if (!configPid.isScheduled()) {
+                configPid.schedule();
+              }
+            } else {
+              if (configPid.isScheduled()) {
+                configPid.cancel();
+              }
+            }
+          }
+        );
+      }
+    });
   }
 
   private void configMotor() {
