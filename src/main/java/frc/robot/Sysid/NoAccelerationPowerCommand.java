@@ -49,35 +49,30 @@ public class NoAccelerationPowerCommand extends Command {
         }
         power = minPower;
         setPower.accept(power);
-        init = true;
         steadyCount = 0;
-        lastV = 0;
+        dataCollector.resetLastV();;
     }
 
     @Override
     public void execute() {
-        if(init) { // first time - does not collect, set the initial v in data collector
-            dataCollector.resetLastV();
-            init = false;
+        double v = dataCollector.getVelocity.get();  // the currect velocity
+        if(Math.abs(v-lastV) < maxCycleVelocityChange) { // small velocity change
+            steadyCount++;   // increment the count
         } else {
-            double v = dataCollector.getVelocity.get();  // the currect velocity
-            if(Math.abs(v-lastV) < maxCycleVelocityChange) { // small velocity change
-                steadyCount++;   // increment the count
-            } else {
-                steadyCount = 0; // big velocity change - reset the count
-            }
-            if(steadyCount > 5) { // steady state
-                if(v > minVelocity) { // only record velocities above the minimum
-                    dataCollector.lastV = v; // set the lastV so no acceleration
-                    dataCollector.collect(power);
-                }
-                // move to next power
-                power += powerStep;
-                steadyCount = 0;
-                setPower.accept(power);
-            }
-            lastV = v;
+            steadyCount = 0; // big velocity change - reset the count
         }
+        if(steadyCount > 5) { // steady state
+            if(v > minVelocity) { // only record velocities above the minimum
+                dataCollector.lastV = v; // set the lastV so no acceleration
+                dataCollector.collect(power);
+            }
+            // move to next power
+            power += powerStep;
+            steadyCount = 0;
+            setPower.accept(power);
+        }
+        lastV = v;
+        
     }
 
     @Override

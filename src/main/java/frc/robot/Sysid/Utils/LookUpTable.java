@@ -1,4 +1,4 @@
-package frc.robot.Sysid.Utilz;
+package frc.robot.Sysid.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
