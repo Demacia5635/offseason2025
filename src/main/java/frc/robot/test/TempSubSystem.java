@@ -34,9 +34,9 @@ public class TempSubSystem extends SubsystemBase {
   public TempSubSystem() {
     steerMotor = new TalonMotor(
       new TalonConfig(8, "rio", "steer motor")
-      .withPID(0.8, 3, 0.0, 0.3295543024, 0.2385745774, -0.003105620266, 0)
-      .withMotionMagic(2*2*Math.PI, 6*2*Math.PI, 4*2*Math.PI)
-      .withBrake(true).withInvert(false)
+      .withPID(0.8, 4, 0.0, 0.3295543024, 0.2385745774, -0.003105620266, 0)
+      .withMotionMagic(3*2*Math.PI, 5*2*Math.PI, 50*2*Math.PI)
+      .withBrake(true).withInvert(true)
       .withMotorRatio(12.8).withRadiansMotor()
     );
 
@@ -50,6 +50,9 @@ public class TempSubSystem extends SubsystemBase {
       );
 
     steerMotor.setPosition(cancoder.getAbsPositionRadians());
+
+    steerMotor.hotReloadPidFf(0);
+    SmartDashboard.putData("steer motor", steerMotor);
     
     SmartDashboard.putData("test subsystem", this);
 
