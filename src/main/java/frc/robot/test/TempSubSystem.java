@@ -4,6 +4,9 @@
 
 package frc.robot.test;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.util.sendable.Sendable;
@@ -13,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Sysid.Sysid;
 import frc.robot.utils.Cancoder;
 import frc.robot.utils.CancoderConfig;
 import frc.robot.utils.LogManager;
@@ -25,10 +29,15 @@ public class TempSubSystem extends SubsystemBase {
   TalonMotor driveMotor;
   Cancoder cancoder;
 
+  Sysid id;
   double dutyTest = 0;
   double velTest = 0;
   double motionMagicTest = 0;
 
+
+  public double getDutyTest(){
+    return this.dutyTest;
+  }
   /** Creates a new tempSubSystem. */
   //kp = 0.1, ki = 0.7, kd = 0.07
   public TempSubSystem() {
@@ -51,17 +60,32 @@ public class TempSubSystem extends SubsystemBase {
 
     steerMotor.setPosition(cancoder.getAbsPositionRadians());
 
+
     steerMotor.hotReloadPidFf(0);
     SmartDashboard.putData("steer motor", steerMotor);
-    
-    SmartDashboard.putData("test subsystem", this);
+    SmartDashboard.putNumber("power", dutyTest);
 
-    SmartDashboard.putData("motor set pow", new RunCommand(()-> steerMotor.setDuty(dutyTest), this));
+
+      SmartDashboard.putData("set sysid" ,new InstantCommand(()->{
+      Consumer<Double> setPow = power -> steerMotor.setDuty(dutyTest);
+      setPow.accept(dutyTest);
+      double minPow = 0.1;
+      double maxPow = 0.8;
+      double duration = 2;
+      double delay = 0.02;
+      Supplier<Double> getV = ()->(steerMotor.getCurrentVelocity());
+      id = new Sysid(setPow, getV, minPow, maxPow, duration , delay ,this);
+      id.run();
+      }));
+
+    SmartDashboard.putData("motor set pow", new RunCommand(()-> {
+      steerMotor.setDuty(dutyTest);
+    }, this));
     SmartDashboard.putData("motor set vel", new RunCommand(()-> steerMotor.setVelocity(velTest), this));
     SmartDashboard.putData("motor set motion magic", new RunCommand(()-> steerMotor.setMotionMagic(motionMagicTest), this));
     SmartDashboard.putData("motor stop", new InstantCommand(()-> steerMotor.setDuty(0), this));
     SmartDashboard.putData("cancoder", cancoder);
-    SmartDashboard.putData("drive pow", new RunCommand(()-> driveMotor.setDuty(dutyTest), this));
+    SmartDashboard.putData("drive po w", new RunCommand(()-> driveMotor.setDuty(dutyTest), this));
     SmartDashboard.putData("swerve drive", new Sendable() {
       @Override
       public void initSendable(SendableBuilder builder) {
@@ -71,16 +95,25 @@ public class TempSubSystem extends SubsystemBase {
         builder.addDoubleProperty("Back Right Velocity", ()-> driveMotor.getCurrentVelocity(), null);
       }
     });
+    SmartDashboard.putData("test subsystem", this);
   } 
+
 
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
-    
     builder.addDoubleProperty("test pow", ()-> dutyTest, (double pow)-> dutyTest = pow);
     builder.addDoubleProperty("test vel", ()-> velTest, (double vel)-> velTest = vel);
     builder.addDoubleProperty("test motion magic pos", ()-> motionMagicTest, (double position)-> motionMagicTest = position);
 
+  }
+
+  public TalonMotor getSteerMotor(){
+    return steerMotor;
+  }
+
+  public double getCurrentVel(){
+    return steerMotor.getCurrentVelocity();
   }
 
   @Override

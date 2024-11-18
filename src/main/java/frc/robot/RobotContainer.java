@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -17,6 +15,14 @@ public class RobotContainer {
   
   LogManager logManager;
   TempSubSystem tempSubSystem;
+  // Consumer<Double> setPow = power -> SmartDashboard.getNumber("DutyCycle/setPow", 0.1);
+  // Supplier<Double> getVelocity = ()-> (tempSubSystem.getCurrentVel());
+  // double minPower = 0.1;
+  // double maxPower = 0.8;
+  // double duration = 0.02;
+  // double delay = 0.02;
+  // Sysid id = new Sysid(setPow, getVelocity, minPower, maxPower, tempSubSystem);
+
   
   public RobotContainer() {
     logManager = new LogManager();

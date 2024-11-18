@@ -120,7 +120,6 @@ public class DataCollector {
 
             double velocity = getVelocity.get();
             double rad = getRadians != null ? getRadians.get() : 0;
-            double meter = getMeter != null ? getMeter.get() : 0;
             for (int i = 0; i < gains.length; i++) {
                 if (velocity > 0 && velocity <= 10) {
                     data.set(nextRow, i, value(gains[i], velocity, rad));
@@ -191,7 +190,7 @@ public class DataCollector {
 
     /**
      * 
-     * @return the colllected data in power ranges of 0 - 20
+     * @return the colllected raw data in power ranges of 0 - 20
      */
     public SimpleMatrix dataRange20() {
         return data.rows(0, nextRow);

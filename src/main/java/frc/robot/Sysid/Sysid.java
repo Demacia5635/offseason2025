@@ -37,7 +37,7 @@ public class Sysid {
      * Gains enum - type of gains
      */
     public static enum Gains {
-        KS, KV, KA, KRad, KMeter, KV2, KVsqrt, KSin, KCos, KTan;
+        KS, KV, KA, KRad, KV2, KVsqrt, KSin, KCos, KTan;
     }
 
     Consumer<Double> setPower; // function to set the power
@@ -175,6 +175,10 @@ public class Sysid {
         getCommand().schedule();
     }
 
+    public Command runSysId(){
+        return getCommand();
+    }
+
     /**
      * calculate the power for cycle
      * cycles run - minPower, -minPower, (minPower+delta),
@@ -242,7 +246,7 @@ public class Sysid {
      * @param dataCollector holds in raw data such as current velocity, acceleration
      * 
      */
-    void analyze() {
+    public void analyze() {
         SimpleMatrix feedForwardValues = dataCollector.solve();
         result = new double[gains.length];
         for (int i = 0; i < gains.length; i++) {
@@ -250,7 +254,9 @@ public class Sysid {
             SmartDashboard.putNumber("SysID/" + gains[i] + "/0-20 ranges", result[i]);
             // System.out.println("Sysid: " + gains[i] + " = " + result[i]);
         }
-        
+        //System.out.println(feedForwardValues.getNumRows()*feedForwardValues.getNumCols());
+        //SmartDashboard.putNumber("feed forward matrix length", );
+        /*TODO check the matrixs lengths */
         SimpleMatrix power = dataCollector.dataRange20().mult(feedForwardValues);
         SimpleMatrix e = dataCollector.power().minus(power);
         SimpleMatrix ee = e.elementMult(e);
