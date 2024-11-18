@@ -55,15 +55,18 @@ public class NoAccelerationPowerCommand extends Command {
 
     @Override
     public void execute() {
-        double v = dataCollector.getVelocity.get();  // the currect velocity
-        if(Math.abs(v-lastV) < maxCycleVelocityChange) { // small velocity change
+        double velocity = dataCollector.getVelocity.get();  // the currect velocity
+        if(Math.abs(velocity-lastV) < maxCycleVelocityChange) { // small velocity change
             steadyCount++;   // increment the count
-        } else {
+        }
+
+        else {
             steadyCount = 0; // big velocity change - reset the count
         }
+        
         if(steadyCount > 5) { // steady state
-            if(v > minVelocity) { // only record velocities above the minimum
-                dataCollector.lastV = v; // set the lastV so no acceleration
+            if(velocity > minVelocity) { // only record velocities above the minimum
+                dataCollector.lastV = velocity; // set the lastV so no acceleration
                 dataCollector.collect(power);
             }
             // move to next power
@@ -71,7 +74,7 @@ public class NoAccelerationPowerCommand extends Command {
             steadyCount = 0;
             setPower.accept(power);
         }
-        lastV = v;
+        lastV = velocity;
         
     }
 

@@ -32,13 +32,17 @@ public class PowerCycleCommand extends Command {
      */
     public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector, double sec,
             Subsystem... subSystem) {
+
         this(setPower, power, dataCollector, false, sec, subSystem);
+        if(subSystem != null){
+            addRequirements(subSystem);
+        }
     }
 
     /**
      * Constructor - can reset the data collector data in intialize
      *
-     * @param setPower           power given to the motor
+     * @param setPower           saves the power given to the motor
      * @param power              wanted power
      * @param dataCollector      collects data
      * @param resetDataCollector param to reset data collected
@@ -72,13 +76,11 @@ public class PowerCycleCommand extends Command {
         dataCollector.resetLastV();
     }
 
-    /**
-     * 
-     */
-
+    /*TODO add setPower function to a tempSubsystem */
     @Override
     public void execute() {
         dataCollector.collect(power);
+        
     }
 
     @Override

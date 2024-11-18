@@ -15,7 +15,14 @@ public class FeedForward_SVA {
         this(K[0], K[1], K[2]);
     }
 
-    public double calculate(double v, double lastV) {
-        return KS*Math.signum(v) + KV*v + KA*(v-lastV);
+
+    /**
+     * 
+     * @param velocity current velocity
+     * @param lastV last velocity
+     * @return calculated power 
+     */
+    public double calculate(double velocity, double lastV) {
+        return KS*Math.signum(velocity) + KV*velocity + KA*(velocity-lastV);
     }
 }

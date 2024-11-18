@@ -33,6 +33,34 @@ public class DataCollector {
     double powerCycleDuration;
     double lastV = 0;
 
+
+    /**
+     * Constructor for getRadians option
+     * @param gains feed forward values
+     * @param getVelocity current velocity
+     * @param getRadians radians
+     * @param nPowerCycles 
+     * @param powerCycleDuration
+     */
+    public DataCollector(Gains[] gains, Supplier<Double> getVelocity, Supplier<Double> getRadians,
+    int nPowerCycles, double powerCycleDuration) {
+         this.gains = gains;
+        this.getVelocity = getVelocity;
+        this.getRadians = getRadians;
+        this.nPowerCycles = nPowerCycles;
+        this.powerCycleDuration = powerCycleDuration;
+        int matrixRows = (int) (nPowerCycles * 2 * powerCycleDuration / 0.02) + 100; // the maximum number of rows we
+                                                                                     // will need + safety value
+        data = new SimpleMatrix(matrixRows, gains.length);
+        dataRange50 = new SimpleMatrix(matrixRows, gains.length);
+        dataRange70 = new SimpleMatrix(matrixRows, gains.length);
+        powerRange20 = new SimpleMatrix(matrixRows, 1);
+        powerRange50 = new SimpleMatrix(matrixRows, 1);
+        powerRange70 = new SimpleMatrix(matrixRows, 1);
+        nextRow = 0;
+        lastV = 0;
+    }
+
     /**
      * Constructor with all required data
      * 
@@ -46,12 +74,9 @@ public class DataCollector {
      * @param isMeter            decides if sysid works on drive or angle
      */
 
-    public DataCollector(Gains[] gains, Supplier<Double> getVelocity, Supplier<Double> getRadians,
-            Supplier<Double> getMeter, int nPowerCycles, double powerCycleDuration) {
+    public DataCollector(Gains[] gains, Supplier<Double> getVelocity, int nPowerCycles, double powerCycleDuration) {
         this.gains = gains;
         this.getVelocity = getVelocity;
-        this.getRadians = getRadians;
-        this.getMeter = getMeter;
         this.nPowerCycles = nPowerCycles;
         this.powerCycleDuration = powerCycleDuration;
         int matrixRows = (int) (nPowerCycles * 2 * powerCycleDuration / 0.02) + 100; // the maximum number of rows we
@@ -98,15 +123,15 @@ public class DataCollector {
             double meter = getMeter != null ? getMeter.get() : 0;
             for (int i = 0; i < gains.length; i++) {
                 if (velocity > 0 && velocity <= 10) {
-                    data.set(nextRow, i, value(gains[i], velocity, rad, meter));
+                    data.set(nextRow, i, value(gains[i], velocity, rad));
                 }
 
                 else if (velocity >= 11 && velocity <= 20) {
-                    dataRange50.set(nextRow, i, value(gains[i], velocity, rad, meter));
+                    dataRange50.set(nextRow, i, value(gains[i], velocity, rad));
                 }
 
                 else {
-                    dataRange70.set(nextRow, i, value(gains[i], velocity, rad, meter));
+                    dataRange70.set(nextRow, i, value(gains[i], velocity, rad));
                 }
                 // data.set(nextRow, i, value(gains[i], v, rad, meter));
             }
@@ -119,13 +144,13 @@ public class DataCollector {
     /**
      * Calculate the applicable value based on the gain type and provided data
      * 
-     * @param gain
-     * @param velocity
+     * @param gain wanted feed forward param
+     * @param velocity current velocity
      * @param rad
      * @param meter
-     * @return applicable value
+     * @return raw value of each gain (feed forward raw data)
      */
-    double value(Gains gain, double velocity, double rad, double meter) {
+    double value(Gains gain, double velocity, double rad) {
         switch (gain) {
             case KS:
                 return Math.signum(velocity);
@@ -135,8 +160,6 @@ public class DataCollector {
                 return velocity - lastV;
             case KRad:
                 return rad;
-            case KMeter:
-                return meter;
             case KCos:
                 return Math.cos(rad);
             case KSin:
