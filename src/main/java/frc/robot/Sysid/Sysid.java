@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.utils.LogManager;
 
 /**
  * Class to calculate feed forward gains for velocity/acceleration control
@@ -42,8 +43,8 @@ public class Sysid {
 
     Consumer<Double> setPower; // function to set the power
     DataCollector dataCollector; // the data collector class
-    double minPower;
-    double maxPower;
+    double minVelocity;
+    double maxVelocity;
     double deltaPower; // the change of power between power cycles
     int nPowerCycles; // how many powers to use (the system will run each power in positive and
                       // negative values)
@@ -55,31 +56,34 @@ public class Sysid {
     Gains[] gains; // the gains we are looking for
     double[] result = null; // the result, after analyze
     boolean steadyOnly = false; // if we need steady only
+    boolean isRadian;
 
     /**
      * Constructor with default values - only required the setPower, setVelocity,
      * min/max power and subsystems
+     * Constructor for meter unit
      * 
      * @param setPower    the power wanted
      * @param getVelocity motors velocity
-     * @param minPower    the min power given
-     * @param maxPower    the max power
-     * @param subsystems  subsystem for require
+     * @param minVelocity the min power given
+     * @param maxVelocity the max power
+     * @param subsystems  subsystem required
      */
     public Sysid(Consumer<Double> setPower,
             Supplier<Double> getVelocity,
-            double minPower,
-            double maxPower,
+            double minVelocity,
+            double maxVelocity,
             Subsystem... subsystems) {
         this(new Gains[] { Gains.KS, Gains.KV, Gains.KA, Gains.KV2 },
                 setPower,
                 getVelocity,
                 null,
-                minPower,
-                maxPower,
-                3,
+                minVelocity,
+                maxVelocity,
+                20,
                 defaultDuration,
                 defaultDelay,
+                false,
                 subsystems);
     }
 
@@ -88,27 +92,29 @@ public class Sysid {
      * 
      * @param setPower           holds the power given to the motor
      * @param getVelocity        current velocity
-     * @param minPower           min power that can be given
-     * @param maxPower           max power that can be given
+     * @param minVelocity        min power that can be given
+     * @param maxVelocity        max power that can be given
      * @param subsystems         needed subsystem
      * @param powerCycleDuration for how long each power should be activated
      */
     public Sysid(Consumer<Double> setPower,
             Supplier<Double> getVelocity,
-            double minPower,
-            double maxPower,
+            double minVelocity,
+            double maxVelocity,
             double powerCycleDuration,
             double powerCycleDelay,
+            boolean isRadian,
             Subsystem... subsystems) {
         this(new Gains[] { Gains.KS, Gains.KV, Gains.KA },
                 setPower,
                 getVelocity,
                 null,
-                minPower,
-                maxPower,
-                3,
+                minVelocity,
+                maxVelocity,
+                20,
                 powerCycleDuration,
                 powerCycleDelay,
+                isRadian,
                 subsystems);
     }
 
@@ -117,54 +123,57 @@ public class Sysid {
      * 
      * @param setPower    holds in the power
      * @param getVelocity gives the motors velocity
-     * @param minPower    min power that can be given
-     * @param maxPower    max power that can be given
+     * @param minVelocity min power that can be given
+     * @param maxVelocity max power that can be given
      * @param subsystems  needed subsystem
      */
     public Sysid(Gains[] types,
             Consumer<Double> setPower,
             Supplier<Double> getVelocity,
             Supplier<Double> getRadians,
-            double minPower,
-            double maxPower,
+            double minVelocity,
+            double maxVelocity,
             int nPowerCycles,
             double powerCycleDuration,
             double powerCycleDelay,
+            boolean isRadian,
             Subsystem... subsystems) {
 
         this.setPower = setPower;
         dataCollector = new DataCollector(types, getVelocity, getRadians, nPowerCycles, powerCycleDuration);
-        this.minPower = minPower;
-        this.maxPower = maxPower;
+        this.minVelocity = minVelocity;
+        this.maxVelocity = maxVelocity;
         this.nPowerCycles = nPowerCycles;
         this.powerCycleDelay = powerCycleDelay;
         this.powerCycleDuration = powerCycleDuration;
-        deltaPower = (maxPower - minPower) / (nPowerCycles - 1);
+        deltaPower = (double) (maxVelocity - minVelocity) / (nPowerCycles - 1);
         this.subsystems = subsystems;
         this.gains = types;
+
     }
 
     /**
      * 
      * @param setPower    power given to the motor
      * @param getVelocity current velocity
-     * @param minPower    min power (you cant go below it)
-     * @param maxPower    max power (you cant go above it)
-     * @param powerStep   
+     * @param minVelocity min power (you cant go below it)
+     * @param maxVelocity max power (you cant go above it)
+     * @param powerStep
      * @param minVelocity min velocity (you cant go below it)
      * @param maxVelocity max velocity (you cant go below it)
      * @param isMeter     decides which unints to use
      * @param subsystems  subsystem needed to run on
-     * @return
+     * @param isRadian    TBD for now false
+     * @return commad
      */
-    public static Command getSteadyCommand(Consumer<Double> setPower, Supplier<Double> getVelocity, double minPower,
-            double maxPower, double powerStep, double minVelocity, double maxVelocity, boolean isMeter,
+    public static Command getSteadyCommand(Consumer<Double> setPower, Supplier<Double> getVelocity, double minVelocity,
+            double maxVelocity, double powerStep, boolean isMeter,
             Subsystem... subsystems) {
-        Sysid id = new Sysid(new Gains[] { Gains.KS, Gains.KV, Gains.KV2 }, setPower, getVelocity, null, minPower,
-                maxPower, 2, 1, 1, subsystems);
+        Sysid id = new Sysid(new Gains[] { Gains.KS, Gains.KV, Gains.KV2 }, setPower, getVelocity, null, minVelocity,
+                maxVelocity, 20, 1, 1, false, subsystems);
         id.steadyOnly = true;
-        Command cmd = new NoAccelerationPowerCommand(setPower, minPower, maxPower, powerStep, id.dataCollector, false,
-                minVelocity, maxVelocity, maxVelocity, subsystems);
+        Command cmd = new NoAccelerationPowerCommand(setPower, powerStep, id.dataCollector, false,
+                minVelocity, maxVelocity, maxVelocity, false, subsystems);
         return cmd.andThen(new InstantCommand(() -> id.analyze()));
     }
 
@@ -175,14 +184,14 @@ public class Sysid {
         getCommand().schedule();
     }
 
-    public Command runSysId(){
+    public Command runSysId() {
         return getCommand();
     }
 
     /**
      * calculate the power for cycle
-     * cycles run - minPower, -minPower, (minPower+delta),
-     * -(minPower+delts).....(maxPower), -max(Power)
+     * cycles run - minVelocity, -minVelocity, (minVelocity+delta),
+     * -(minVelocity+delts).....(maxVelocity), -max(Power)
      * 
      * @param cycle
      * @param pow   power for every cycle
@@ -191,7 +200,7 @@ public class Sysid {
     double power(int cycle) {
         int pow = cycle / 2;
         double sign = cycle % 2 == 0 ? 1 : -1;
-        return sign * (minPower + pow * deltaPower);
+        return sign * (minVelocity + pow * deltaPower);
     }
 
     /**
@@ -204,11 +213,10 @@ public class Sysid {
     public Command getCommand() {
         boolean resetDataCollector = true;
         Command cmd = new WaitCommand(powerCycleDelay);
-        for (int c = 0; c < nPowerCycles; c++) {
-            double power = minPower + c * deltaPower;
+        for (int cycle = 0; cycle < nPowerCycles; cycle++) {
+            double power = minVelocity + cycle * deltaPower;
             cmd = cmd.andThen(getPowerCommand(power, resetDataCollector));
             resetDataCollector = false;
-            cmd = cmd.andThen(getPowerCommand(-power, resetDataCollector));
         }
         return cmd.andThen(new InstantCommand(() -> analyze()));
     }
@@ -217,7 +225,7 @@ public class Sysid {
         boolean resetDataCollector = true;
         Command cmd = new WaitCommand(powerCycleDelay);
         for (int c = 0; c < nPowerCycles; c++) {
-            double power = minPower + c * deltaPower;
+            double power = minVelocity + c * deltaPower;
             cmd = cmd.andThen(getPowerCommand(power, resetDataCollector));
             resetDataCollector = false;
             // cmd = cmd.andThen(getPowerCommand(-power, resetDataCollector));
@@ -229,8 +237,8 @@ public class Sysid {
      * Get the command for a power - with the duration and delay
      */
     Command getPowerCommand(double power, boolean resetDataCollector) {
-        return ((new PowerCycleCommand(setPower, power, dataCollector, resetDataCollector,
-                subsystems))
+        return ((new PowerCycleCommand(setPower, power, dataCollector, resetDataCollector, maxVelocity, minVelocity,
+                isRadian, subsystems))
                 .withTimeout(powerCycleDuration)).andThen(new WaitCommand(powerCycleDelay));
     }
 
@@ -243,24 +251,20 @@ public class Sysid {
      * @param power             the power matrix,
      * @param result            double arr that holds all feed forward values (such
      *                          as kS, kV and kA)
-     * @param dataCollector holds in raw data such as current velocity, acceleration
+     * @param dataCollector     holds in raw data such as current velocity,
+     *                          acceleration
      * 
      */
     public void analyze() {
+        setPower.accept(0.0);
         SimpleMatrix feedForwardValues = dataCollector.solve();
         result = new double[gains.length];
         for (int i = 0; i < gains.length; i++) {
             result[i] = feedForwardValues.get(i, 0);
-            SmartDashboard.putNumber("SysID/" + gains[i] + "/0-20 ranges", result[i]);
+            SmartDashboard.putNumber("SysID-" + gains[i] + "-0-20 ranges", result[i]);
             // System.out.println("Sysid: " + gains[i] + " = " + result[i]);
         }
-        //System.out.println(feedForwardValues.getNumRows()*feedForwardValues.getNumCols());
-        //SmartDashboard.putNumber("feed forward matrix length", );
-        /*TODO check the matrixs lengths */
-        //column = rows
-        System.out.println("feedForwardValues rows: " + feedForwardValues.getNumRows() + " feedForwardValues columns: " + feedForwardValues.getNumCols());
-        System.out.println("dataRange20 rows: " + dataCollector.dataRange20().getNumRows() + " dataRange20 columns: " + dataCollector.dataRange20().getNumCols());
-        SmartDashboard.putNumber("feed forward lengths", defaultDelay);
+        SmartDashboard.putNumber("sysid-Check" + gains[0], result[0]);
         SimpleMatrix power = dataCollector.dataRange20().mult(feedForwardValues);
         SimpleMatrix e = dataCollector.power().minus(power);
         SimpleMatrix ee = e.elementMult(e);
@@ -271,6 +275,9 @@ public class Sysid {
         double kp = (valueOf(Gains.KV, gains, result) + valueOf(Gains.KA, gains, result)) / 5.0;
         SmartDashboard.putNumber("Sysid/KP (Roborio)", kp);
     }
+    // R ﻿﻿ 1 ﻿﻿ The startCompetition() method (or methods called by it) should have
+    // handled the exception above. ﻿﻿
+    // edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:386) ﻿﻿﻿
 
     /**
      * Value of a specific Gain type

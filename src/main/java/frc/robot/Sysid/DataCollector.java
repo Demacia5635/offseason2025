@@ -2,6 +2,7 @@ package frc.robot.Sysid;
 
 import java.util.function.Supplier;
 import org.ejml.simple.SimpleMatrix;
+import org.opencv.core.Mat;
 
 import edu.wpi.first.units.Velocity;
 
@@ -10,21 +11,23 @@ import static frc.robot.Sysid.Sysid.Gains;
 /**
  * Data collector class
  * 
- * Store the data in simple matrix (n X number of gains)
+ * Store the dataRange20 in simple matrix (n X number of gains)
  * Store the power in a different simple matrx (n X 1)
- * Uses supplied get function to get the velocity and other optional data
+ * Uses supplied get function to get the velocity and other optional dataRange20
  * (radinas and position)
  * calculate the best gains
  */
 public class DataCollector {
 
-    SimpleMatrix data;
+    SimpleMatrix dataRange20;
     SimpleMatrix dataRange50;
     SimpleMatrix dataRange70;
-    SimpleMatrix powerRange20;
-    SimpleMatrix powerRange50;
-    SimpleMatrix powerRange70;
-    int nextRow;
+    SimpleMatrix velocityRange20;
+    SimpleMatrix velocityRange50;
+    SimpleMatrix velocityRange70;
+    int nextRowRange20;
+    int nextRowRange50;
+    int nextRowRange70;
     Gains[] gains;
     Supplier<Double> getVelocity;
     Supplier<Double> getRadians;
@@ -32,6 +35,9 @@ public class DataCollector {
     int nPowerCycles;
     double powerCycleDuration;
     double lastV = 0;
+    double Range1;
+    double Range20;
+    double Range50;
 
 
     /**
@@ -51,18 +57,20 @@ public class DataCollector {
         this.powerCycleDuration = powerCycleDuration;
         int matrixRows = (int) (nPowerCycles * 2 * powerCycleDuration / 0.02) + 100; // the maximum number of rows we
                                                                                      // will need + safety value
-        data = new SimpleMatrix(matrixRows, gains.length);
+        dataRange20 = new SimpleMatrix(matrixRows, gains.length);
         dataRange50 = new SimpleMatrix(matrixRows, gains.length);
         dataRange70 = new SimpleMatrix(matrixRows, gains.length);
-        powerRange20 = new SimpleMatrix(matrixRows, 1);
-        powerRange50 = new SimpleMatrix(matrixRows, 1);
-        powerRange70 = new SimpleMatrix(matrixRows, 1);
-        nextRow = 0;
+        velocityRange20 = new SimpleMatrix(matrixRows, 1);
+        velocityRange50 = new SimpleMatrix(matrixRows, 1);
+        velocityRange70 = new SimpleMatrix(matrixRows, 1);
+        nextRowRange20 = 0;
+        nextRowRange50 = 0;
+        nextRowRange70 = 0;
         lastV = 0;
     }
 
     /**
-     * Constructor with all required data
+     * Constructor with all required dataRange20
      * 
      * @param gains              values you want to recieve (for example ks, kv ,
      *                           ka)
@@ -81,73 +89,82 @@ public class DataCollector {
         this.powerCycleDuration = powerCycleDuration;
         int matrixRows = (int) (nPowerCycles * 2 * powerCycleDuration / 0.02) + 100; // the maximum number of rows we
                                                                                      // will need + safety value
-        data = new SimpleMatrix(matrixRows, gains.length);
+        dataRange20 = new SimpleMatrix(matrixRows, gains.length);
         dataRange50 = new SimpleMatrix(matrixRows, gains.length);
         dataRange70 = new SimpleMatrix(matrixRows, gains.length);
-        powerRange20 = new SimpleMatrix(matrixRows, 1);
-        powerRange50 = new SimpleMatrix(matrixRows, 1);
-        powerRange70 = new SimpleMatrix(matrixRows, 1);
-        nextRow = 0;
+        velocityRange20 = new SimpleMatrix(matrixRows, 1);
+        velocityRange50 = new SimpleMatrix(matrixRows, 1);
+        velocityRange70 = new SimpleMatrix(matrixRows, 1);
+        nextRowRange20 = 0;
+        nextRowRange50 = 0;
+        nextRowRange70 = 0;
         lastV = 0;
     }
 
     /**
-     * Function to collect the data
+     * Function to collect the dataRange20
      * Adding the values for each required gain type
      * Adding the power to the right power matrix which is between the ranges of
      * 1-100 (including minus)
      * 
      * @param power        is in -12 to 12 voltage unit
-     * @param nextRow      adds a new row each time a data is collected
-     * @param powerRange20 adds all the power from range 1-20
-     * @param data         add raw data to the matrix (velocity, signum(velocity))
+     * @param nextRow      adds a new row each time a dataRange20 is collected
+     * @param velocityRange20 adds all the power from range 1-20
+     * @param dataRange20         add raw dataRange20 to the matrix (velocity, signum(velocity))
      * @param i            signify the column of the maxtrix and index
      */
-    public void collect(double power) {
-        if (Math.abs(1 - power) >= 0) {
-            double powerInPerecent = Math.abs(power * 100);
-            if (powerInPerecent <= 100 && powerInPerecent >= 70) {
-                this.powerRange70.set(nextRow, 0, power);
-            }
-
-            else if (powerInPerecent < 70 && powerInPerecent >= 20) {
-                this.powerRange50.set(nextRow, 0, power);
-            }
-
-            else {
-                this.powerRange20.set(nextRow, 0, power);
-            }
-
+    public void collect(double power, double maxVelocity, double minVelocity, boolean isRadian) {
+        if (valid(power, minVelocity, isRadian)) {
+            Range1 = maxVelocity - minVelocity; 
+            Range20 = minVelocity + (Range1*0.2);
+            Range50 = minVelocity + (Range1 * 0.5);
+            //100 rotation per sec, nextRow for each matrix
             double velocity = getVelocity.get();
             double rad = getRadians != null ? getRadians.get() : 0;
             for (int i = 0; i < gains.length; i++) {
-                if (velocity > 0 && velocity <= 10) {
-                    data.set(nextRow, i, value(gains[i], velocity, rad));
+                if (velocity >= Range20) {
+                    dataRange20.set(nextRowRange20, i, value(gains[i], velocity, rad));
+                    velocityRange20.set(i, 0, power);
+                    nextRowRange20++;
                 }
 
-                else if (velocity >= 11 && velocity <= 20) {
-                    dataRange50.set(nextRow, i, value(gains[i], velocity, rad));
+                else if (velocity >= Range50) {
+                    dataRange50.set(nextRowRange50, i, value(gains[i], velocity, rad));
+                    velocityRange50.set(i, 0, power);
+                    nextRowRange50++;
                 }
 
-                else {
-                    dataRange70.set(nextRow, i, value(gains[i], velocity, rad));
+                else if(velocity <= maxVelocity){
+                    dataRange70.set(nextRowRange70, i, value(gains[i], velocity, rad));
+                    velocityRange70.set(i, 0, power);
+                    nextRowRange70++;
                 }
-                // data.set(nextRow, i, value(gains[i], v, rad, meter));
+                
+                //this.velocityRange70.set(nextRow, 0, power);
+                // dataRange20.set(nextRow, i, value(gains[i], v, rad, meter));
             }
             lastV = velocity;
-            nextRow++;
         }
 
     }
 
+    private boolean valid(double power, double minVelocity, boolean isRadian){
+        if(getVelocity == null) return false;
+        if(isRadian){
+            
+            return (power != 0 && Math.abs(getVelocity.get()) > minVelocity);
+        }
+        return (power != 0 && Math.abs(getVelocity.get()) > minVelocity);
+    }
+
     /**
-     * Calculate the applicable value based on the gain type and provided data
+     * Calculate the applicable value based on the gain type and provided dataRange20
      * 
      * @param gain wanted feed forward param
      * @param velocity current velocity
      * @param rad
      * @param meter
-     * @return raw value of each gain (feed forward raw data)
+     * @return raw value of each gain (feed forward raw dataRange20)
      */
     double value(Gains gain, double velocity, double rad) {
         switch (gain) {
@@ -182,10 +199,12 @@ public class DataCollector {
     }
 
     /**
-     * Function to reset the data
+     * Function to reset the dataRange20
      */
     public void resetData() {
-        nextRow = 0;
+        nextRowRange20 = 0;
+        nextRowRange50 = 0;
+        nextRowRange70 = 0;
     }
 
     /**
@@ -193,15 +212,15 @@ public class DataCollector {
      * @return extracts a sub matrix with the values of the original from the start to nextRow
      */
     public SimpleMatrix dataRange20() {
-        return data.rows(0, nextRow);
+        return dataRange20.rows(0, nextRowRange20);
     }
 
     public SimpleMatrix dataRange50() {
-        return dataRange50.rows(0, nextRow);
+        return dataRange50.rows(0, nextRowRange50);
     }
 
     public SimpleMatrix dataRange70() {
-        return dataRange70.rows(0, nextRow);
+        return dataRange70.rows(0, nextRowRange70);
     }
 
     /**
@@ -210,23 +229,23 @@ public class DataCollector {
      *         power)
      */
     public SimpleMatrix power() {
-        return powerRange20.rows(0, nextRow);
+        return velocityRange20.rows(0, nextRowRange20);
     }
 
     /**
      * 
      * @return the collected power range 21-69
      */
-    public SimpleMatrix powerRange50() {
-        return powerRange50.rows(0, nextRow);
+    public SimpleMatrix velocityRange50() {
+        return velocityRange50.rows(0, nextRowRange50);
     }
 
     /**
      * 
      * @return the collected power range 70-100
      */
-    public SimpleMatrix powerRange70() {
-        return powerRange70.rows(0, nextRow);
+    public SimpleMatrix velocityRange70() {
+        return velocityRange70.rows(0, nextRowRange70);
     }
 
     /**
@@ -242,7 +261,7 @@ public class DataCollector {
      * @return the gains matrix for ranges 21-69
      */
     public SimpleMatrix solveRange50() {
-        return dataRange50().solve(powerRange50());
+        return dataRange50().solve(velocityRange50());
     }
 
     /**
@@ -250,7 +269,7 @@ public class DataCollector {
      * @return the gains matrix for ranges 70-100
      */
     public SimpleMatrix solveRange70() {
-        return dataRange70().solve(powerRange70());
+        return dataRange70().solve(velocityRange70());
     }
 
     /**

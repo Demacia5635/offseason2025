@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.test.TempSubSystem;
-import frc.robot.utils.TalonMotor;
 
 /**
  * Class to run a sysid power cycle
@@ -22,11 +21,9 @@ public class PowerCycleCommand extends Command {
     DataCollector dataCollector; // data collector
     Consumer<Double> setPower; // set power function
     boolean resetDataCollector; // reset the data collector data for rerun of the same command group
-    double sec;
-    Timer timer;
-
-    TempSubSystem temp = new TempSubSystem();
-
+    double minVelocity;
+    double maxVelocity;
+    boolean isRadian;
     /**
      * default Constructor - does not reset the data collector
      * 
@@ -35,10 +32,10 @@ public class PowerCycleCommand extends Command {
      * @param dataCollector collects data
      * @param subSystem     needed subsystem
      */
-    public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector,
+    public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector, double maxVelocity, double minVelocity, boolean isRadian,
             Subsystem... subSystem) {
 
-        this(setPower, power, dataCollector, false, subSystem);
+        this(setPower, power, dataCollector, false, maxVelocity, minVelocity, isRadian, subSystem);
         addRequirements(subSystem);
         
     }
@@ -53,11 +50,14 @@ public class PowerCycleCommand extends Command {
      * @param subSystem          needed subsystem
      */
     public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector,
-            boolean resetDataCollector, Subsystem... subSystem) {
+            boolean resetDataCollector, double maxVelocity, double minVelocity, boolean isRadian, Subsystem... subSystem) {
         this.power = power;
         this.dataCollector = dataCollector;
         this.setPower = setPower;
         this.resetDataCollector = resetDataCollector;
+        this.minVelocity = minVelocity;
+        this.maxVelocity = maxVelocity;
+        this.isRadian = isRadian;
         addRequirements(subSystem);
     }
 
@@ -79,13 +79,13 @@ public class PowerCycleCommand extends Command {
 
     @Override
     public void execute() {
-        dataCollector.collect(power);
+        dataCollector.collect(power, maxVelocity, minVelocity, isRadian);
     }
 
     @Override
     public void end(boolean interrupted) {
         // System.out.println(" sysid-powercycle-end " + power);
-        setPower.accept(0.0);
+        
     }
 
 

@@ -25,11 +25,10 @@ public class NoAccelerationPowerCommand extends Command {
     double maxPower;                // max power to use
     double powerStep;               // power step
     int steadyCount;                // count cycle with small velocity change
-    double lastV;                   // the last velocity
+    double lastV;
+    boolean isRadian;                   // the last velocity
 
-    public NoAccelerationPowerCommand(Consumer<Double> setPower, double minPower, double maxPower, double powerStep, DataCollector dataCollector, boolean resetDataCollector, double minVelocity, double maxVelocity, double maxCycleVelocityChange, Subsystem ... subSystem) {
-        this.minPower = minPower;
-        this.maxPower = maxPower;
+    public NoAccelerationPowerCommand(Consumer<Double> setPower, double powerStep, DataCollector dataCollector, boolean resetDataCollector, double minVelocity, double maxVelocity, double maxCycleVelocityChange, boolean isRadian, Subsystem ... subSystem) {
         this.powerStep = powerStep;
         this.dataCollector = dataCollector;
         this.setPower = setPower;
@@ -37,8 +36,8 @@ public class NoAccelerationPowerCommand extends Command {
         this.maxVelocity = maxVelocity;
         this.minVelocity = minVelocity;
         this.maxCycleVelocityChange = maxCycleVelocityChange;
-        if(subSystem != null)
-            addRequirements(subSystem);
+        this.isRadian = isRadian;
+        addRequirements(subSystem);
     }
 
     @Override
@@ -67,7 +66,7 @@ public class NoAccelerationPowerCommand extends Command {
         if(steadyCount > 5) { // steady state
             if(velocity > minVelocity) { // only record velocities above the minimum
                 dataCollector.lastV = velocity; // set the lastV so no acceleration
-                dataCollector.collect(power);
+                dataCollector.collect(power, maxVelocity, minVelocity, isRadian);
             }
             // move to next power
             power += powerStep;
@@ -85,7 +84,7 @@ public class NoAccelerationPowerCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        setPower.accept(0.0);
+        
     }
     
 }
