@@ -34,15 +34,13 @@ public class PowerCycleCommand extends Command {
      * @param power         wanted power
      * @param dataCollector collects data
      * @param subSystem     needed subsystem
-     * @param sec           time given to accomplish command
      */
-    public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector, double sec,
+    public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector,
             Subsystem... subSystem) {
 
-        this(setPower, power, dataCollector, false, sec, subSystem);
-        if(subSystem != null){
-            addRequirements(subSystem);
-        }
+        this(setPower, power, dataCollector, false, subSystem);
+        addRequirements(subSystem);
+        
     }
 
     /**
@@ -55,15 +53,12 @@ public class PowerCycleCommand extends Command {
      * @param subSystem          needed subsystem
      */
     public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector,
-            boolean resetDataCollector, double sec, Subsystem... subSystem) {
+            boolean resetDataCollector, Subsystem... subSystem) {
         this.power = power;
         this.dataCollector = dataCollector;
         this.setPower = setPower;
         this.resetDataCollector = resetDataCollector;
-        this.sec = sec;
-        timer = new Timer();
-        if (subSystem != null)
-            addRequirements(subSystem);
+        addRequirements(subSystem);
     }
 
     /**
@@ -75,7 +70,6 @@ public class PowerCycleCommand extends Command {
 
     @Override
     public void initialize() {
-        timer.start();
         if (resetDataCollector) {
             dataCollector.resetData();
         }
@@ -83,7 +77,6 @@ public class PowerCycleCommand extends Command {
         dataCollector.resetLastV();
     }
 
-    /*TODO add setPower function to a tempSubsystem */
     @Override
     public void execute() {
         dataCollector.collect(power);
@@ -92,17 +85,9 @@ public class PowerCycleCommand extends Command {
     @Override
     public void end(boolean interrupted) {
         // System.out.println(" sysid-powercycle-end " + power);
-        timer.stop();
         setPower.accept(0.0);
-        SmartDashboard.putNumber("Time ran in seconds", timer.get());
-        System.out.println(timer.get());
-        timer.reset();
     }
 
-    @Override
-    public boolean isFinished() {//3.1 - 3 = 0.1
-        double error = Math.abs(timer.get() - sec);
-        return (error > 0 );
-    }
+
 
 }

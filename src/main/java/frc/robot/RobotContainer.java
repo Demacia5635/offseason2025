@@ -22,7 +22,7 @@ public class RobotContainer {
   // double duration = 0.02;
   // double delay = 0.02;
   // Sysid id = new Sysid(setPow, getVelocity, minPower, maxPower, tempSubSystem);
-
+  
   
   public RobotContainer() {
     logManager = new LogManager();

@@ -63,12 +63,11 @@ public class TempSubSystem extends SubsystemBase {
 
     steerMotor.hotReloadPidFf(0);
     SmartDashboard.putData("steer motor", steerMotor);
-    SmartDashboard.putNumber("power", dutyTest);
 
 
-      SmartDashboard.putData("set sysid" ,new InstantCommand(()->{
-      Consumer<Double> setPow = power -> steerMotor.setDuty(dutyTest);
-      setPow.accept(dutyTest);
+    SmartDashboard.putData("set sysid" ,new InstantCommand(()->{
+      Consumer<Double> setPow = power -> steerMotor.setDuty(dutyTest/12);
+      setPow.accept(dutyTest/12);
       double minPow = 0.1;
       double maxPow = 0.8;
       double duration = 2;
@@ -76,7 +75,7 @@ public class TempSubSystem extends SubsystemBase {
       Supplier<Double> getV = ()->(steerMotor.getCurrentVelocity());
       id = new Sysid(setPow, getV, minPow, maxPow, duration , delay ,this);
       id.run();
-      }));
+    }));
 
     SmartDashboard.putData("motor set pow", new RunCommand(()-> {
       steerMotor.setDuty(dutyTest);

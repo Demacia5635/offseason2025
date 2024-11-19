@@ -190,7 +190,7 @@ public class DataCollector {
 
     /**
      * 
-     * @return the colllected raw data in power ranges of 0 - 20
+     * @return extracts a sub matrix with the values of the original from the start to nextRow
      */
     public SimpleMatrix dataRange20() {
         return data.rows(0, nextRow);

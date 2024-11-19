@@ -229,7 +229,7 @@ public class Sysid {
      * Get the command for a power - with the duration and delay
      */
     Command getPowerCommand(double power, boolean resetDataCollector) {
-        return ((new PowerCycleCommand(setPower, power, dataCollector, resetDataCollector, powerCycleDuration,
+        return ((new PowerCycleCommand(setPower, power, dataCollector, resetDataCollector,
                 subsystems))
                 .withTimeout(powerCycleDuration)).andThen(new WaitCommand(powerCycleDelay));
     }
@@ -257,6 +257,10 @@ public class Sysid {
         //System.out.println(feedForwardValues.getNumRows()*feedForwardValues.getNumCols());
         //SmartDashboard.putNumber("feed forward matrix length", );
         /*TODO check the matrixs lengths */
+        //column = rows
+        System.out.println("feedForwardValues rows: " + feedForwardValues.getNumRows() + " feedForwardValues columns: " + feedForwardValues.getNumCols());
+        System.out.println("dataRange20 rows: " + dataCollector.dataRange20().getNumRows() + " dataRange20 columns: " + dataCollector.dataRange20().getNumCols());
+        SmartDashboard.putNumber("feed forward lengths", defaultDelay);
         SimpleMatrix power = dataCollector.dataRange20().mult(feedForwardValues);
         SimpleMatrix e = dataCollector.power().minus(power);
         SimpleMatrix ee = e.elementMult(e);
