@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.utils.LogManager;
 
 /**
  * Class to calculate feed forward gains for velocity/acceleration control
@@ -140,7 +139,7 @@ public class Sysid {
             Subsystem... subsystems) {
 
         this.setPower = setPower;
-        dataCollector = new DataCollector(types, getVelocity, getRadians, nPowerCycles, powerCycleDuration);
+        dataCollector = new DataCollector(types, getVelocity, nPowerCycles, powerCycleDuration);
         this.minVelocity = minVelocity;
         this.maxVelocity = maxVelocity;
         this.nPowerCycles = nPowerCycles;
@@ -214,10 +213,11 @@ public class Sysid {
         boolean resetDataCollector = true;
         Command cmd = new WaitCommand(powerCycleDelay);
         for (int cycle = 0; cycle < nPowerCycles; cycle++) {
-            double power = minVelocity + cycle * deltaPower;
-            cmd = cmd.andThen(getPowerCommand(power, resetDataCollector));
+            double velocity = minVelocity + cycle * deltaPower;
+            cmd = cmd.andThen(getPowerCommand(velocity, resetDataCollector));
             resetDataCollector = false;
         }
+        SmartDashboard.putNumber("deltaPower", deltaPower);
         return cmd.andThen(new InstantCommand(() -> analyze()));
     }
 
@@ -236,8 +236,8 @@ public class Sysid {
     /**
      * Get the command for a power - with the duration and delay
      */
-    Command getPowerCommand(double power, boolean resetDataCollector) {
-        return ((new PowerCycleCommand(setPower, power, dataCollector, resetDataCollector, maxVelocity, minVelocity,
+    Command getPowerCommand(double velocity, boolean resetDataCollector) {
+        return ((new PowerCycleCommand(setPower, velocity, dataCollector, resetDataCollector, maxVelocity, minVelocity,
                 isRadian, subsystems))
                 .withTimeout(powerCycleDuration)).andThen(new WaitCommand(powerCycleDelay));
     }

@@ -30,14 +30,13 @@ public class DataCollector {
     int nextRowRange70;
     Gains[] gains;
     Supplier<Double> getVelocity;
-    Supplier<Double> getRadians;
-    Supplier<Double> getMeter;
     int nPowerCycles;
     double powerCycleDuration;
     double lastV = 0;
     double Range1;
     double Range20;
     double Range50;
+    double rad = 0;
 
 
     /**
@@ -48,11 +47,10 @@ public class DataCollector {
      * @param nPowerCycles 
      * @param powerCycleDuration
      */
-    public DataCollector(Gains[] gains, Supplier<Double> getVelocity, Supplier<Double> getRadians,
+    public DataCollector(Gains[] gains, Supplier<Double> getVelocity,
     int nPowerCycles, double powerCycleDuration) {
          this.gains = gains;
         this.getVelocity = getVelocity;
-        this.getRadians = getRadians;
         this.nPowerCycles = nPowerCycles;
         this.powerCycleDuration = powerCycleDuration;
         int matrixRows = (int) (nPowerCycles * 2 * powerCycleDuration / 0.02) + 100; // the maximum number of rows we
@@ -82,24 +80,7 @@ public class DataCollector {
      * @param isMeter            decides if sysid works on drive or angle
      */
 
-    public DataCollector(Gains[] gains, Supplier<Double> getVelocity, int nPowerCycles, double powerCycleDuration) {
-        this.gains = gains;
-        this.getVelocity = getVelocity;
-        this.nPowerCycles = nPowerCycles;
-        this.powerCycleDuration = powerCycleDuration;
-        int matrixRows = (int) (nPowerCycles * 2 * powerCycleDuration / 0.02) + 100; // the maximum number of rows we
-                                                                                     // will need + safety value
-        dataRange20 = new SimpleMatrix(matrixRows, gains.length);
-        dataRange50 = new SimpleMatrix(matrixRows, gains.length);
-        dataRange70 = new SimpleMatrix(matrixRows, gains.length);
-        velocityRange20 = new SimpleMatrix(matrixRows, 1);
-        velocityRange50 = new SimpleMatrix(matrixRows, 1);
-        velocityRange70 = new SimpleMatrix(matrixRows, 1);
-        nextRowRange20 = 0;
-        nextRowRange50 = 0;
-        nextRowRange70 = 0;
-        lastV = 0;
-    }
+  
 
     /**
      * Function to collect the dataRange20
@@ -120,7 +101,6 @@ public class DataCollector {
             Range50 = minVelocity + (Range1 * 0.5);
             //100 rotation per sec, nextRow for each matrix
             double velocity = getVelocity.get();
-            double rad = getRadians != null ? getRadians.get() : 0;
             for (int i = 0; i < gains.length; i++) {
                 if (velocity >= Range20) {
                     dataRange20.set(nextRowRange20, i, value(gains[i], velocity, rad));

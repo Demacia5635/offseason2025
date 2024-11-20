@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -20,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Sysid.Sysid;
 import frc.robot.utils.Cancoder;
 import frc.robot.utils.CancoderConfig;
-import frc.robot.utils.LogManager;
 import frc.robot.utils.TalonConfig;
 import frc.robot.utils.TalonMotor;
 
@@ -36,8 +36,8 @@ public class TempSubSystem extends SubsystemBase {
   double motionMagicTest = 0;
 
 //radian 1 min 3 max radian
-  double minVelocity = 1;
-  double maxVelocity = 3;
+  double minVelocity = 0.2;
+  double maxVelocity = 0.6;
   double duration = 2;
   double delay = 0.02;
   Supplier<Double> getV;
@@ -50,7 +50,7 @@ public class TempSubSystem extends SubsystemBase {
   //kp = 0.1, ki = 0.7, kd = 0.07
   public TempSubSystem() {
     steerMotor = new TalonMotor(
-      new TalonConfig(8, "rio", "steer motor") //0.008070512054445185
+      new TalonConfig(8, "rio", "steer motor") //0.0011936972676809083KV, 
       .withPID(0.8, 4, 0.0, 0.3295543024, 0.2385745774, -0.003105620266, 0)
       .withMotionMagic(3*2*Math.PI, 5*2*Math.PI, 50*2*Math.PI)
       .withBrake(true).withInvert(true)
@@ -66,7 +66,7 @@ public class TempSubSystem extends SubsystemBase {
       .withInvert(false).withOffset(0)
       );
 
-    steerMotor.setPosition(cancoder.getAbsPositionRadians());
+    steerMotor.setPosition(cancoder.getAbsPositionRadians() / (2*Math.PI));
 
     getV = ()->(steerMotor.getCurrentVelocity());
 
@@ -74,7 +74,7 @@ public class TempSubSystem extends SubsystemBase {
     steerMotor.hotReloadPidFf(0);
     SmartDashboard.putData("steer motor", steerMotor);
 
-    Consumer<Double> setVel = Velocity -> steerMotor.setVelocity(Velocity);
+    Consumer<Double> setVel = Voltage -> steerMotor.setDuty(Voltage);
     id = new Sysid(setVel, getV, minVelocity, maxVelocity, duration , delay, true ,this);
     SmartDashboard.putData("set sysid" , id.runSysId());
 

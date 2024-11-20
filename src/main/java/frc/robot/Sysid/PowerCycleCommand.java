@@ -17,7 +17,7 @@ import frc.robot.test.TempSubSystem;
  */
 public class PowerCycleCommand extends Command {
 
-    double power; // the power to use
+    double velocity; // the power to use
     DataCollector dataCollector; // data collector
     Consumer<Double> setPower; // set power function
     boolean resetDataCollector; // reset the data collector data for rerun of the same command group
@@ -32,10 +32,10 @@ public class PowerCycleCommand extends Command {
      * @param dataCollector collects data
      * @param subSystem     needed subsystem
      */
-    public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector, double maxVelocity, double minVelocity, boolean isRadian,
+    public PowerCycleCommand(Consumer<Double> setPower, double velocity, DataCollector dataCollector, double maxVelocity, double minVelocity, boolean isRadian,
             Subsystem... subSystem) {
 
-        this(setPower, power, dataCollector, false, maxVelocity, minVelocity, isRadian, subSystem);
+        this(setPower, velocity, dataCollector, false, maxVelocity, minVelocity, isRadian, subSystem);
         addRequirements(subSystem);
         
     }
@@ -49,9 +49,9 @@ public class PowerCycleCommand extends Command {
      * @param resetDataCollector param to reset data collected
      * @param subSystem          needed subsystem
      */
-    public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector,
+    public PowerCycleCommand(Consumer<Double> setPower, double velocity, DataCollector dataCollector,
             boolean resetDataCollector, double maxVelocity, double minVelocity, boolean isRadian, Subsystem... subSystem) {
-        this.power = power;
+        this.velocity = velocity;
         this.dataCollector = dataCollector;
         this.setPower = setPower;
         this.resetDataCollector = resetDataCollector;
@@ -73,13 +73,14 @@ public class PowerCycleCommand extends Command {
         if (resetDataCollector) {
             dataCollector.resetData();
         }
-        setPower.accept(power);
+        setPower.accept(velocity);
         dataCollector.resetLastV();
     }
 
     @Override
     public void execute() {
-        dataCollector.collect(power, maxVelocity, minVelocity, isRadian);
+        dataCollector.collect(velocity, maxVelocity, minVelocity, isRadian);
+        
     }
 
     @Override
