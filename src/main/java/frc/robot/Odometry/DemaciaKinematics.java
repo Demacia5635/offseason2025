@@ -4,16 +4,26 @@
 
 package frc.robot.Odometry;
 
+import org.ejml.simple.SimpleMatrix;
+
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 /** Add your docs here. */
 public class DemaciaKinematics extends SwerveDriveKinematics {
 
     Translation2d[] moduleTranslation;
+    double maxVelocity = 3.8;
+
+    double maxForwardAccel = -1;
+
     public DemaciaKinematics(Translation2d... moduleTranslationsMeters){
         super(moduleTranslationsMeters);
         this.moduleTranslation = moduleTranslationsMeters;
@@ -39,7 +49,50 @@ public class DemaciaKinematics extends SwerveDriveKinematics {
   }
 
 
+  @Override
+  public SwerveModuleState[] toSwerveModuleStates(ChassisSpeeds chassisSpeeds, Translation2d currentVelocity){
+
+    
+    SwerveModuleState[] wantedModuleStates = new SwerveModuleState[moduleTranslation.length];
+
+    double factor = 1;
+    Translation2d finalWantedVel = new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
+    
+    
+    Translation2d velocityVector = new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
+
+    for(int i = 0; i< wantedModuleStates.length; i++){
+      Translation2d rotationVelocity = new Translation2d(chassisSpeeds.omegaRadiansPerSecond 
+        * moduleTranslation[i].getNorm(),
+        moduleTranslation[i].rotateBy(Rotation2d.fromDegrees(
+        90*Math.signum(chassisSpeeds.omegaRadiansPerSecond))).getAngle());
+
+      Translation2d moduleVel = velocityVector.plus(rotationVelocity);
+
+      if((maxVelocity / moduleVel.getNorm()) < factor) factor = maxVelocity / moduleVel.getNorm();
+        
+      wantedModuleStates[i] = new SwerveModuleState(moduleVel.getNorm(), moduleVel.getAngle());
+    }
+    factorVelocities(wantedModuleStates, factor);
+    return wantedModuleStates;
+  }
+  
+  private void factorVelocities(SwerveModuleState[] arr, double factor){
+    for(int i = 0; i < arr.length; i++){
+      arr[i].speedMetersPerSecond = arr[i].speedMetersPerSecond * factor;
+    }
+  }
+
+  private double getWantedAccel(Translation2d finalWantedVel, Translation2d currentVel){
+    double wantedAccel = (finalWantedVel.minus(currentVel).getNorm()) / 0.02;
 
 
+    return wantedAccel;
+    
+  }
+  private void limitForwardAccel(double accel, double currentVel){
+    accel = maxForwardAccel * (1-(currentVel / maxVelocity));
+  }
 
 }
+
