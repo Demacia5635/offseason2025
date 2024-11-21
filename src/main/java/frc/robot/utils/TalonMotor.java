@@ -231,23 +231,6 @@ public class TalonMotor extends TalonFX {
   }
 
   private void addLog() {    
-	LogManager.addEntry(name + "/position", this::getPosition);// rotation
-    LogManager.addEntry(name + "/Velocity", this::getVelocity);// rotation per seconds
-    LogManager.addEntry(name + "/Acceleration", this::getAcceleration);// rotation per seconds^2
-    LogManager.addEntry(name + "/Voltage", this::getMotorVoltage);
-    LogManager.addEntry(name + "/Current", this::getStatorCurrent);
-    LogManager.addEntry(name + "/CloseLoopError", this::getClosedLoopError);
-    LogManager.addEntry(name + "/CloseLoopOutput", this::getClosedLoopOutput);
-    LogManager.addEntry(name + "/CloseLoopP", this::getClosedLoopProportionalOutput);
-    LogManager.addEntry(name + "/CloseLoopI", this::getClosedLoopIntegratedOutput);
-    LogManager.addEntry(name + "/CloseLoopD", this::getClosedLoopDerivativeOutput);
-    LogManager.addEntry(name + "/CloseLoopFF", this::getClosedLoopFeedForward);
-    LogManager.addEntry(name + "/CloseLoopSP", this::getClosedLoopReference);
-
-    dutyCycleEntry = LogManager.getEntry(name + "/setDutyCycle");
-    velocityEntry = LogManager.getEntry(name + "/setVelocity");
-    positionEntry = LogManager.getEntry(name + "/setPosition");
-  }
 
   /**
    * override the sendable of the talonFX to our costum widget in elastic
@@ -266,6 +249,22 @@ public class TalonMotor extends TalonFX {
     builder.addDoubleProperty("velocity", ()-> getVelocity().getValueAsDouble(), null);
     builder.addDoubleProperty("acceleration", ()-> getAcceleration().getValueAsDouble(), null);
     builder.addDoubleProperty("voltage", ()-> getMotorVoltage().getValueAsDouble(), null);
+    LogManager.addEntry(name + "/Position", getPosition());// rotation
+    LogManager.addEntry(name + "/Velocity", getVelocity());// rotation per seconds
+    LogManager.addEntry(name + "/Acceleration", getAcceleration());// rotation per seconds^2
+    LogManager.addEntry(name + "/Voltage", getMotorVoltage());
+    LogManager.addEntry(name + "/Current", getStatorCurrent());
+    LogManager.addEntry(name + "/CloseLoopError", getClosedLoopError());
+    LogManager.addEntry(name + "/CloseLoopOutput", getClosedLoopOutput());
+    LogManager.addEntry(name + "/CloseLoopP", getClosedLoopProportionalOutput());
+    LogManager.addEntry(name + "/CloseLoopI", getClosedLoopIntegratedOutput());
+    LogManager.addEntry(name + "/CloseLoopD", getClosedLoopDerivativeOutput());
+    LogManager.addEntry(name + "/CloseLoopFF", getClosedLoopFeedForward());
+    LogManager.addEntry(name + "/CloseLoopSP", getClosedLoopReference());
+
+    dutyCycleEntry = LogManager.getEntry(name + "/SetDutyCycle");
+    velocityEntry = LogManager.getEntry(name + "/SetVelocity");
+    positionEntry = LogManager.getEntry(name + "/SetPosition");
   }
 
 	/**
