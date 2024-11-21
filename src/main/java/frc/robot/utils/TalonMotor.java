@@ -319,4 +319,29 @@ public class TalonMotor extends TalonFX {
   private double positionFeedForward(double positin) {
     return Math.sin(positin*config.posToRad)*config.kSin;
   }
+
+  /**
+   * change the slot of the pid and feed forward.
+   * will not work if the slot is null
+   * @param slot the wanted slot between 0 and 2
+   */
+  public void changeSlot(int slot) {    
+    if (slot < 0 || slot > 2) {
+      LogManager.log("slot is not between 0 and 2"); 
+      return;
+    }
+
+    if (slot == 1 && config.pid1 == null) {
+      LogManager.log("slot is null, add config for slot 1");
+      return;
+    }
+
+    if (slot == 2 && config.pid2 == null) {
+      LogManager.log("slot is null, add config for slot 2");
+      return;
+    }
+
+    velocityVoltage.withSlot(slot);
+    motionMagicVoltage.withSlot(slot);
+  }
 }
