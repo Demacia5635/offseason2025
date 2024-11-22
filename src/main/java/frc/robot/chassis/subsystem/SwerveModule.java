@@ -19,10 +19,8 @@ public class SwerveModule extends SubsystemBase {
     private final Cancoder canCoder;
     
     // Angle offset for precise positioning
-    private final double angleOffset;
+    private final double steerOffset;
     
-    // Parent chassis reference
-    private final Chassis chassis;
     
     // Module name for identification
     private final String moduleName;
@@ -32,8 +30,7 @@ public class SwerveModule extends SubsystemBase {
      * @param constants Module-specific configuration constants
      * @param chassis Parent chassis subsystem
      */
-    public SwerveModule(SwerveModuleConstants constants, Chassis chassis) {
-        this.chassis = chassis;
+    public SwerveModule(SwerveModuleConstants constants) {
         this.moduleName = constants.name;
 
         // Initialize motors and sensors
@@ -42,21 +39,14 @@ public class SwerveModule extends SubsystemBase {
         canCoder = new Cancoder(constants.cancoderConfig);
 
         // Set angle offset
-        angleOffset = constants.steerOffset;
+        steerOffset = constants.steerOffset;
         
         // Initialize motor positions
-        initializeMotorPositions();
+        driveMotor.setPosition(0);
+        steerMotor.setPosition(getAbsoluteAngle() + steerOffset);
 
         // Add to SmartDashboard for debugging
         SmartDashboard.putData(moduleName, this);
-    }
-
-    /**
-     * Initialize motor positions based on absolute encoder
-     */
-    private void initializeMotorPositions() {
-        driveMotor.setPosition(0);
-        steerMotor.setPosition(getAbsoluteAngle() + angleOffset);
     }
 
     @Override

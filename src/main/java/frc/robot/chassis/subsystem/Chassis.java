@@ -2,14 +2,12 @@ package frc.robot.chassis.subsystem;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -40,10 +38,10 @@ public class Chassis extends SubsystemBase {
         gyro = new Pigeon2(SwerveConstants.GYRO_ID);
 
         // Create Swerve Modules
-        frontLeft = new SwerveModule(SwerveConstants.FRONT_LEFT, this);
-        frontRight = new SwerveModule(SwerveConstants.FRONT_RIGHT, this);
-        backLeft = new SwerveModule(SwerveConstants.BACK_LEFT, this);
-        backRight = new SwerveModule(SwerveConstants.BACK_RIGHT, this);
+        frontLeft = new SwerveModule(SwerveConstants.FRONT_LEFT);
+        frontRight = new SwerveModule(SwerveConstants.FRONT_RIGHT);
+        backLeft = new SwerveModule(SwerveConstants.BACK_LEFT);
+        backRight = new SwerveModule(SwerveConstants.BACK_RIGHT);
 
         modules = new SwerveModule[4];
         modules[0] = frontLeft;
