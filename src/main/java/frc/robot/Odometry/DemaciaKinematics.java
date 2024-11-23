@@ -60,21 +60,23 @@ public class DemaciaKinematics extends SwerveDriveKinematics {
     
     
     Translation2d velocityVector = new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
-
     for(int i = 0; i< wantedModuleStates.length; i++){
-      Translation2d rotationVelocity = new Translation2d(chassisSpeeds.omegaRadiansPerSecond 
-        * moduleTranslation[i].getNorm(),
-        moduleTranslation[i].rotateBy(Rotation2d.fromDegrees(
-        90*Math.signum(chassisSpeeds.omegaRadiansPerSecond))).getAngle());
 
+      Translation2d rotationVelocity = getRotationVelocity(chassisSpeeds.omegaRadiansPerSecond, moduleTranslation[i]);
       Translation2d moduleVel = velocityVector.plus(rotationVelocity);
 
-      if((maxVelocity / moduleVel.getNorm()) < factor) factor = maxVelocity / moduleVel.getNorm();
+      if((moduleVel.getNorm() / maxVelocity) < factor) factor = moduleVel.getNorm() / maxVelocity;
         
       wantedModuleStates[i] = new SwerveModuleState(moduleVel.getNorm(), moduleVel.getAngle());
     }
     factorVelocities(wantedModuleStates, factor);
     return wantedModuleStates;
+  }
+  private Translation2d getRotationVelocity(double omegaRadians, Translation2d moduleRadius){
+
+    return new Translation2d(omegaRadians * moduleRadius.getNorm(),
+      moduleRadius.rotateBy(Rotation2d.fromDegrees(90*Math.signum(omegaRadians))).getAngle());
+
   }
   
   private void factorVelocities(SwerveModuleState[] arr, double factor){
