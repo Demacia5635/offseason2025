@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 
+import edu.wpi.first.units.Power;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.sendable.Sendable;
@@ -36,8 +37,8 @@ public class TempSubSystem extends SubsystemBase {
   double motionMagicTest = 0;
 
 //radian 1 min 3 max radian
-  double minVelocity = 0.2;
-  double maxVelocity = 0.6;
+  double minPow = 0.2;
+  double maxPow = 0.6;
   double duration = 2;
   double delay = 0.02;
   Supplier<Double> getV;
@@ -74,8 +75,8 @@ public class TempSubSystem extends SubsystemBase {
     steerMotor.hotReloadPidFf(0);
     SmartDashboard.putData("steer motor", steerMotor);
 
-    Consumer<Double> setVel = Voltage -> steerMotor.setDuty(Voltage);
-    id = new Sysid(setVel, getV, minVelocity, maxVelocity, duration , delay, true ,this);
+    Consumer<Double> setPow = Power -> steerMotor.setDuty(Power);
+    id = new Sysid(setPow, getV, minPow, maxPow, duration , delay, true ,this);
     SmartDashboard.putData("set sysid" , id.runSysId());
 
     SmartDashboard.putData("motor set pow", new RunCommand(()-> {

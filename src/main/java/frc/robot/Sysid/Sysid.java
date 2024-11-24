@@ -42,8 +42,8 @@ public class Sysid {
 
     Consumer<Double> setPower; // function to set the power
     DataCollector dataCollector; // the data collector class
-    double minVelocity;
-    double maxVelocity;
+    double minPow;
+    double maxPow;
     double deltaPower; // the change of power between power cycles
     int nPowerCycles; // how many powers to use (the system will run each power in positive and
                       // negative values)
@@ -64,21 +64,21 @@ public class Sysid {
      * 
      * @param setPower    the power wanted
      * @param getVelocity motors velocity
-     * @param minVelocity the min power given
-     * @param maxVelocity the max power
+     * @param minPow the min power given
+     * @param maxPow the max power
      * @param subsystems  subsystem required
      */
     public Sysid(Consumer<Double> setPower,
             Supplier<Double> getVelocity,
-            double minVelocity,
-            double maxVelocity,
+            double minPow,
+            double maxPow,
             Subsystem... subsystems) {
         this(new Gains[] { Gains.KS, Gains.KV, Gains.KA, Gains.KV2 },
                 setPower,
                 getVelocity,
                 null,
-                minVelocity,
-                maxVelocity,
+                minPow,
+                maxPow,
                 20,
                 defaultDuration,
                 defaultDelay,
@@ -91,15 +91,15 @@ public class Sysid {
      * 
      * @param setPower           holds the power given to the motor
      * @param getVelocity        current velocity
-     * @param minVelocity        min power that can be given
-     * @param maxVelocity        max power that can be given
+     * @param minPow        min power that can be given
+     * @param maxPow        max power that can be given
      * @param subsystems         needed subsystem
      * @param powerCycleDuration for how long each power should be activated
      */
     public Sysid(Consumer<Double> setPower,
             Supplier<Double> getVelocity,
-            double minVelocity,
-            double maxVelocity,
+            double minPow,
+            double maxPow,
             double powerCycleDuration,
             double powerCycleDelay,
             boolean isRadian,
@@ -108,8 +108,8 @@ public class Sysid {
                 setPower,
                 getVelocity,
                 null,
-                minVelocity,
-                maxVelocity,
+                minPow,
+                maxPow,
                 20,
                 powerCycleDuration,
                 powerCycleDelay,
@@ -122,16 +122,16 @@ public class Sysid {
      * 
      * @param setPower    holds in the power
      * @param getVelocity gives the motors velocity
-     * @param minVelocity min power that can be given
-     * @param maxVelocity max power that can be given
+     * @param minPow min power that can be given
+     * @param maxPow max power that can be given
      * @param subsystems  needed subsystem
      */
     public Sysid(Gains[] types,
             Consumer<Double> setPower,
             Supplier<Double> getVelocity,
             Supplier<Double> getRadians,
-            double minVelocity,
-            double maxVelocity,
+            double minPow,
+            double maxPow,
             int nPowerCycles,
             double powerCycleDuration,
             double powerCycleDelay,
@@ -140,14 +140,15 @@ public class Sysid {
 
         this.setPower = setPower;
         dataCollector = new DataCollector(types, getVelocity, nPowerCycles, powerCycleDuration);
-        this.minVelocity = minVelocity;
-        this.maxVelocity = maxVelocity;
+        this.minPow = minPow;
+        this.maxPow = maxPow;
         this.nPowerCycles = nPowerCycles;
         this.powerCycleDelay = powerCycleDelay;
         this.powerCycleDuration = powerCycleDuration;
-        deltaPower = (double) (maxVelocity - minVelocity) / (nPowerCycles - 1);
+        deltaPower = (double) (maxPow - minPow) / (nPowerCycles);
         this.subsystems = subsystems;
         this.gains = types;
+        SmartDashboard.putNumber("deltaPow", deltaPower);
 
     }
 
@@ -155,24 +156,24 @@ public class Sysid {
      * 
      * @param setPower    power given to the motor
      * @param getVelocity current velocity
-     * @param minVelocity min power (you cant go below it)
-     * @param maxVelocity max power (you cant go above it)
+     * @param minPow min power (you cant go below it)
+     * @param maxPow max power (you cant go above it)
      * @param powerStep
-     * @param minVelocity min velocity (you cant go below it)
-     * @param maxVelocity max velocity (you cant go below it)
+     * @param minPow min velocity (you cant go below it)
+     * @param maxPow max velocity (you cant go below it)
      * @param isMeter     decides which unints to use
      * @param subsystems  subsystem needed to run on
      * @param isRadian    TBD for now false
      * @return commad
      */
-    public static Command getSteadyCommand(Consumer<Double> setPower, Supplier<Double> getVelocity, double minVelocity,
-            double maxVelocity, double powerStep, boolean isMeter,
+    public static Command getSteadyCommand(Consumer<Double> setPower, Supplier<Double> getVelocity, double minPow,
+            double maxPow, double powerStep, boolean isMeter,
             Subsystem... subsystems) {
-        Sysid id = new Sysid(new Gains[] { Gains.KS, Gains.KV, Gains.KV2 }, setPower, getVelocity, null, minVelocity,
-                maxVelocity, 20, 1, 1, false, subsystems);
+        Sysid id = new Sysid(new Gains[] { Gains.KS, Gains.KV, Gains.KV2 }, setPower, getVelocity, null, minPow,
+                maxPow, 20, 1, 1, false, subsystems);
         id.steadyOnly = true;
         Command cmd = new NoAccelerationPowerCommand(setPower, powerStep, id.dataCollector, false,
-                minVelocity, maxVelocity, maxVelocity, false, subsystems);
+                minPow, maxPow, maxPow, false, subsystems);
         return cmd.andThen(new InstantCommand(() -> id.analyze()));
     }
 
@@ -189,8 +190,8 @@ public class Sysid {
 
     /**
      * calculate the power for cycle
-     * cycles run - minVelocity, -minVelocity, (minVelocity+delta),
-     * -(minVelocity+delts).....(maxVelocity), -max(Power)
+     * cycles run - minPow, -minPow, (minPow+delta),
+     * -(minPow+delts).....(maxPow), -max(Power)
      * 
      * @param cycle
      * @param pow   power for every cycle
@@ -199,7 +200,7 @@ public class Sysid {
     double power(int cycle) {
         int pow = cycle / 2;
         double sign = cycle % 2 == 0 ? 1 : -1;
-        return sign * (minVelocity + pow * deltaPower);
+        return sign * (minPow + pow * deltaPower);
     }
 
     /**
@@ -213,8 +214,8 @@ public class Sysid {
         boolean resetDataCollector = true;
         Command cmd = new WaitCommand(powerCycleDelay);
         for (int cycle = 0; cycle < nPowerCycles; cycle++) {
-            double velocity = minVelocity + cycle * deltaPower;
-            cmd = cmd.andThen(getPowerCommand(velocity, resetDataCollector));
+            double power = minPow + cycle * deltaPower;
+            cmd = cmd.andThen(getPowerCommand(power, resetDataCollector));
             resetDataCollector = false;
         }
         SmartDashboard.putNumber("deltaPower", deltaPower);
@@ -225,7 +226,7 @@ public class Sysid {
         boolean resetDataCollector = true;
         Command cmd = new WaitCommand(powerCycleDelay);
         for (int c = 0; c < nPowerCycles; c++) {
-            double power = minVelocity + c * deltaPower;
+            double power = minPow + c * deltaPower;
             cmd = cmd.andThen(getPowerCommand(power, resetDataCollector));
             resetDataCollector = false;
             // cmd = cmd.andThen(getPowerCommand(-power, resetDataCollector));
@@ -237,8 +238,7 @@ public class Sysid {
      * Get the command for a power - with the duration and delay
      */
     Command getPowerCommand(double velocity, boolean resetDataCollector) {
-        return ((new PowerCycleCommand(setPower, velocity, dataCollector, resetDataCollector, maxVelocity, minVelocity,
-                isRadian, subsystems))
+        return ((new PowerCycleCommand(setPower, velocity, dataCollector, resetDataCollector, maxPow, minPow, subsystems))
                 .withTimeout(powerCycleDuration)).andThen(new WaitCommand(powerCycleDelay));
     }
 

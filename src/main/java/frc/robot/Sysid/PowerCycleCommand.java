@@ -32,10 +32,10 @@ public class PowerCycleCommand extends Command {
      * @param dataCollector collects data
      * @param subSystem     needed subsystem
      */
-    public PowerCycleCommand(Consumer<Double> setPower, double velocity, DataCollector dataCollector, double maxVelocity, double minVelocity, boolean isRadian,
+    public PowerCycleCommand(Consumer<Double> setPower, double velocity, DataCollector dataCollector, double maxVelocity, double minVelocity,
             Subsystem... subSystem) {
 
-        this(setPower, velocity, dataCollector, false, maxVelocity, minVelocity, isRadian, subSystem);
+        this(setPower, velocity, dataCollector, false, maxVelocity, minVelocity, subSystem);
         addRequirements(subSystem);
         
     }
@@ -50,14 +50,13 @@ public class PowerCycleCommand extends Command {
      * @param subSystem          needed subsystem
      */
     public PowerCycleCommand(Consumer<Double> setPower, double velocity, DataCollector dataCollector,
-            boolean resetDataCollector, double maxVelocity, double minVelocity, boolean isRadian, Subsystem... subSystem) {
+            boolean resetDataCollector, double maxVelocity, double minVelocity, Subsystem... subSystem) {
         this.velocity = velocity;
         this.dataCollector = dataCollector;
         this.setPower = setPower;
         this.resetDataCollector = resetDataCollector;
         this.minVelocity = minVelocity;
         this.maxVelocity = maxVelocity;
-        this.isRadian = isRadian;
         addRequirements(subSystem);
     }
 
@@ -79,7 +78,7 @@ public class PowerCycleCommand extends Command {
 
     @Override
     public void execute() {
-        dataCollector.collect(velocity, maxVelocity, minVelocity, isRadian);
+        dataCollector.collect(velocity, maxVelocity, minVelocity);
         
     }
 

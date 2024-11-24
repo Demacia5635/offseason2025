@@ -66,7 +66,7 @@ public class NoAccelerationPowerCommand extends Command {
         if(steadyCount > 5) { // steady state
             if(velocity > minVelocity) { // only record velocities above the minimum
                 dataCollector.lastV = velocity; // set the lastV so no acceleration
-                dataCollector.collect(power, maxVelocity, minVelocity, isRadian);
+                dataCollector.collect(power, maxVelocity, minVelocity);
             }
             // move to next power
             power += powerStep;

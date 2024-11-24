@@ -94,8 +94,8 @@ public class DataCollector {
      * @param dataRange20         add raw dataRange20 to the matrix (velocity, signum(velocity))
      * @param i            signify the column of the maxtrix and index
      */
-    public void collect(double power, double maxVelocity, double minVelocity, boolean isRadian) {
-        if (valid(power, minVelocity, isRadian)) {
+    public void collect(double power, double maxVelocity, double minVelocity) {
+        if (valid(power, minVelocity)) {
             Range1 = maxVelocity - minVelocity; 
             Range20 = minVelocity + (Range1*0.2);
             Range50 = minVelocity + (Range1 * 0.5);
@@ -128,12 +128,8 @@ public class DataCollector {
 
     }
 
-    private boolean valid(double power, double minVelocity, boolean isRadian){
+    private boolean valid(double power, double minVelocity){
         if(getVelocity == null) return false;
-        if(isRadian){
-            
-            return (power != 0 && Math.abs(getVelocity.get()) > minVelocity);
-        }
         return (power != 0 && Math.abs(getVelocity.get()) > minVelocity);
     }
 
