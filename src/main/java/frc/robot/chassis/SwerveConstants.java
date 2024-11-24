@@ -60,7 +60,7 @@ public class SwerveConstants {
             new TalonConfig(FRONT_LEFT_DRIVE_ID, CanBas, "frontLeft/Drive")
                 .withPID(MOVE_PID.KP, MOVE_PID.KI, MOVE_PID.KD, MOVE_PID.KS, MOVE_PID.KV, MOVE_PID.KA, MOVE_PID.KG)
                 .withBrake(true)
-                .withInvert(false)
+                .withInvert(true)
                 .withMotorRatio(MOVE_GEAR_RATIO)
                 .withMeterMotor(WHEEL_CIRCUMFERENCE)
                 .withMotionMagic(DRIVE_VELOCITY, DRIVE_ACCELERATION, DRIVE_JERK),
@@ -104,7 +104,7 @@ public class SwerveConstants {
             new TalonConfig(BACK_LEFT_DRIVE_ID, CanBas, "backLeft/Drive")
                 .withPID(MOVE_PID.KP, MOVE_PID.KI, MOVE_PID.KD, MOVE_PID.KS, MOVE_PID.KV, MOVE_PID.KA, MOVE_PID.KG)
                 .withBrake(true)
-                .withInvert(false)
+                .withInvert(true)
                 .withMotorRatio(MOVE_GEAR_RATIO)
                 .withMeterMotor(WHEEL_CIRCUMFERENCE)
                 .withMotionMagic(DRIVE_VELOCITY, DRIVE_ACCELERATION, DRIVE_JERK),
@@ -126,7 +126,7 @@ public class SwerveConstants {
             new TalonConfig(BACK_RIGHT_DRIVE_ID, CanBas, "backRight/Drive")
                 .withPID(MOVE_PID.KP, MOVE_PID.KI, MOVE_PID.KD, MOVE_PID.KS, MOVE_PID.KV, MOVE_PID.KA, MOVE_PID.KG)
                 .withBrake(true)
-                .withInvert(false)
+                .withInvert(true)
                 .withMotorRatio(MOVE_GEAR_RATIO)
                 .withMeterMotor(WHEEL_CIRCUMFERENCE)
                 .withMotionMagic(DRIVE_VELOCITY, DRIVE_ACCELERATION, DRIVE_JERK),

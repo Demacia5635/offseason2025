@@ -9,6 +9,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.chassis.SwerveConstants;
@@ -55,35 +57,13 @@ public class Chassis extends SubsystemBase {
         kinematics = SwerveConstants.KINEMATICS;
 
 
-        SmartDashboard.putData("Swerve Drive", new Sendable() {
-          @Override
-          public void initSendable(SendableBuilder builder) {
-            builder.setSmartDashboardType("SwerveDrive");
-        
-            builder.addDoubleProperty("Front Left Angle", () -> frontLeft.getAbsoluteAngle(), null);
-            builder.addDoubleProperty("Front Left Velocity", () -> frontLeft.getVelocity(), null);
-        
-            builder.addDoubleProperty("Front Right Angle", () -> frontRight.getAbsoluteAngle(), null);
-            builder.addDoubleProperty("Front Right Velocity", () -> frontRight.getVelocity(), null);
-        
-            builder.addDoubleProperty("Back Left Angle", () -> backLeft.getAbsoluteAngle(), null);
-            builder.addDoubleProperty("Back Left Velocity", () -> backLeft.getVelocity(), null);
-        
-            builder.addDoubleProperty("Back Right Angle", () -> backRight.getAbsoluteAngle(), null);
-            builder.addDoubleProperty("Back Right Velocity", () -> backRight.getVelocity(), null);
-        
-            builder.addDoubleProperty("Robot Angle", () -> getGyroRotation().getRadians(), null);
-          }
-        });
 
+      addSmartDashboard();
 
     }
 
     @Override
     public void periodic() {
-
-        // Update SmartDashboard with telemetry
-        updateSmartDashboard();
     }
 
     /**
@@ -126,11 +106,37 @@ public class Chassis extends SubsystemBase {
         return RobotContainer.isRed();
     }
 
+    private Command resetGyro() {
+      return new InstantCommand(()-> gyro.reset()).ignoringDisable(true);
+    }
+
     /**
      * Update SmartDashboard with chassis telemetry
      */
-    private void updateSmartDashboard() {
-        SmartDashboard.putNumber("Gyro Angle", getGyroRotation().getDegrees());
+    private void addSmartDashboard() {
+      SmartDashboard.putNumber("Gyro Angle", getGyroRotation().getDegrees());
+      SmartDashboard.putData("reset gyro", resetGyro());
+      SmartDashboard.putData("Swerve Drive", new Sendable() {
+          @Override
+          public void initSendable(SendableBuilder builder) {
+            builder.setSmartDashboardType("SwerveDrive");
+        
+            builder.addDoubleProperty("Front Left Angle", () -> frontLeft.getAbsoluteAngle(), null);
+            builder.addDoubleProperty("Front Left Velocity", () -> frontLeft.getVelocity(), null);
+        
+            builder.addDoubleProperty("Front Right Angle", () -> frontRight.getAbsoluteAngle(), null);
+            builder.addDoubleProperty("Front Right Velocity", () -> frontRight.getVelocity(), null);
+        
+            builder.addDoubleProperty("Back Left Angle", () -> backLeft.getAbsoluteAngle(), null);
+            builder.addDoubleProperty("Back Left Velocity", () -> backLeft.getVelocity(), null);
+        
+            builder.addDoubleProperty("Back Right Angle", () -> backRight.getAbsoluteAngle(), null);
+            builder.addDoubleProperty("Back Right Velocity", () -> backRight.getVelocity(), null);
+        
+            builder.addDoubleProperty("Robot Angle", () -> getGyroRotation().getRadians(), null);
+          }
+        });
+      
     }
 
 
