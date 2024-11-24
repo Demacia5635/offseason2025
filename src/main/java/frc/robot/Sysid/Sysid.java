@@ -53,7 +53,9 @@ public class Sysid {
     final static double defaultDuration = 2.5;
     final static double defaultDelay = 10;
     Gains[] gains; // the gains we are looking for
-    double[] result = null; // the result, after analyze
+    double[] result20 = null; // the result, after analyze
+    double[] result50 = null;
+    double[] result70 = null;
     boolean steadyOnly = false; // if we need steady only
     boolean isRadian;
 
@@ -257,22 +259,33 @@ public class Sysid {
      */
     public void analyze() {
         setPower.accept(0.0);
-        SimpleMatrix feedForwardValues = dataCollector.solve();
-        result = new double[gains.length];
+        SimpleMatrix feedForwardValues20 = dataCollector.solve();
+        SimpleMatrix feedForwardValues50 = dataCollector.solveRange50();
+        SimpleMatrix feedForwardValues70 = dataCollector.solveRange70();
+        result20 = new double[gains.length];
+        result50 = new double[gains.length];
+        result70 = new double[gains.length];
         for (int i = 0; i < gains.length; i++) {
-            result[i] = feedForwardValues.get(i, 0);
-            SmartDashboard.putNumber("SysID-" + gains[i] + "-0-20 ranges", result[i]);
+            result20[i] = feedForwardValues20.get(i, 0);
+            result50[i] = feedForwardValues50.get(i,0);
+            result70[i] = feedForwardValues70.get(i,0);
+            SmartDashboard.putNumber("SysID-" + gains[i] + "-0-20 ranges", result20[i]);
             // System.out.println("Sysid: " + gains[i] + " = " + result[i]);
         }
-        SmartDashboard.putNumber("sysid-Check" + gains[0], result[0]);
-        SimpleMatrix power = dataCollector.dataRange20().mult(feedForwardValues);
+        // for(int i = 0; i < gains.length; i++){
+        //     SmartDashboard.putNumber("SysID-" + gains[i] + "-0-50 ranges", result50[i]);    
+        // }
+        SmartDashboard.putNumber("sysid-Check" + gains[0], result20[0]);
+        SmartDashboard.putNumber("feed forward 20 columns", feedForwardValues20.getNumCols());
+        SmartDashboard.putNumber("data range 20 rows", dataCollector.dataRange20().getNumRows());
+        SimpleMatrix power = dataCollector.dataRange20().mult(feedForwardValues20);
         SimpleMatrix e = dataCollector.power().minus(power);
         SimpleMatrix ee = e.elementMult(e);
         double max = Math.sqrt(ee.elementMax());
         double avg = ee.elementSum() / ee.getNumRows();
         SmartDashboard.putNumber("Sysid/Max Error", max);
         SmartDashboard.putNumber("Sysid/Avg Error Sqr", avg);
-        double kp = (valueOf(Gains.KV, gains, result) + valueOf(Gains.KA, gains, result)) / 5.0;
+        double kp = (valueOf(Gains.KV, gains, result20) + valueOf(Gains.KA, gains, result20)) / 5.0;
         SmartDashboard.putNumber("Sysid/KP (Roborio)", kp);
     }
     // R ﻿﻿ 1 ﻿﻿ The startCompetition() method (or methods called by it) should have
@@ -301,7 +314,7 @@ public class Sysid {
      * @return result array of gain values
      */
     public double[] result() {
-        return result;
+        return result20;
     }
 
     /**
@@ -311,5 +324,49 @@ public class Sysid {
     public Gains[] gains() {
         return gains;
     }
+/*RROR ﻿﻿ 1 ﻿﻿ The startCompetition() method (or methods called by it) should have handled the exception above. ﻿﻿ edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:386) ﻿﻿﻿
+﻿﻿﻿﻿﻿﻿ Error at edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:386): The startCompetition() method (or methods called by it) should have handled the exception above. ﻿
+ */
 
+ /*
+  * t frc.robot.Main.main(Main.java:23) ﻿
+﻿﻿﻿﻿﻿﻿  ﻿
+﻿﻿﻿﻿﻿﻿﻿﻿Warning ﻿﻿ 1 ﻿﻿ The robot program quit unexpectedly. This is usually due to a code error.
+  The above stacktrace can help determine where the error occurred.
+  See https://wpilib.org/stacktrace for more information. ﻿﻿ edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:379) ﻿﻿﻿
+﻿﻿﻿﻿﻿﻿ ﻿Warning﻿ at edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:379): The robot program quit unexpectedly. This is usually due to a code error. ﻿
+﻿﻿﻿﻿﻿﻿   The above stacktrace can help determine where the error occurred. ﻿
+﻿﻿﻿﻿﻿﻿   See https://wpilib.org/stacktrace for more information. ﻿
+﻿﻿﻿﻿﻿﻿﻿﻿ERROR ﻿﻿ 1 ﻿﻿ The startCompetition() method (or methods called by it) should have handled the exception above. ﻿﻿ edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:386) ﻿﻿﻿
+﻿﻿﻿﻿﻿﻿ Error at edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:386): The startCompetition() method (or methods called by it) should have handled the exception above. ﻿
+﻿﻿﻿﻿﻿﻿ ********** Robot program starting ********** ﻿
+
+  */
+
+  /*
+   *  	Shuffleboard.update(): 0.000019s ﻿
+﻿﻿﻿﻿﻿﻿  ﻿
+﻿﻿﻿﻿﻿﻿﻿﻿ERROR ﻿﻿ -1003 ﻿﻿ CAN frame not received/too-stale. Check the CAN bus wiring, CAN bus utilization, and power to the device. ﻿﻿ talon fx 8 ("rio") Refresh Config ﻿﻿﻿
+﻿﻿﻿﻿﻿﻿﻿﻿Warning ﻿﻿ 1 ﻿﻿ Loop time of 0.02s overrun
+ ﻿﻿ edu.wpi.first.wpilibj.IterativeRobotBase.printLoopOverrunMessage(IterativeRobotBase.java:412) ﻿﻿﻿
+﻿﻿﻿﻿﻿﻿ ﻿Warning﻿ at edu.wpi.first.wpilibj.IterativeRobotBase.printLoopOverrunMessage(IterativeRobotBase.java:412): Loop time of 0.02s overrun ﻿
+﻿﻿﻿﻿﻿﻿  ﻿
+﻿﻿﻿﻿﻿﻿﻿﻿Warning ﻿﻿ 1 ﻿﻿ 	teleopPeriodic(): 0.000445s
+	SmartDashboard.updateValues(): 0.046671s
+	robotPeriodic(): 0.001800s
+	LiveWindow.updateValues(): 0.000000s
+	Shuffleboard.update(): 0.000000s
+ ﻿﻿ edu.wpi.first.wpilibj.Tracer.lambda$printEpochs$0(Tracer.java:62) ﻿﻿﻿
+﻿﻿﻿﻿﻿﻿ ﻿Warning﻿ at edu.wpi.first.wpilibj.Tracer.lambda$printEpochs$0(Tracer.java:62): 	teleopPeriodic(): 0.000445s ﻿
+﻿﻿﻿﻿﻿﻿ 	SmartDashboard.updateValues(): 0.046671s ﻿
+﻿﻿﻿﻿﻿﻿ 	robotPeriodic(): 0.001800s ﻿
+﻿﻿﻿﻿﻿﻿ 	LiveWindow.updateValues(): 0.000000s ﻿
+﻿﻿﻿﻿﻿﻿ 	Shuffleboard.update(): 0.000000s ﻿
+﻿﻿﻿﻿﻿﻿  ﻿
+﻿﻿﻿﻿﻿﻿﻿﻿Warning ﻿﻿ 1 ﻿﻿ Loop time of 0.02s overrun
+ ﻿﻿ edu.wpi.first.wpilibj.IterativeRobotBase.printLoopOverrunMessage(IterativeRobotBase.java:412) ﻿﻿﻿
+﻿﻿﻿﻿﻿﻿ ﻿Warning﻿ at edu.wpi.first.wpilibj.IterativeRobotBase.printLoopOverrunMessage(IterativeRobotBase.java:412): Loop time of 0.02s overrun ﻿
+﻿﻿﻿﻿﻿﻿  ﻿
+
+   */
 }
