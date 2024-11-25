@@ -132,7 +132,7 @@ public class TalonConfig {
         return this;
     }
 
-    public TalonConfig withRadiansMotor() {
+    public TalonConfig withRadiansMotor() {// 12.8 = 1 = 360, 360/2*PI = 2*PI*Rad
         this.motorRatio *= 1 / (Math.PI * 2);
         return this;
     }

@@ -51,8 +51,8 @@ public class TempSubSystem extends SubsystemBase {
   //kp = 0.1, ki = 0.7, kd = 0.07
   public TempSubSystem() {
     steerMotor = new TalonMotor(
-      new TalonConfig(8, "rio", "steer motor") //0.0011936972676809083KV, 
-      .withPID(0.8, 4, 0.0, 0.3295543024, 0.2385745774, -0.003105620266, 0)
+      new TalonConfig(8, "rio", "steer motor") 
+      .withPID(0.1, 0.0, 0.0, 0.2608668730650151, 0.020429816749889147, 0.027562309396102925, 0)
       .withMotionMagic(3*2*Math.PI, 5*2*Math.PI, 50*2*Math.PI)
       .withBrake(true).withInvert(true)
       .withMotorRatio(12.8).withRadiansMotor()
@@ -109,9 +109,6 @@ public class TempSubSystem extends SubsystemBase {
 
   }
 
-  public double getCurrentVel(){
-    return steerMotor.getCurrentVelocity();
-  }
 
   @Override
   public void periodic() {

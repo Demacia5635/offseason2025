@@ -2,6 +2,10 @@ package frc.robot.Sysid;
 
 import java.util.function.Supplier;
 import org.ejml.simple.SimpleMatrix;
+
+import frc.robot.utils.LogManager;
+import frc.robot.utils.LogManager.LogEntry;
+
 import static frc.robot.Sysid.Sysid.Gains;
 
 /**
@@ -107,32 +111,29 @@ public class DataCollector {
             Range50 = minPow + (Range1 * 0.7);
             double velocity = getVelocity.get();
             for (int i = 0; i < gains.length; i++) {
-                if (velocity >= Range30) {
+                if (power <= Range30) {
                     dataRange30.set(nextRowRange30, i, value(gains[i], velocity, rad));
                     powerRange30.set(nextRowRange30, 0, power);
-
-                    testForData.set(i, i, value(gains[i], velocity, rad));
-                    testForPower.set(i, 0, power);
                     nextRowRange30++;
                 }
-
-                else if (velocity >= Range50) {
+                
+                else if (power <= Range50) {
                     dataRange60.set(nextRowRange60, i, value(gains[i], velocity, rad));
-                    powerRange60.set(i, 0, power);
+                    powerRange60.set(nextRowRange60, 0, power);
+                    System.out.println("next row 60: " + nextRowRange60);
                     nextRowRange60++;
-
-                    testForData.set(i, i, value(gains[i], velocity, rad));
-                    testForPower.set(i, 0, power);
                 }
 
-                else if(velocity <= maxPow){
+                else if(power <= maxPow){
                     dataRange100.set(nextRowRange100, i, value(gains[i], velocity, rad));
-                    powerRange100.set(i, 0, power);
+                    powerRange100.set(nextRowRange100, 0, power);
+                    System.out.println("next row100: " + nextRowRange100);
                     nextRowRange100++;
-
-                    testForData.set(i, i, value(gains[i], velocity, rad));
-                    testForPower.set(i, 0, power);
                 }
+
+                System.out.println("entered next row 60: " + (power >= Range50));
+                System.out.println("entered next row 100: " + (power >= maxPow));
+                
             }
             lastV = velocity;
         }

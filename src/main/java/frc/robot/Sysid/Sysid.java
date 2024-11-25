@@ -54,7 +54,7 @@ public class Sysid {
     final static double defaultDuration = 2.5;
     final static double defaultDelay = 10;
     Gains[] gains; // the gains we are looking for
-    double[] result20 = null; // the result, after analyze
+    double[] result30 = null; // the result, after analyze
     double[] result50 = null;
     double[] result70 = null;
     boolean steadyOnly = false; // if we need steady only
@@ -252,14 +252,14 @@ public class Sysid {
         SimpleMatrix feedForwardValues20 = dataCollector.solve();
         SimpleMatrix feedForwardValues50 = dataCollector.solveRange60();
         SimpleMatrix feedForwardValues70 = dataCollector.solveRange100();
-        result20 = new double[gains.length];
+        result30 = new double[gains.length];
         result50 = new double[gains.length];
         result70 = new double[gains.length];
         for (int i = 0; i < gains.length; i++) {
-            result20[i] = feedForwardValues20.get(i, 0);
+            result30[i] = feedForwardValues20.get(i, 0);
             result50[i] = feedForwardValues50.get(i, 0);
             result70[i] = feedForwardValues70.get(i, 0);
-            SmartDashboard.putNumber("SysID-" + gains[i] + "-0-20 ranges", result20[i]);
+            SmartDashboard.putNumber("SysID-" + gains[i] + "-0-20 ranges", result30[i]);
             // System.out.println("Sysid: " + gains[i] + " = " + result[i]);
         }
         // for(int i = 0; i < gains.length; i++){
@@ -274,7 +274,7 @@ public class Sysid {
         double avg = errorSquared.elementSum() / errorSquared.getNumRows();
         SmartDashboard.putNumber("Sysid/Max Error", max);
         SmartDashboard.putNumber("Sysid/Avg Error Sqr", avg);
-        double kp = (valueOf(Gains.KV, gains, result20) + valueOf(Gains.KA, gains, result20)) / 5.0;
+        double kp = (valueOf(Gains.KV, gains, result30) + valueOf(Gains.KA, gains, result30)) / 5.0;
         SmartDashboard.putNumber("Sysid/KP (Roborio)", kp);
     }
 
@@ -300,7 +300,7 @@ public class Sysid {
      * @return result array of gain values
      */
     public double[] result() {
-        return result20;
+        return result30;
     }
 
     /**
