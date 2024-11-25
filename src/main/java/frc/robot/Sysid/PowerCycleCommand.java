@@ -3,8 +3,11 @@ package frc.robot.Sysid;
 import java.util.function.Consumer;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.test.TempSubSystem;
 
 /**
  * Class to run a sysid power cycle
@@ -14,13 +17,12 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
  */
 public class PowerCycleCommand extends Command {
 
-    double power; // the power to use
+    double power; // given power to the motor
     DataCollector dataCollector; // data collector
     Consumer<Double> setPower; // set power function
     boolean resetDataCollector; // reset the data collector data for rerun of the same command group
-    double sec;
-    Timer timer;
-
+    double minPow; // min power given to the motor
+    double maxPow; // max power given
     /**
      * default Constructor - does not reset the data collector
      * 
@@ -28,15 +30,13 @@ public class PowerCycleCommand extends Command {
      * @param power         wanted power
      * @param dataCollector collects data
      * @param subSystem     needed subsystem
-     * @param sec           time given to accomplish command
      */
-    public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector, double sec,
+    public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector, double maxPow, double minPow,
             Subsystem... subSystem) {
 
-        this(setPower, power, dataCollector, false, sec, subSystem);
-        if(subSystem != null){
-            addRequirements(subSystem);
-        }
+        this(setPower, power, dataCollector, false, maxPow, minPow, subSystem);
+        addRequirements(subSystem);
+        
     }
 
     /**
@@ -49,14 +49,14 @@ public class PowerCycleCommand extends Command {
      * @param subSystem          needed subsystem
      */
     public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector,
-            boolean resetDataCollector, double sec, Subsystem... subSystem) {
+            boolean resetDataCollector, double maxPow, double minPow, Subsystem... subSystem) {
         this.power = power;
         this.dataCollector = dataCollector;
         this.setPower = setPower;
         this.resetDataCollector = resetDataCollector;
-        this.sec = sec;
-        if (subSystem != null)
-            addRequirements(subSystem);
+        this.minPow = minPow;
+        this.maxPow = maxPow;
+        addRequirements(subSystem);
     }
 
     /**
@@ -68,7 +68,6 @@ public class PowerCycleCommand extends Command {
 
     @Override
     public void initialize() {
-        timer.start();
         if (resetDataCollector) {
             dataCollector.resetData();
         }
@@ -76,25 +75,18 @@ public class PowerCycleCommand extends Command {
         dataCollector.resetLastV();
     }
 
-    /*TODO add setPower function to a tempSubsystem */
     @Override
     public void execute() {
-        dataCollector.collect(power);
+        dataCollector.collect(power, maxPow, minPow);
         
     }
 
     @Override
     public void end(boolean interrupted) {
         // System.out.println(" sysid-powercycle-end " + power);
-        timer.stop();
-        setPower.accept(0.0);
-        timer.reset();
+        
     }
 
-    @Override
-    public boolean isFinished() {//3.1 - 3 = 0.1
-        double error = Math.abs(timer.get() - sec);
-        return (error > 0 );
-    }
+
 
 }

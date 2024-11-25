@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import org.ejml.simple.SimpleMatrix;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -37,13 +38,13 @@ public class Sysid {
      * Gains enum - type of gains
      */
     public static enum Gains {
-        KS, KV, KA, KRad, KMeter, KV2, KVsqrt, KSin, KCos, KTan;
+        KS, KV, KA, KG, KRad, KV2, KVsqrt, KSin, KCos, KTan;
     }
 
     Consumer<Double> setPower; // function to set the power
     DataCollector dataCollector; // the data collector class
-    double minPower;
-    double maxPower;
+    double minPow;
+    double maxPow;
     double deltaPower; // the change of power between power cycles
     int nPowerCycles; // how many powers to use (the system will run each power in positive and
                       // negative values)
@@ -53,31 +54,34 @@ public class Sysid {
     final static double defaultDuration = 2.5;
     final static double defaultDelay = 10;
     Gains[] gains; // the gains we are looking for
-    double[] result = null; // the result, after analyze
+    double[] result20 = null; // the result, after analyze
+    double[] result50 = null;
+    double[] result70 = null;
     boolean steadyOnly = false; // if we need steady only
+    final static double voltageForHorizontal = 4; // voltage for staying at a horizontal state
 
     /**
      * Constructor with default values - only required the setPower, setVelocity,
      * min/max power and subsystems
+     * Constructor for meter unit
      * 
      * @param setPower    the power wanted
      * @param getVelocity motors velocity
-     * @param minPower    the min power given
-     * @param maxPower    the max power
-     * @param subsystems  subsystem for require
+     * @param minPow      the min power given
+     * @param maxPow      the max power
+     * @param subsystems  subsystem required
      */
     public Sysid(Consumer<Double> setPower,
             Supplier<Double> getVelocity,
-            double minPower,
-            double maxPower,
+            double minPow,
+            double maxPow,
             Subsystem... subsystems) {
         this(new Gains[] { Gains.KS, Gains.KV, Gains.KA, Gains.KV2 },
                 setPower,
                 getVelocity,
-                null,
-                minPower,
-                maxPower,
-                3,
+                minPow,
+                maxPow,
+                20,
                 defaultDuration,
                 defaultDelay,
                 subsystems);
@@ -88,25 +92,24 @@ public class Sysid {
      * 
      * @param setPower           holds the power given to the motor
      * @param getVelocity        current velocity
-     * @param minPower           min power that can be given
-     * @param maxPower           max power that can be given
+     * @param minPow             min power that can be given
+     * @param maxPow             max power that can be given
      * @param subsystems         needed subsystem
      * @param powerCycleDuration for how long each power should be activated
      */
     public Sysid(Consumer<Double> setPower,
             Supplier<Double> getVelocity,
-            double minPower,
-            double maxPower,
+            double minPow,
+            double maxPow,
             double powerCycleDuration,
             double powerCycleDelay,
             Subsystem... subsystems) {
         this(new Gains[] { Gains.KS, Gains.KV, Gains.KA },
                 setPower,
                 getVelocity,
-                null,
-                minPower,
-                maxPower,
-                3,
+                minPow,
+                maxPow,
+                20,
                 powerCycleDuration,
                 powerCycleDelay,
                 subsystems);
@@ -117,54 +120,58 @@ public class Sysid {
      * 
      * @param setPower    holds in the power
      * @param getVelocity gives the motors velocity
-     * @param minPower    min power that can be given
-     * @param maxPower    max power that can be given
+     * @param minPow      min power that can be given
+     * @param maxPow      max power that can be given
      * @param subsystems  needed subsystem
      */
     public Sysid(Gains[] types,
             Consumer<Double> setPower,
             Supplier<Double> getVelocity,
-            Supplier<Double> getRadians,
-            double minPower,
-            double maxPower,
+            double minPow,
+            double maxPow,
             int nPowerCycles,
             double powerCycleDuration,
             double powerCycleDelay,
             Subsystem... subsystems) {
 
         this.setPower = setPower;
-        dataCollector = new DataCollector(types, getVelocity, getRadians, nPowerCycles, powerCycleDuration);
-        this.minPower = minPower;
-        this.maxPower = maxPower;
+        dataCollector = new DataCollector(types, getVelocity, nPowerCycles, powerCycleDuration, voltageForHorizontal);
+        this.minPow = minPow;
+        this.maxPow = maxPow;
         this.nPowerCycles = nPowerCycles;
         this.powerCycleDelay = powerCycleDelay;
         this.powerCycleDuration = powerCycleDuration;
-        deltaPower = (maxPower - minPower) / (nPowerCycles - 1);
+        deltaPower = (double) (maxPow - minPow) / (nPowerCycles);
         this.subsystems = subsystems;
         this.gains = types;
+        SmartDashboard.putNumber("deltaPow", deltaPower);
+
     }
+
+
 
     /**
      * 
      * @param setPower    power given to the motor
      * @param getVelocity current velocity
-     * @param minPower    min power (you cant go below it)
-     * @param maxPower    max power (you cant go above it)
-     * @param powerStep   
-     * @param minVelocity min velocity (you cant go below it)
-     * @param maxVelocity max velocity (you cant go below it)
+     * @param minPow      min power (you cant go below it)
+     * @param maxPow      max power (you cant go above it)
+     * @param powerStep
+     * @param minPow      min velocity (you cant go below it)
+     * @param maxPow      max velocity (you cant go below it)
      * @param isMeter     decides which unints to use
      * @param subsystems  subsystem needed to run on
-     * @return
+     * @param isRadian    TBD for now false
+     * @return commad
      */
-    public static Command getSteadyCommand(Consumer<Double> setPower, Supplier<Double> getVelocity, double minPower,
-            double maxPower, double powerStep, double minVelocity, double maxVelocity, boolean isMeter,
+    public static Command getSteadyCommand(Consumer<Double> setPower, Supplier<Double> getVelocity, double minPow,
+            double maxPow, double powerStep, boolean isMeter,
             Subsystem... subsystems) {
-        Sysid id = new Sysid(new Gains[] { Gains.KS, Gains.KV, Gains.KV2 }, setPower, getVelocity, null, minPower,
-                maxPower, 2, 1, 1, subsystems);
+        Sysid id = new Sysid(new Gains[] { Gains.KS, Gains.KV, Gains.KV2 }, setPower, getVelocity,  minPow,
+                maxPow, 20, 1, 1, subsystems);
         id.steadyOnly = true;
-        Command cmd = new NoAccelerationPowerCommand(setPower, minPower, maxPower, powerStep, id.dataCollector, false,
-                minVelocity, maxVelocity, maxVelocity, subsystems);
+        Command cmd = new NoAccelerationPowerCommand(setPower, powerStep, id.dataCollector, false,
+                minPow, maxPow, maxPow,  subsystems);
         return cmd.andThen(new InstantCommand(() -> id.analyze()));
     }
 
@@ -172,13 +179,14 @@ public class Sysid {
      * run the command
      */
     public void run() {
-        getCommand().schedule();
+        runNormalSysId().schedule();
     }
+
 
     /**
      * calculate the power for cycle
-     * cycles run - minPower, -minPower, (minPower+delta),
-     * -(minPower+delts).....(maxPower), -max(Power)
+     * cycles run - minPow, -minPow, (minPow+delta),
+     * -(minPow+delts).....(maxPow), -max(Power)
      * 
      * @param cycle
      * @param pow   power for every cycle
@@ -187,7 +195,7 @@ public class Sysid {
     double power(int cycle) {
         int pow = cycle / 2;
         double sign = cycle % 2 == 0 ? 1 : -1;
-        return sign * (minPower + pow * deltaPower);
+        return sign * (minPow + pow * deltaPower);
     }
 
     /**
@@ -197,15 +205,15 @@ public class Sysid {
      * 
      * @return Command
      */
-    public Command getCommand() {
+    public Command runNormalSysId() {
         boolean resetDataCollector = true;
         Command cmd = new WaitCommand(powerCycleDelay);
-        for (int c = 0; c < nPowerCycles; c++) {
-            double power = minPower + c * deltaPower;
+        for (int cycle = 0; cycle < nPowerCycles; cycle++) {
+            double power = minPow + cycle * deltaPower;
             cmd = cmd.andThen(getPowerCommand(power, resetDataCollector));
             resetDataCollector = false;
-            cmd = cmd.andThen(getPowerCommand(-power, resetDataCollector));
         }
+        SmartDashboard.putNumber("deltaPower", deltaPower);
         return cmd.andThen(new InstantCommand(() -> analyze()));
     }
 
@@ -213,7 +221,7 @@ public class Sysid {
         boolean resetDataCollector = true;
         Command cmd = new WaitCommand(powerCycleDelay);
         for (int c = 0; c < nPowerCycles; c++) {
-            double power = minPower + c * deltaPower;
+            double power = minPow + c * deltaPower;
             cmd = cmd.andThen(getPowerCommand(power, resetDataCollector));
             resetDataCollector = false;
             // cmd = cmd.andThen(getPowerCommand(-power, resetDataCollector));
@@ -224,8 +232,8 @@ public class Sysid {
     /**
      * Get the command for a power - with the duration and delay
      */
-    Command getPowerCommand(double power, boolean resetDataCollector) {
-        return ((new PowerCycleCommand(setPower, power, dataCollector, resetDataCollector, powerCycleDuration,
+    Command getPowerCommand(double velocity, boolean resetDataCollector) {
+        return ((new PowerCycleCommand(setPower, velocity, dataCollector, resetDataCollector, maxPow, minPow,
                 subsystems))
                 .withTimeout(powerCycleDuration)).andThen(new WaitCommand(powerCycleDelay));
     }
@@ -239,36 +247,55 @@ public class Sysid {
      * @param power             the power matrix,
      * @param result            double arr that holds all feed forward values (such
      *                          as kS, kV and kA)
-     * @param dataCollector holds in raw data such as current velocity, acceleration
-     * 
+     * @param dataCollector     holds in raw data such as current velocity,
+     *                          acceleration
+     * @param power             calculated output
+     * @param error             is the error between the expected output (power())
+     *                          and the calculated one power
+     * @param errorSquared      is
+     * @param max               the largest error, a measure of the worst-case
+     *                          deviation
+     * @param avg               the average squared error, a measure of overall
+     *                          accuracy.
      */
-    void analyze() {
-        SimpleMatrix feedForwardValues = dataCollector.solve();
-        result = new double[gains.length];
+    public void analyze() {
+        setPower.accept(0.0);
+        SimpleMatrix feedForwardValues20 = dataCollector.solve();
+        SimpleMatrix feedForwardValues50 = dataCollector.solveRange60();
+        SimpleMatrix feedForwardValues70 = dataCollector.solveRange100();
+        result20 = new double[gains.length];
+        result50 = new double[gains.length];
+        result70 = new double[gains.length];
         for (int i = 0; i < gains.length; i++) {
-            result[i] = feedForwardValues.get(i, 0);
-            SmartDashboard.putNumber("SysID/" + gains[i] + "/0-20 ranges", result[i]);
+            result20[i] = feedForwardValues20.get(i, 0);
+            result50[i] = feedForwardValues50.get(i, 0);
+            result70[i] = feedForwardValues70.get(i, 0);
+            SmartDashboard.putNumber("SysID-" + gains[i] + "-0-20 ranges", result20[i]);
             // System.out.println("Sysid: " + gains[i] + " = " + result[i]);
         }
-        
-        SimpleMatrix power = dataCollector.dataRange20().mult(feedForwardValues);
-        SimpleMatrix e = dataCollector.power().minus(power);
-        SimpleMatrix ee = e.elementMult(e);
-        double max = Math.sqrt(ee.elementMax());
-        double avg = ee.elementSum() / ee.getNumRows();
+        // for(int i = 0; i < gains.length; i++){
+        // SmartDashboard.putNumber("SysID-" + gains[i] + "-0-50 ranges", result50[i]);
+        // }
+        SmartDashboard.putNumber("feed forward 20 columns", feedForwardValues20.getNumCols());
+        SmartDashboard.putNumber("data range 20 rows", dataCollector.dataRange30().getNumRows());
+        SimpleMatrix power = dataCollector.dataRange30().mult(feedForwardValues20);
+        SimpleMatrix error = dataCollector.power().minus(power);
+        SimpleMatrix errorSquared = error.elementMult(error);
+        double max = Math.sqrt(errorSquared.elementMax());
+        double avg = errorSquared.elementSum() / errorSquared.getNumRows();
         SmartDashboard.putNumber("Sysid/Max Error", max);
         SmartDashboard.putNumber("Sysid/Avg Error Sqr", avg);
-        double kp = (valueOf(Gains.KV, gains, result) + valueOf(Gains.KA, gains, result)) / 5.0;
+        double kp = (valueOf(Gains.KV, gains, result20) + valueOf(Gains.KA, gains, result20)) / 5.0;
         SmartDashboard.putNumber("Sysid/KP (Roborio)", kp);
     }
 
     /**
      * Value of a specific Gain type
      * 
-     * @param gain
-     * @param gains
-     * @param values
-     * @return
+     * @param gain   the given feedforward variable
+     * @param gains  all the given feedforward variables (like KS, KV, KA, etc...)
+     * @param values raw data of the ff variables (such as velocity, acceleration)
+     * @return the value needed for the ff variable or 0 if found none
      */
     double valueOf(Gains gain, Gains[] gains, double[] values) {
         for (int i = 0; i < gains.length; i++) {
@@ -284,7 +311,7 @@ public class Sysid {
      * @return result array of gain values
      */
     public double[] result() {
-        return result;
+        return result20;
     }
 
     /**
