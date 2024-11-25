@@ -217,17 +217,6 @@ public class Sysid {
         return cmd.andThen(new InstantCommand(() -> analyze()));
     }
 
-    public Command getCommandOneWay() {
-        boolean resetDataCollector = true;
-        Command cmd = new WaitCommand(powerCycleDelay);
-        for (int c = 0; c < nPowerCycles; c++) {
-            double power = minPow + c * deltaPower;
-            cmd = cmd.andThen(getPowerCommand(power, resetDataCollector));
-            resetDataCollector = false;
-            // cmd = cmd.andThen(getPowerCommand(-power, resetDataCollector));
-        }
-        return cmd.andThen(new InstantCommand(() -> analyze()));
-    }
 
     /**
      * Get the command for a power - with the duration and delay

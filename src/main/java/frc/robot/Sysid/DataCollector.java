@@ -35,6 +35,9 @@ public class DataCollector {
     double rad = 0; //current angle in in rad
     double voltageForHorizontal;
 
+    SimpleMatrix testForData;
+    SimpleMatrix testForPower;
+
     
 
     /**
@@ -64,6 +67,8 @@ public class DataCollector {
         nextRowRange100 = 0;
         lastV = 0;
         this.voltageForHorizontal = voltageForHorizontal;
+        testForData = new SimpleMatrix(matrixRows, gains.length);
+        testForPower = new SimpleMatrix(matrixRows, 1);
     }
 
 
@@ -104,7 +109,10 @@ public class DataCollector {
             for (int i = 0; i < gains.length; i++) {
                 if (velocity >= Range30) {
                     dataRange30.set(nextRowRange30, i, value(gains[i], velocity, rad));
-                    powerRange30.set(i, 0, power);
+                    powerRange30.set(nextRowRange30, 0, power);
+
+                    testForData.set(i, i, value(gains[i], velocity, rad));
+                    testForPower.set(i, 0, power);
                     nextRowRange30++;
                 }
 
@@ -112,12 +120,18 @@ public class DataCollector {
                     dataRange60.set(nextRowRange60, i, value(gains[i], velocity, rad));
                     powerRange60.set(i, 0, power);
                     nextRowRange60++;
+
+                    testForData.set(i, i, value(gains[i], velocity, rad));
+                    testForPower.set(i, 0, power);
                 }
 
                 else if(velocity <= maxPow){
                     dataRange100.set(nextRowRange100, i, value(gains[i], velocity, rad));
                     powerRange100.set(i, 0, power);
                     nextRowRange100++;
+
+                    testForData.set(i, i, value(gains[i], velocity, rad));
+                    testForPower.set(i, 0, power);
                 }
             }
             lastV = velocity;
