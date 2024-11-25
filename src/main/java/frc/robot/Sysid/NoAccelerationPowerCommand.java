@@ -25,10 +25,10 @@ public class NoAccelerationPowerCommand extends Command {
     double maxPower;                // max power to use
     double powerStep;               // power step
     int steadyCount;                // count cycle with small velocity change
-    double lastV;
-    boolean isRadian;                   // the last velocity
+    double lastV;             // the last velocity
 
-    public NoAccelerationPowerCommand(Consumer<Double> setPower, double powerStep, DataCollector dataCollector, boolean resetDataCollector, double minVelocity, double maxVelocity, double maxCycleVelocityChange, boolean isRadian, Subsystem ... subSystem) {
+    public NoAccelerationPowerCommand(Consumer<Double> setPower, double powerStep, DataCollector dataCollector, boolean resetDataCollector, double minVelocity,
+     double maxVelocity, double maxCycleVelocityChange, Subsystem ... subSystem) {
         this.powerStep = powerStep;
         this.dataCollector = dataCollector;
         this.setPower = setPower;
@@ -36,7 +36,6 @@ public class NoAccelerationPowerCommand extends Command {
         this.maxVelocity = maxVelocity;
         this.minVelocity = minVelocity;
         this.maxCycleVelocityChange = maxCycleVelocityChange;
-        this.isRadian = isRadian;
         addRequirements(subSystem);
     }
 

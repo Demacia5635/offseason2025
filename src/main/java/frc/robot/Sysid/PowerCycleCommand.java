@@ -17,13 +17,12 @@ import frc.robot.test.TempSubSystem;
  */
 public class PowerCycleCommand extends Command {
 
-    double velocity; // the power to use
+    double power; // given power to the motor
     DataCollector dataCollector; // data collector
     Consumer<Double> setPower; // set power function
     boolean resetDataCollector; // reset the data collector data for rerun of the same command group
-    double minVelocity;
-    double maxVelocity;
-    boolean isRadian;
+    double minPow; // min power given to the motor
+    double maxPow; // max power given
     /**
      * default Constructor - does not reset the data collector
      * 
@@ -32,10 +31,10 @@ public class PowerCycleCommand extends Command {
      * @param dataCollector collects data
      * @param subSystem     needed subsystem
      */
-    public PowerCycleCommand(Consumer<Double> setPower, double velocity, DataCollector dataCollector, double maxVelocity, double minVelocity,
+    public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector, double maxPow, double minPow,
             Subsystem... subSystem) {
 
-        this(setPower, velocity, dataCollector, false, maxVelocity, minVelocity, subSystem);
+        this(setPower, power, dataCollector, false, maxPow, minPow, subSystem);
         addRequirements(subSystem);
         
     }
@@ -49,14 +48,14 @@ public class PowerCycleCommand extends Command {
      * @param resetDataCollector param to reset data collected
      * @param subSystem          needed subsystem
      */
-    public PowerCycleCommand(Consumer<Double> setPower, double velocity, DataCollector dataCollector,
-            boolean resetDataCollector, double maxVelocity, double minVelocity, Subsystem... subSystem) {
-        this.velocity = velocity;
+    public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector,
+            boolean resetDataCollector, double maxPow, double minPow, Subsystem... subSystem) {
+        this.power = power;
         this.dataCollector = dataCollector;
         this.setPower = setPower;
         this.resetDataCollector = resetDataCollector;
-        this.minVelocity = minVelocity;
-        this.maxVelocity = maxVelocity;
+        this.minPow = minPow;
+        this.maxPow = maxPow;
         addRequirements(subSystem);
     }
 
@@ -72,13 +71,13 @@ public class PowerCycleCommand extends Command {
         if (resetDataCollector) {
             dataCollector.resetData();
         }
-        setPower.accept(velocity);
+        setPower.accept(power);
         dataCollector.resetLastV();
     }
 
     @Override
     public void execute() {
-        dataCollector.collect(velocity, maxVelocity, minVelocity);
+        dataCollector.collect(power, maxPow, minPow);
         
     }
 

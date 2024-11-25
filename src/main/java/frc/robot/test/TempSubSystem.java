@@ -76,8 +76,8 @@ public class TempSubSystem extends SubsystemBase {
     SmartDashboard.putData("steer motor", steerMotor);
 
     Consumer<Double> setPow = Power -> steerMotor.setDuty(Power);
-    id = new Sysid(setPow, getV, minPow, maxPow, duration , delay, true ,this);
-    SmartDashboard.putData("set sysid" , id.runSysId());
+    id = new Sysid(setPow, getV, minPow, maxPow, duration , delay ,this);
+    SmartDashboard.putData("set sysid" , id.runNormalSysId());
 
     SmartDashboard.putData("motor set pow", new RunCommand(()-> {
       steerMotor.setDuty(dutyTest);

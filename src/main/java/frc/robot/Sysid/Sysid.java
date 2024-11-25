@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import org.ejml.simple.SimpleMatrix;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -37,7 +38,7 @@ public class Sysid {
      * Gains enum - type of gains
      */
     public static enum Gains {
-        KS, KV, KA, KRad, KV2, KVsqrt, KSin, KCos, KTan;
+        KS, KV, KA, KG, KRad, KV2, KVsqrt, KSin, KCos, KTan;
     }
 
     Consumer<Double> setPower; // function to set the power
@@ -57,7 +58,7 @@ public class Sysid {
     double[] result50 = null;
     double[] result70 = null;
     boolean steadyOnly = false; // if we need steady only
-    boolean isRadian;
+    final static double voltageForHorizontal = 4; // voltage for staying at a horizontal state
 
     /**
      * Constructor with default values - only required the setPower, setVelocity,
@@ -66,8 +67,8 @@ public class Sysid {
      * 
      * @param setPower    the power wanted
      * @param getVelocity motors velocity
-     * @param minPow the min power given
-     * @param maxPow the max power
+     * @param minPow      the min power given
+     * @param maxPow      the max power
      * @param subsystems  subsystem required
      */
     public Sysid(Consumer<Double> setPower,
@@ -78,13 +79,11 @@ public class Sysid {
         this(new Gains[] { Gains.KS, Gains.KV, Gains.KA, Gains.KV2 },
                 setPower,
                 getVelocity,
-                null,
                 minPow,
                 maxPow,
                 20,
                 defaultDuration,
                 defaultDelay,
-                false,
                 subsystems);
     }
 
@@ -93,8 +92,8 @@ public class Sysid {
      * 
      * @param setPower           holds the power given to the motor
      * @param getVelocity        current velocity
-     * @param minPow        min power that can be given
-     * @param maxPow        max power that can be given
+     * @param minPow             min power that can be given
+     * @param maxPow             max power that can be given
      * @param subsystems         needed subsystem
      * @param powerCycleDuration for how long each power should be activated
      */
@@ -104,18 +103,15 @@ public class Sysid {
             double maxPow,
             double powerCycleDuration,
             double powerCycleDelay,
-            boolean isRadian,
             Subsystem... subsystems) {
         this(new Gains[] { Gains.KS, Gains.KV, Gains.KA },
                 setPower,
                 getVelocity,
-                null,
                 minPow,
                 maxPow,
                 20,
                 powerCycleDuration,
                 powerCycleDelay,
-                isRadian,
                 subsystems);
     }
 
@@ -124,24 +120,22 @@ public class Sysid {
      * 
      * @param setPower    holds in the power
      * @param getVelocity gives the motors velocity
-     * @param minPow min power that can be given
-     * @param maxPow max power that can be given
+     * @param minPow      min power that can be given
+     * @param maxPow      max power that can be given
      * @param subsystems  needed subsystem
      */
     public Sysid(Gains[] types,
             Consumer<Double> setPower,
             Supplier<Double> getVelocity,
-            Supplier<Double> getRadians,
             double minPow,
             double maxPow,
             int nPowerCycles,
             double powerCycleDuration,
             double powerCycleDelay,
-            boolean isRadian,
             Subsystem... subsystems) {
 
         this.setPower = setPower;
-        dataCollector = new DataCollector(types, getVelocity, nPowerCycles, powerCycleDuration);
+        dataCollector = new DataCollector(types, getVelocity, nPowerCycles, powerCycleDuration, voltageForHorizontal);
         this.minPow = minPow;
         this.maxPow = maxPow;
         this.nPowerCycles = nPowerCycles;
@@ -154,15 +148,17 @@ public class Sysid {
 
     }
 
+
+
     /**
      * 
      * @param setPower    power given to the motor
      * @param getVelocity current velocity
-     * @param minPow min power (you cant go below it)
-     * @param maxPow max power (you cant go above it)
+     * @param minPow      min power (you cant go below it)
+     * @param maxPow      max power (you cant go above it)
      * @param powerStep
-     * @param minPow min velocity (you cant go below it)
-     * @param maxPow max velocity (you cant go below it)
+     * @param minPow      min velocity (you cant go below it)
+     * @param maxPow      max velocity (you cant go below it)
      * @param isMeter     decides which unints to use
      * @param subsystems  subsystem needed to run on
      * @param isRadian    TBD for now false
@@ -171,11 +167,11 @@ public class Sysid {
     public static Command getSteadyCommand(Consumer<Double> setPower, Supplier<Double> getVelocity, double minPow,
             double maxPow, double powerStep, boolean isMeter,
             Subsystem... subsystems) {
-        Sysid id = new Sysid(new Gains[] { Gains.KS, Gains.KV, Gains.KV2 }, setPower, getVelocity, null, minPow,
-                maxPow, 20, 1, 1, false, subsystems);
+        Sysid id = new Sysid(new Gains[] { Gains.KS, Gains.KV, Gains.KV2 }, setPower, getVelocity,  minPow,
+                maxPow, 20, 1, 1, subsystems);
         id.steadyOnly = true;
         Command cmd = new NoAccelerationPowerCommand(setPower, powerStep, id.dataCollector, false,
-                minPow, maxPow, maxPow, false, subsystems);
+                minPow, maxPow, maxPow,  subsystems);
         return cmd.andThen(new InstantCommand(() -> id.analyze()));
     }
 
@@ -183,12 +179,9 @@ public class Sysid {
      * run the command
      */
     public void run() {
-        getCommand().schedule();
+        runNormalSysId().schedule();
     }
 
-    public Command runSysId() {
-        return getCommand();
-    }
 
     /**
      * calculate the power for cycle
@@ -212,7 +205,7 @@ public class Sysid {
      * 
      * @return Command
      */
-    public Command getCommand() {
+    public Command runNormalSysId() {
         boolean resetDataCollector = true;
         Command cmd = new WaitCommand(powerCycleDelay);
         for (int cycle = 0; cycle < nPowerCycles; cycle++) {
@@ -240,7 +233,8 @@ public class Sysid {
      * Get the command for a power - with the duration and delay
      */
     Command getPowerCommand(double velocity, boolean resetDataCollector) {
-        return ((new PowerCycleCommand(setPower, velocity, dataCollector, resetDataCollector, maxPow, minPow, subsystems))
+        return ((new PowerCycleCommand(setPower, velocity, dataCollector, resetDataCollector, maxPow, minPow,
+                subsystems))
                 .withTimeout(powerCycleDuration)).andThen(new WaitCommand(powerCycleDelay));
     }
 
@@ -255,50 +249,53 @@ public class Sysid {
      *                          as kS, kV and kA)
      * @param dataCollector     holds in raw data such as current velocity,
      *                          acceleration
-     * 
+     * @param power             calculated output
+     * @param error             is the error between the expected output (power())
+     *                          and the calculated one power
+     * @param errorSquared      is
+     * @param max               the largest error, a measure of the worst-case
+     *                          deviation
+     * @param avg               the average squared error, a measure of overall
+     *                          accuracy.
      */
     public void analyze() {
         setPower.accept(0.0);
         SimpleMatrix feedForwardValues20 = dataCollector.solve();
-        SimpleMatrix feedForwardValues50 = dataCollector.solveRange50();
-        SimpleMatrix feedForwardValues70 = dataCollector.solveRange70();
+        SimpleMatrix feedForwardValues50 = dataCollector.solveRange60();
+        SimpleMatrix feedForwardValues70 = dataCollector.solveRange100();
         result20 = new double[gains.length];
         result50 = new double[gains.length];
         result70 = new double[gains.length];
         for (int i = 0; i < gains.length; i++) {
             result20[i] = feedForwardValues20.get(i, 0);
-            result50[i] = feedForwardValues50.get(i,0);
-            result70[i] = feedForwardValues70.get(i,0);
+            result50[i] = feedForwardValues50.get(i, 0);
+            result70[i] = feedForwardValues70.get(i, 0);
             SmartDashboard.putNumber("SysID-" + gains[i] + "-0-20 ranges", result20[i]);
             // System.out.println("Sysid: " + gains[i] + " = " + result[i]);
         }
         // for(int i = 0; i < gains.length; i++){
-        //     SmartDashboard.putNumber("SysID-" + gains[i] + "-0-50 ranges", result50[i]);    
+        // SmartDashboard.putNumber("SysID-" + gains[i] + "-0-50 ranges", result50[i]);
         // }
-        SmartDashboard.putNumber("sysid-Check" + gains[0], result20[0]);
         SmartDashboard.putNumber("feed forward 20 columns", feedForwardValues20.getNumCols());
-        SmartDashboard.putNumber("data range 20 rows", dataCollector.dataRange20().getNumRows());
-        SimpleMatrix power = dataCollector.dataRange20().mult(feedForwardValues20);
-        SimpleMatrix e = dataCollector.power().minus(power);
-        SimpleMatrix ee = e.elementMult(e);
-        double max = Math.sqrt(ee.elementMax());
-        double avg = ee.elementSum() / ee.getNumRows();
+        SmartDashboard.putNumber("data range 20 rows", dataCollector.dataRange30().getNumRows());
+        SimpleMatrix power = dataCollector.dataRange30().mult(feedForwardValues20);
+        SimpleMatrix error = dataCollector.power().minus(power);
+        SimpleMatrix errorSquared = error.elementMult(error);
+        double max = Math.sqrt(errorSquared.elementMax());
+        double avg = errorSquared.elementSum() / errorSquared.getNumRows();
         SmartDashboard.putNumber("Sysid/Max Error", max);
         SmartDashboard.putNumber("Sysid/Avg Error Sqr", avg);
         double kp = (valueOf(Gains.KV, gains, result20) + valueOf(Gains.KA, gains, result20)) / 5.0;
         SmartDashboard.putNumber("Sysid/KP (Roborio)", kp);
     }
-    // R ﻿﻿ 1 ﻿﻿ The startCompetition() method (or methods called by it) should have
-    // handled the exception above. ﻿﻿
-    // edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:386) ﻿﻿﻿
 
     /**
      * Value of a specific Gain type
      * 
-     * @param gain
-     * @param gains
-     * @param values
-     * @return
+     * @param gain   the given feedforward variable
+     * @param gains  all the given feedforward variables (like KS, KV, KA, etc...)
+     * @param values raw data of the ff variables (such as velocity, acceleration)
+     * @return the value needed for the ff variable or 0 if found none
      */
     double valueOf(Gains gain, Gains[] gains, double[] values) {
         for (int i = 0; i < gains.length; i++) {
@@ -324,49 +321,5 @@ public class Sysid {
     public Gains[] gains() {
         return gains;
     }
-/*RROR ﻿﻿ 1 ﻿﻿ The startCompetition() method (or methods called by it) should have handled the exception above. ﻿﻿ edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:386) ﻿﻿﻿
-﻿﻿﻿﻿﻿﻿ Error at edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:386): The startCompetition() method (or methods called by it) should have handled the exception above. ﻿
- */
 
- /*
-  * t frc.robot.Main.main(Main.java:23) ﻿
-﻿﻿﻿﻿﻿﻿  ﻿
-﻿﻿﻿﻿﻿﻿﻿﻿Warning ﻿﻿ 1 ﻿﻿ The robot program quit unexpectedly. This is usually due to a code error.
-  The above stacktrace can help determine where the error occurred.
-  See https://wpilib.org/stacktrace for more information. ﻿﻿ edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:379) ﻿﻿﻿
-﻿﻿﻿﻿﻿﻿ ﻿Warning﻿ at edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:379): The robot program quit unexpectedly. This is usually due to a code error. ﻿
-﻿﻿﻿﻿﻿﻿   The above stacktrace can help determine where the error occurred. ﻿
-﻿﻿﻿﻿﻿﻿   See https://wpilib.org/stacktrace for more information. ﻿
-﻿﻿﻿﻿﻿﻿﻿﻿ERROR ﻿﻿ 1 ﻿﻿ The startCompetition() method (or methods called by it) should have handled the exception above. ﻿﻿ edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:386) ﻿﻿﻿
-﻿﻿﻿﻿﻿﻿ Error at edu.wpi.first.wpilibj.RobotBase.runRobot(RobotBase.java:386): The startCompetition() method (or methods called by it) should have handled the exception above. ﻿
-﻿﻿﻿﻿﻿﻿ ********** Robot program starting ********** ﻿
-
-  */
-
-  /*
-   *  	Shuffleboard.update(): 0.000019s ﻿
-﻿﻿﻿﻿﻿﻿  ﻿
-﻿﻿﻿﻿﻿﻿﻿﻿ERROR ﻿﻿ -1003 ﻿﻿ CAN frame not received/too-stale. Check the CAN bus wiring, CAN bus utilization, and power to the device. ﻿﻿ talon fx 8 ("rio") Refresh Config ﻿﻿﻿
-﻿﻿﻿﻿﻿﻿﻿﻿Warning ﻿﻿ 1 ﻿﻿ Loop time of 0.02s overrun
- ﻿﻿ edu.wpi.first.wpilibj.IterativeRobotBase.printLoopOverrunMessage(IterativeRobotBase.java:412) ﻿﻿﻿
-﻿﻿﻿﻿﻿﻿ ﻿Warning﻿ at edu.wpi.first.wpilibj.IterativeRobotBase.printLoopOverrunMessage(IterativeRobotBase.java:412): Loop time of 0.02s overrun ﻿
-﻿﻿﻿﻿﻿﻿  ﻿
-﻿﻿﻿﻿﻿﻿﻿﻿Warning ﻿﻿ 1 ﻿﻿ 	teleopPeriodic(): 0.000445s
-	SmartDashboard.updateValues(): 0.046671s
-	robotPeriodic(): 0.001800s
-	LiveWindow.updateValues(): 0.000000s
-	Shuffleboard.update(): 0.000000s
- ﻿﻿ edu.wpi.first.wpilibj.Tracer.lambda$printEpochs$0(Tracer.java:62) ﻿﻿﻿
-﻿﻿﻿﻿﻿﻿ ﻿Warning﻿ at edu.wpi.first.wpilibj.Tracer.lambda$printEpochs$0(Tracer.java:62): 	teleopPeriodic(): 0.000445s ﻿
-﻿﻿﻿﻿﻿﻿ 	SmartDashboard.updateValues(): 0.046671s ﻿
-﻿﻿﻿﻿﻿﻿ 	robotPeriodic(): 0.001800s ﻿
-﻿﻿﻿﻿﻿﻿ 	LiveWindow.updateValues(): 0.000000s ﻿
-﻿﻿﻿﻿﻿﻿ 	Shuffleboard.update(): 0.000000s ﻿
-﻿﻿﻿﻿﻿﻿  ﻿
-﻿﻿﻿﻿﻿﻿﻿﻿Warning ﻿﻿ 1 ﻿﻿ Loop time of 0.02s overrun
- ﻿﻿ edu.wpi.first.wpilibj.IterativeRobotBase.printLoopOverrunMessage(IterativeRobotBase.java:412) ﻿﻿﻿
-﻿﻿﻿﻿﻿﻿ ﻿Warning﻿ at edu.wpi.first.wpilibj.IterativeRobotBase.printLoopOverrunMessage(IterativeRobotBase.java:412): Loop time of 0.02s overrun ﻿
-﻿﻿﻿﻿﻿﻿  ﻿
-
-   */
 }
