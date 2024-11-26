@@ -83,6 +83,28 @@ public class Chassis extends SubsystemBase {
         backLeft.setState(moduleStates[2]);
         backRight.setState(moduleStates[3]);
     }
+    /**
+     * Set chassis velocities based on ChassisSpeeds
+     * @param chassisSpeeds Desired chassis speeds
+     */
+    public void setVelocitiesTurnTo(ChassisSpeeds chassisSpeeds, Rotation2d angle, double kp) {
+        //turn to with kp
+        chassisSpeeds.omegaRadiansPerSecond = getGyroRotation().minus(angle).getRadians()*kp;
+        //Convert chassis speeds to robot relativ
+        chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getGyroRotation());
+        // Convert chassis speeds to module states
+        SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(chassisSpeeds);
+        
+        // Normalize wheel speeds
+        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, SwerveConstants.MAX_DRIVE_VELOCITY);
+
+        // Set individual module states
+        frontLeft.setState(moduleStates[0]);
+        frontRight.setState(moduleStates[1]);
+        backLeft.setState(moduleStates[2]);
+        backRight.setState(moduleStates[3]);
+    }
+    
 
 
     /**

@@ -1,5 +1,7 @@
 package frc.robot.chassis.commands;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -50,6 +52,7 @@ public class DriveCommand extends Command {
     isRed = chassis.isRed();
     direction = isRed ? 1 : -1;
     
+    // normal drive
     // Apply deadband to controller inputs and multiply by direction
     double joyX = deadband(commandXboxController.getLeftY(), 0.1) * direction;
     double joyY = deadband(commandXboxController.getLeftX(), 0.1) * direction;
@@ -57,6 +60,11 @@ public class DriveCommand extends Command {
     // Calculate rotation from trigger axes
     double rot = (deadband(commandXboxController.getRightTriggerAxis(), 0.1)
         - deadband(commandXboxController.getLeftTriggerAxis(), 0.1));
+
+    //turn with right joy stick
+    Translation2d stickRight = new Translation2d(commandXboxController.getRightX(), commandXboxController.getRightY());
+    Rotation2d angle = stickRight.getAngle();
+    
 
     // Calculate velocities with squared inputs for more precise control
     double velX = Math.pow(joyX, 2) * MAX_DRIVE_VELOCITY * Math.signum(joyX);
@@ -69,10 +77,18 @@ public class DriveCommand extends Command {
       velY /= 4;
       velRot /= 4;
     }
+    
 
     // Create chassis speeds and set velocities
     ChassisSpeeds speeds = new ChassisSpeeds(velX, velY, velRot);
-    chassis.setVelocities(speeds);
+    if (commandXboxController.getRightX() != 0 && commandXboxController.getRightY() != 0){
+      chassis.setVelocitiesTurnTo(speeds, angle, 2);
+    }
+    else{
+      chassis.setVelocities(speeds);
+    }
+    
+    
   }
 
   @Override
