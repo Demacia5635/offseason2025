@@ -21,6 +21,7 @@ public class DemaciaKinematics extends SwerveDriveKinematics {
 
     Translation2d[] moduleTranslation;
     double maxVelocity = 3.8;
+    double radius = -1;
 
     double maxForwardAccel = -1;
 
@@ -48,20 +49,38 @@ public class DemaciaKinematics extends SwerveDriveKinematics {
     return super.toTwist2d(newPositions);
   }
 
+  public SwerveModuleState[] toSwerveModuleStatesWithAccel(ChassisSpeeds chassisSpeeds, Translation2d currentVelocity){
+    Translation2d nextVel = getNextWantedVel(currentVelocity,
+     new Translation2d(chassisSpeeds.vxMetersPerSecond,chassisSpeeds.vyMetersPerSecond));
+    return toSwerveModuleStates(new ChassisSpeeds(nextVel.getX(),nextVel.getY(),
+    chassisSpeeds.omegaRadiansPerSecond),currentVelocity);
+  }
+  
+  private Translation2d getNextWantedVel(Translation2d currentVel,Translation2d finalWantedVel){
+    Translation2d accel = currentVel.times(-1).plus(finalWantedVel);
+    Rotation2d alpha = accel.getAngle();
+    double nextWantedNorm = Math.sqrt(square(radius) + square(currentVel.getNorm())
+     - (currentVel.getNorm() * radius * 2)
+      * alpha.getCos()); 
+    Rotation2d nextWantedAngle = Rotation2d.fromRadians(Math.asin((nextWantedNorm*alpha.getSin())/radius));
+    return new Translation2d(nextWantedNorm,nextWantedAngle);
+    
+  }
+
+  private double square(double n){
+    return Math.pow(n, 2);
+  }
+
 
   @Override
   public SwerveModuleState[] toSwerveModuleStates(ChassisSpeeds chassisSpeeds, Translation2d currentVelocity){
 
-    
     SwerveModuleState[] wantedModuleStates = new SwerveModuleState[moduleTranslation.length];
 
-    double factor = 1;
-    Translation2d finalWantedVel = new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
-    
-    
+    double factor = 1;  
     Translation2d velocityVector = new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
 
-    for(int i = 0; i< wantedModuleStates.length; i++){
+    for(int i = 0; i < wantedModuleStates.length; i++){
       Translation2d rotationVelocity = new Translation2d(chassisSpeeds.omegaRadiansPerSecond 
         * moduleTranslation[i].getNorm(),
         moduleTranslation[i].rotateBy(Rotation2d.fromDegrees(
@@ -82,17 +101,5 @@ public class DemaciaKinematics extends SwerveDriveKinematics {
       arr[i].speedMetersPerSecond = arr[i].speedMetersPerSecond * factor;
     }
   }
-
-  private double getWantedAccel(Translation2d finalWantedVel, Translation2d currentVel){
-    double wantedAccel = (finalWantedVel.minus(currentVel).getNorm()) / 0.02;
-
-
-    return wantedAccel;
-    
-  }
-  private void limitForwardAccel(double accel, double currentVel){
-    accel = maxForwardAccel * (1-(currentVel / maxVelocity));
-  }
-
 }
 
