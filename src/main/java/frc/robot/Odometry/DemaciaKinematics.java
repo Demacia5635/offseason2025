@@ -86,7 +86,7 @@ public class DemaciaKinematics extends SwerveDriveKinematics {
         moduleTranslation[i].rotateBy(Rotation2d.fromDegrees(
         90*Math.signum(chassisSpeeds.omegaRadiansPerSecond))).getAngle());
 
-      Translation2d moduleVel = velocityVector.plus(rotationVelocity);
+       Translation2d moduleVel = velocityVector.plus(rotationVelocity);
 
       if((maxVelocity / moduleVel.getNorm()) < factor) factor = maxVelocity / moduleVel.getNorm();
         
