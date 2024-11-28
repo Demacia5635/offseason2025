@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import frc.robot.Odometry.DemaciaPoseEstimator;
 
 /** Add your docs here. */
 public class DemaciaKinematics extends SwerveDriveKinematics {
@@ -58,6 +59,7 @@ public class DemaciaKinematics extends SwerveDriveKinematics {
   
   private Translation2d getNextWantedVel(Translation2d currentVel,Translation2d finalWantedVel){
     Translation2d accel = currentVel.times(-1).plus(finalWantedVel);
+    if (accel.getNorm()<=radius)return finalWantedVel;
     Rotation2d alpha = accel.getAngle();
     double nextWantedNorm = Math.sqrt(square(radius) + square(currentVel.getNorm())
      - (currentVel.getNorm() * radius * 2)
@@ -83,8 +85,8 @@ public class DemaciaKinematics extends SwerveDriveKinematics {
     for(int i = 0; i < wantedModuleStates.length; i++){
       Translation2d rotationVelocity = new Translation2d(chassisSpeeds.omegaRadiansPerSecond 
         * moduleTranslation[i].getNorm(),
-        moduleTranslation[i].rotateBy(Rotation2d.fromDegrees(
-        90*Math.signum(chassisSpeeds.omegaRadiansPerSecond))).getAngle());
+        moduleTranslation[i].getAngle().rotateBy(Rotation2d.fromDegrees(
+        90)));
 
        Translation2d moduleVel = velocityVector.plus(rotationVelocity);
 
