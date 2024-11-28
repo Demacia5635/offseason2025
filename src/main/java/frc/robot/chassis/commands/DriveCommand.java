@@ -81,12 +81,12 @@ public class DriveCommand extends Command {
 
     // Create chassis speeds and set velocities
     ChassisSpeeds speeds = new ChassisSpeeds(velX, velY, velRot);
-    if (commandXboxController.getRightX() != 0 && commandXboxController.getRightY() != 0){
-      chassis.setVelocitiesTurnTo(speeds, angle, 2);
-    }
-    else{
-      chassis.setVelocities(speeds);
-    }
+    // if (commandXboxController.getRightX() != 0 && commandXboxController.getRightY() != 0){
+    //   chassis.setVelocitiesTurnTo(speeds, angle, 2);
+    // }
+    // else{
+    chassis.setVelocities(speeds);
+    // }
     
     
   }

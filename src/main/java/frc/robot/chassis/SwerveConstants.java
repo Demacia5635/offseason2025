@@ -60,7 +60,7 @@ public class SwerveConstants {
             new TalonConfig(FRONT_LEFT_DRIVE_ID, CanBas, "frontLeft/Drive")
                 .withPID(MOVE_PID.KP, MOVE_PID.KI, MOVE_PID.KD, MOVE_PID.KS, MOVE_PID.KV, MOVE_PID.KA, MOVE_PID.KG)
                 .withBrake(true)
-                .withInvert(true)
+                .withInvert(false)
                 .withMotorRatio(MOVE_GEAR_RATIO)
                 .withMeterMotor(WHEEL_CIRCUMFERENCE)
                 .withMotionMagic(DRIVE_VELOCITY, DRIVE_ACCELERATION, DRIVE_JERK),
@@ -75,7 +75,7 @@ public class SwerveConstants {
 
             new CancoderConfig(FRONT_LEFT_CANCODER_ID, CanBas, "frontLeft/CanCoder").withInvert(false),
             new Translation2d(0.332, 0.277),
-            -2.552544
+            0.670166015625
         );
 
     public final static SwerveModuleConstants FRONT_RIGHT = new SwerveModuleConstants("frontRight",
@@ -97,14 +97,14 @@ public class SwerveConstants {
 
             new CancoderConfig(FRONT_LEFT_CANCODER_ID, CanBas, "frontRight/CanCoder").withInvert(false),
             new Translation2d(0.332, -0.277),
-            -2.552544
+            0.67041015625-2*Math.PI
         );
     
     public final static SwerveModuleConstants BACK_LEFT = new SwerveModuleConstants("backLeft",
             new TalonConfig(BACK_LEFT_DRIVE_ID, CanBas, "backLeft/Drive")
                 .withPID(MOVE_PID.KP, MOVE_PID.KI, MOVE_PID.KD, MOVE_PID.KS, MOVE_PID.KV, MOVE_PID.KA, MOVE_PID.KG)
                 .withBrake(true)
-                .withInvert(true)
+                .withInvert(false)
                 .withMotorRatio(MOVE_GEAR_RATIO)
                 .withMeterMotor(WHEEL_CIRCUMFERENCE)
                 .withMotionMagic(DRIVE_VELOCITY, DRIVE_ACCELERATION, DRIVE_JERK),
@@ -119,14 +119,14 @@ public class SwerveConstants {
 
             new CancoderConfig(BACK_LEFT_CANCODER_ID, CanBas, "backLeft/CanCoder").withInvert(false),
             new Translation2d(-0.332, 0.277),
-            -0.8053399
+            2.41259765625
         );
     
     public final static SwerveModuleConstants BACK_RIGHT = new SwerveModuleConstants("backRight",
             new TalonConfig(BACK_RIGHT_DRIVE_ID, CanBas, "backRight/Drive")
                 .withPID(MOVE_PID.KP, MOVE_PID.KI, MOVE_PID.KD, MOVE_PID.KS, MOVE_PID.KV, MOVE_PID.KA, MOVE_PID.KG)
                 .withBrake(true)
-                .withInvert(true)
+                .withInvert(false)
                 .withMotorRatio(MOVE_GEAR_RATIO)
                 .withMeterMotor(WHEEL_CIRCUMFERENCE)
                 .withMotionMagic(DRIVE_VELOCITY, DRIVE_ACCELERATION, DRIVE_JERK),
@@ -141,7 +141,8 @@ public class SwerveConstants {
 
             new CancoderConfig(BACK_RIGHT_CANCODER_ID, CanBas, "backRight/CanCoder").withInvert(false),
             new Translation2d(-0.332, -0.277),
-            -3.0127
+            0.091796875
+            
         );
 
     // Swerve Drive Kinematics for Odometry and Movement Calculations

@@ -72,7 +72,7 @@ public class Chassis extends SubsystemBase {
      */
     public void setVelocities(ChassisSpeeds chassisSpeeds) {
         // Convert chassis speeds to module states
-        SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getGyroRotation()));
+        SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(chassisSpeeds);
         
         // Normalize wheel speeds
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, SwerveConstants.MAX_DRIVE_VELOCITY);
@@ -83,6 +83,7 @@ public class Chassis extends SubsystemBase {
         backLeft.setState(moduleStates[2]);
         backRight.setState(moduleStates[3]);
     }
+
     /**
      * Set chassis velocities based on ChassisSpeeds
      * @param chassisSpeeds Desired chassis speeds
@@ -136,6 +137,7 @@ public class Chassis extends SubsystemBase {
      * Update SmartDashboard with chassis telemetry
      */
     private void addSmartDashboard() {
+      SmartDashboard.putData("Chassis", this);
       SmartDashboard.putNumber("Gyro Angle", getGyroRotation().getDegrees());
       SmartDashboard.putData("reset gyro", resetGyro());
       SmartDashboard.putData("Swerve Drive", new Sendable() {
