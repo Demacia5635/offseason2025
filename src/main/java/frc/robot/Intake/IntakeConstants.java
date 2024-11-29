@@ -6,7 +6,11 @@ package frc.robot.Intake;
 
 /** Add your docs here. */
 public final class IntakeConstants {
-    public static class OperatorConstants {
+    public static class idMotors{
+        public static final String CANBUS = "canivore";
+        public static final int idMotorfeed = 2;//TODO:"change to corect id when I know"
+        public static final int idMotorIntakeToShooter = 3;//TODO:"change to corect id when I know"
+        
     }
 }
 
