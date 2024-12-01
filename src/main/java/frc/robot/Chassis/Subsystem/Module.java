@@ -5,7 +5,8 @@
 package frc.robot.Chassis.Subsystem;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import static frc.robot.Chassis.ChassisConstants.configConstants.*;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import frc.robot.Constants;
 import frc.robot.utils.Cancoder;
 import frc.robot.utils.CancoderConfig;
 import frc.robot.utils.TalonConfig;
@@ -21,25 +22,14 @@ public class Module extends SubsystemBase {
 
 
   /** Creates a new Module. */
-  public Module() {
-    driveConfig = new TalonConfig(DRIVE_ID, DRIVE_CANBUS, DRIVE_NAME)
-    .withMeterMotor(DRIVE_circonference)
-    .withPID(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KS, DRIVE_KV, DRIVE_KA, DRIVE_KG)
-    .withInvert(DRIVE_IS_INVERT)
-    .withBrake(DRIVE_IS_BRAKE);
+  public Module(TalonConfig driveConfig, TalonConfig steerConfig, CancoderConfig cancoderConfig) {
+    driveConfig = this.driveConfig;
     driveMotor = new TalonMotor(driveConfig);
 
-    steerConfig = new TalonConfig(STEER_ID, STEER_CANBUS, STEER_NAME)
-    .withRadiansMotor()
-    .withPID(STEER_KP, STEER_KI, STEER_KD, STEER_KS, STEER_KV, STEER_KA, STEER_KG)
-    .withMotionMagic(STEER_MOTION_MAGIC_VELOCITY, STEER_MOTION_MAGIC_ACCELERATION, STEER_MOTION_MAGIC_JERK)
-    .withInvert(STEER_IS_INVERT)
-    .withBrake(STEER_IS_BRAKE);
+    steerConfig = this.steerConfig;
     steerMotor = new TalonMotor(driveConfig);
 
-    cancoderConfig = new CancoderConfig(CANCODER_ID, CANCODER_CANBUS, CANCODER_NAME)
-    .withInvert(DRIVE_IS_INVERT)
-    .withOffset(CANCODER_OFFSET);
+    cancoderConfig = this.cancoderConfig;
     cancoder = new Cancoder(cancoderConfig);
   }
 
@@ -58,6 +48,14 @@ public class Module extends SubsystemBase {
 
   public void setDriveMotorBrake(boolean isBrake){
     driveMotor.setBrake(isBrake);
+  }
+
+  public double getDriveMotorPower(){
+    return driveMotor.getCurrentPosition();
+  }
+
+  public double getDriveMotorVelocity(){
+    return driveMotor.getCurrentVelocity();
   }
 
   public void setSteerMotorPower(double power){
