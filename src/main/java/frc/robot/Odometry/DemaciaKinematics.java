@@ -69,7 +69,7 @@ public class DemaciaKinematics extends SwerveDriveKinematics {
   }
 
 
-  public SwerveModuleState[] toSwerveModuleStates(ChassisSpeeds chassisSpeeds, Translation2d currentVelocity, Rotation2d robotAngle){
+  public SwerveModuleState[] toSwerveModuleStates(ChassisSpeeds chassisSpeeds, Translation2d currentVelocity, Rotation2d robotAngle, SwerveModuleState[] curModuleStates){
 
     SwerveModuleState[] wantedModuleStates = new SwerveModuleState[moduleTranslation.length];
 
@@ -82,7 +82,7 @@ public class DemaciaKinematics extends SwerveDriveKinematics {
         moduleTranslation[i].rotateBy(Rotation2d.fromDegrees(
         90).plus(robotAngle)).getAngle());
 
-      if(Math.abs(velocityVector.getNorm()) <= 0.1 && Math.abs(rotationVelocity.getNorm()) <= 0.1) wantedModuleStates[i] = new SwerveModuleState();
+      if(Math.abs(velocityVector.getNorm()) <= 0.1 && Math.abs(rotationVelocity.getNorm()) <= 0.1) wantedModuleStates[i] = new SwerveModuleState(0, curModuleStates[i].angle);
       else if(Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.1) wantedModuleStates[i] = new SwerveModuleState(velocityVector.getNorm(), velocityVector.getAngle());
       else if(velocityVector.getNorm() <= 0.1) wantedModuleStates[i] = new SwerveModuleState(rotationVelocity.getNorm(), rotationVelocity.getAngle());
       
@@ -94,6 +94,7 @@ public class DemaciaKinematics extends SwerveDriveKinematics {
         
         wantedModuleStates[i] = new SwerveModuleState(moduleVel.getNorm(), moduleVel.getAngle());
       } 
+      if(Math.abs(curModuleStates[i].angle.minus(wantedModuleStates[i].angle).getDegrees())<=4)wantedModuleStates[i].angle=wantedModuleStates[i].angle.times(2);
       
     }
     factorVelocities(wantedModuleStates, factor);

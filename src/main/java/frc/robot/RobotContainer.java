@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.chassis.commands.DriveCommand;
-import frc.robot.chassis.commands.DriveToNote;
 import frc.robot.chassis.subsystems.Chassis;
 import frc.robot.utils.LogManager;
 import frc.robot.utils.Utils;
