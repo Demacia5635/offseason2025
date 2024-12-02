@@ -101,7 +101,7 @@ public class VisionConstants {
     return inch*0.0254;
     }
 
-     // Camera mounting configuration
+     //TAG Camera mounting configuration
     public static final double TAG_CAM_HIGHT = 0.220;
     public static final double TAG_CAM_ANGLE = 34;
 
@@ -110,4 +110,8 @@ public class VisionConstants {
 
     // NetworkTables key for AprilTag vision data
     public static final String TAG_TABLE = "limelight-tag";
+
+    //NOTE Camera mounting configuration
+    public static final double NOTE_CAM_HIGHT = 213.86833;
+    public static final double NOTE_CAM_X = 346.37030;
 }
