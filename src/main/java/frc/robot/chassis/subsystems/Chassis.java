@@ -32,8 +32,6 @@ import frc.robot.Field;
 import frc.robot.RobotContainer;
 import frc.robot.chassis.utils.DemaciaOdometry;
 import frc.robot.utils.LogManager;
-import frc.robot.vision.subsystem.VisionByNote;
-import frc.robot.vision.subsystem.VisionByTag;
 
 
 
@@ -50,8 +48,6 @@ public class Chassis extends SubsystemBase {
   public static double targetVelocity = 0;
   public static double currentVelocity = 0;
 
-  public VisionByTag visionByTag;
-  public VisionByNote visionByNote;
   private PIDController rotationPID = new PIDController(0.3,0.0, 0.00);
   private boolean hasCalibratedPose = false;
 
@@ -67,11 +63,8 @@ public class Chassis extends SubsystemBase {
     gyro = new Pigeon2(GYRO_ID, Constants.CANBUS);
     gyro.setYaw(0);
 
-    this.visionByTag = new VisionByTag(gyro);
-    this.visionByNote = new VisionByNote(new Pose2d());
-    
+   
     poseEstimator = new SwerveDrivePoseEstimator(KINEMATICS, getRawAngle(), getModulePositions(), new Pose2d());
-    visionByNote = new VisionByNote(poseEstimator.getEstimatedPosition());
     demaciaOdometry = new DemaciaOdometry(getRawAngle(), getModulePositions(), getPose());
     setBrake(true);
     field = new Field2d();
