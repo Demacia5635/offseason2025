@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.utils.LogManager;
+import frc.robot.utils.Recording;
 
 
 public class RobotContainer {
@@ -19,6 +20,7 @@ public class RobotContainer {
   public RobotContainer() {
     logManager = new LogManager();
 
+    SmartDashboard.putData("Recording", Recording.getInstance());
     configureBindings();
   }
 
