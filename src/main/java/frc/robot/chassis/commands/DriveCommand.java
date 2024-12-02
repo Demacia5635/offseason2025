@@ -13,19 +13,13 @@ import static frc.robot.chassis.ChassisConstants.MAX_DRIVE_VELOCITY;
 import static frc.robot.chassis.ChassisConstants.MAX_OMEGA_VELOCITY;
 
 import frc.robot.RobotContainer;
-import frc.robot.Intake.Subsystem.Intake;
-import frc.robot.Shooter.Commands.Shoot;
-import frc.robot.Shooter.ShooterConstants.STATE;
 import frc.robot.chassis.subsystems.Chassis;
 import frc.robot.utils.LogManager;
-import frc.robot.vision.subsystem.VisionByNote;
 
 import static frc.robot.utils.Utils.deadband;
 
 public class DriveCommand extends Command  implements Sendable{
   private final Chassis chassis;
-  VisionByNote note;
-  Intake intake;
   private final CommandXboxController commandXboxController;
 
   private double direction;
@@ -33,39 +27,14 @@ public class DriveCommand extends Command  implements Sendable{
   private boolean isRed;
   private boolean precisionDrive = false;
 
-  private double continu = -1;
-  private boolean isAutoIntake = false;
-  private boolean isNoteInIntake = false;
-
-  public boolean isRotateToMinus90 = false;
-  Timer timerIsRotateToMinus90;
-
-  // Rotation2d wantedAngleApriltag = new Rotation2d();
-  // boolean rotateToApriltag = false;
-  // PIDController rotationPidController = new PIDController(0.03, 0, 0.0008);
 
   public DriveCommand(Chassis chassis, CommandXboxController commandXboxController) {
     this.chassis = chassis;
-    note = chassis.visionByNote;
-    intake = RobotContainer.intake;
+    
     this.commandXboxController = commandXboxController;
-    timerIsRotateToMinus90 = new Timer();
+    
     addRequirements(chassis);
-    // commandXboxController.b().onTrue(new InstantCommand(() -> precisionDrive =
-    // !precisionDrive));
-    // commandXboxController.b().onTrue(new InstantCommand(()-> isAutoIntake =
-    // !isAutoIntake));
     SmartDashboard.putData(this);
-  }
-
-  public void rototeToAmp() {
-    isRotateToMinus90 = true;
-    timerIsRotateToMinus90.reset();
-    timerIsRotateToMinus90.start();
-  }
-
-  public void setAutoIntake() {
-    this.isAutoIntake = !isAutoIntake;
   }
 
   public void setPrecision(){
@@ -74,8 +43,6 @@ public class DriveCommand extends Command  implements Sendable{
 
   @Override
   public void initialize() {
-    isNoteInIntake = false;
-    isRotateToMinus90 = false;
   }
 
   @Override
@@ -106,7 +73,6 @@ public class DriveCommand extends Command  implements Sendable{
 
   @Override
   public void initSendable(SendableBuilder builder) {
-    builder.addBooleanProperty("is auto intake", ()-> isAutoIntake, null);
   }
 
   @Override
