@@ -69,44 +69,10 @@ public class Chassis extends SubsystemBase {
     setBrake(true);
     field = new Field2d();
     SmartDashboard.putData(field);
-//    SmartDashboard.putData(this);
+    SmartDashboard.putData(this);
     
 
-    ShuffleboardTab ntTab = Shuffleboard.getTab("Chassis");
-    //var setGyroEntry = ntTab.add("Set Gyro Angle", 0).getEntry();
-    ntTab.add("Set gyro to 0 ",
-       new InstantCommand( () -> setGyroAngle(0))
-       .ignoringDisable(true));
-
-    ntTab.add("gyro",gyro.getAngle());
-
-    ntTab.add("Set gyro to 180 ",
-       new InstantCommand( () -> setGyroAngle(180))
-       .ignoringDisable(true));
-
-
-    ntTab.add("run command", 
-      new RunCommand(()->{setModulesPower(1); setModulesAngleFromSB(0);}, this));
-
-    ntTab.add("reset gyro", new InstantCommand(()-> setGyroAngle(0)));
-    ntTab.add("set coast",
-        new InstantCommand(() -> setBrake(false)).ignoringDisable(true));
-    ntTab.add("set brake",
-        new InstantCommand(() -> setBrake(true)).ignoringDisable(true));
-    ntTab.add("reset wheels", new InstantCommand(() -> resetWheels()).ignoringDisable(true));
-        SmartDashboard.putData("reset pose", new InstantCommand(() -> setOdometryToForward()).ignoringDisable(true));
-
-    ntTab.add("calibrate", new InstantCommand(()->calibrate(), this).ignoringDisable(true));
-
-
-    //   ntTab.add("Set Modules Angle", 
-    //     new RunCommand(() -> setModulesAngleFromSB(0)).ignoringDisable(true));
-    //  ntTab.add("SetAngle45", new RunCommand(() -> {
-    //   Rotation2d angle = Rotation2d.fromDegrees(45);
-    //   for (SwerveModule module : modules) {
-    //     module.setSteerPosition(angle);  
-    //   }});
-
+  
     
   }
 
@@ -236,7 +202,7 @@ public class Chassis extends SubsystemBase {
    */
   public void setVelocities(ChassisSpeeds speeds) {
     ChassisSpeeds relSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getAngle());
-    SwerveModuleState[] states = KINEMATICS_DEMACIA.toSwerveModuleStates(relSpeeds, getVelocity());
+    SwerveModuleState[] states = KINEMATICS_DEMACIA.toSwerveModuleStates(relSpeeds, getVelocity(), getAngle(), getModuleStates());
     setModuleStates(states);
   }
 
@@ -375,6 +341,7 @@ public class Chassis extends SubsystemBase {
 //    builder.addDoubleProperty("velocity", () -> getVelocity().getNorm(), null);
 //    builder.addDoubleProperty("Omega", () -> Math.toDegrees(getChassisSpeeds().omegaRadiansPerSecond), null);
 //    builder.addDoubleProperty("Angle", () -> Utils.degrees(getAngle()), null);
+    builder.addDoubleProperty("GYRO", ()->getGyroRate(), null);
     LogManager.addEntry("chassis/gyro", gyro::getYaw);
     LogManager.addEntry("chassis/poseX", this::getPoseX);
     LogManager.addEntry("chassis/poseY", this::getPoseY);

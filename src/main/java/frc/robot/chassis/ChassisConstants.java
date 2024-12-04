@@ -59,57 +59,57 @@ public static final double SICLE_CAUNT = 50.0;
 
 
 public final static SwerveModuleConstants FRONT_LEFT = new SwerveModuleConstants(
-      "BackRight",
-      new TalonConfig(4,CANBAS, "BackRight/Drive")
+      "FRONT_LEFT",
+      new TalonConfig(4,CANBAS, "FrontLeft/Drive")
         .withPID(MOVE_PID.KP, MOVE_PID.KI, MOVE_PID.KD,MOVE_FF_MORE.KS,MOVE_FF_MORE.KV,MOVE_FF_MORE.KA,0)
       .withInvert(true).withMotorRatio(MOVE_GEAR_RATIO),
-      new TalonConfig(5,CANBAS, "BackRight/Steer")
+      new TalonConfig(5,CANBAS, "FrontLeft/Steer")
         .withPID(STEER_PID.KP, STEER_PID.KI, STEER_PID.KD, STEER_FF.KS,STEER_FF.KV,STEER_FF.KA,0)
         .withInvert(true).withMotorRatio(STEER_RATIO),
       6,
-      new Translation2d(0.266, 0.249),
+      new Translation2d(0.165, 0.26),
       0.485);
 
   public final static SwerveModuleConstants FRONT_RIGHT = new SwerveModuleConstants(
 
-      "BackLeft",
-      new TalonConfig(1,CANBAS, "BackLeft/Drive")
+      "FRONT_RIGHT",
+      new TalonConfig(1,CANBAS, "FrontRight/Drive")
         .withPID(MOVE_PID.KP, MOVE_PID.KI, MOVE_PID.KD,MOVE_FF_MORE.KS,MOVE_FF_MORE.KV,MOVE_FF_MORE.KA,0)
         .withInvert(true).withMotorRatio(MOVE_GEAR_RATIO),
-      new TalonConfig(2,CANBAS, "BackLeft/Steer")
+      new TalonConfig(2,CANBAS, "FrontRight/Steer")
         .withPID(STEER_PID.KP, STEER_PID.KI, STEER_PID.KD,STEER_FF.KS,STEER_FF.KV,STEER_FF.KA,0)
         .withInvert(true).withMotorRatio(STEER_RATIO)
         .withMotionMagic(720, 1440, 3000),
       3,
-      new Translation2d(0.266, -0.249),
+      new Translation2d(0.165, -0.26),
       -0.188);
 
   public final static SwerveModuleConstants BACK_LEFT = new SwerveModuleConstants(
 
-    "FrontRight",
-      new TalonConfig(10,CANBAS, "FrontRight/Drive")
+    "BACK_LEFT",
+      new TalonConfig(10,CANBAS, "BackLeft/Drive")
         .withPID(MOVE_PID.KP, MOVE_PID.KI, MOVE_PID.KD,MOVE_FF_MORE.KS,MOVE_FF_MORE.KV,MOVE_FF_MORE.KA,0)
         .withInvert(true).withMotorRatio(MOVE_GEAR_RATIO),
-      new TalonConfig(11,CANBAS, "FrontRight/Steer")
+      new TalonConfig(11,CANBAS, "BackLeft/Steer")
         .withPID(STEER_PID.KP, STEER_PID.KI, STEER_PID.KD,STEER_FF.KS,STEER_FF.KV,STEER_FF.KA,0)
         .withInvert(true).withMotorRatio(STEER_RATIO)
         .withMotionMagic(720, 1440, 3000),
       12,
-      new Translation2d(-0.266, 0.249),
+      new Translation2d(-0.315, 0.27),
       -0.338);
 
   public final static SwerveModuleConstants BACK_RIGHT = new SwerveModuleConstants(
 
-      "FrontLeft",
-      new TalonConfig(7,CANBAS, "FrontLeft/Drive")
+      "BackRight",
+      new TalonConfig(7,CANBAS, "BackRight/Drive")
         .withPID(MOVE_PID.KP, MOVE_PID.KI, MOVE_PID.KD,MOVE_FF_MORE.KS,MOVE_FF_MORE.KV,MOVE_FF_MORE.KA,0)
         .withInvert(true).withMotorRatio(MOVE_GEAR_RATIO),
-      new TalonConfig(8,CANBAS, "FrontLeft/Steer")
+      new TalonConfig(8,CANBAS, "BackRight/Steer")
         .withPID(STEER_PID.KP, STEER_PID.KI, STEER_PID.KD,STEER_FF.KS,STEER_FF.KV,STEER_FF.KA,0)
         .withInvert(true).withMotorRatio(STEER_RATIO)
         .withMotionMagic(720, 1440, 3000),
       9,
-      new Translation2d(-0.266, -0.249),
+      new Translation2d(-0.315, -0.27),
       -0.351);
 
       

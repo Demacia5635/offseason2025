@@ -237,7 +237,6 @@ public class SwerveModule extends SubsystemBase {
             //     " dif=" + dif);
             setSteerPosition(cur + dif);
         }
-        System.out.println(name + " " + v);
         setVelocity(v);
     }
 
