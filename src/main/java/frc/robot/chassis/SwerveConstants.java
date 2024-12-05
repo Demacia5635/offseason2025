@@ -95,9 +95,9 @@ public class SwerveConstants {
                 .withRadiansMotor()
                 .withMotionMagic(STEER_VELOCITY, STEER_ACCELERATION, STEER_JERK),
 
-            new CancoderConfig(FRONT_LEFT_CANCODER_ID, CanBas, "frontRight/CanCoder").withInvert(false),
+            new CancoderConfig(FRONT_RIGHT_CANCODER_ID, CanBas, "frontRight/CanCoder").withInvert(false),
             new Translation2d(0.332, -0.277),
-            0.67041015625-2*Math.PI
+            0.40840704496667312100014363982634
         );
     
     public final static SwerveModuleConstants BACK_LEFT = new SwerveModuleConstants("backLeft",
