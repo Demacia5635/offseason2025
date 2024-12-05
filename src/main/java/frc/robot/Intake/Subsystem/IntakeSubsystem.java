@@ -4,6 +4,8 @@
 
 package frc.robot.Intake.Subsystem;
 
+import javax.print.FlavorException;
+
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Timer;
@@ -43,10 +45,10 @@ public class IntakeSubsystem extends SubsystemBase {
     configFeed.withInvert(false);
     motorFeed = new TalonMotor(configFeed);
 
-    configMove = new TalonConfig(idMotors.idMotorfeed, idMotors.CANBUS, "motorMove");
+    configMove = new TalonConfig(idMotors.idMotorIntakeToShooter, idMotors.CANBUS, "motorMove");
     configMove.withBrake(true);
     configMove.withInvert(false);
-    motorMove = new TalonMotor(configFeed);
+    motorMove = new TalonMotor(configMove);
 
     currentPosition = NotePosition.NO_NOTE;
     SmartDashboard.putData("intake", this);
@@ -61,46 +63,53 @@ public class IntakeSubsystem extends SubsystemBase {
     public boolean AmperHighMotorPickUp2(){
     return motorFeed.getSupplyCurrent().getValue() >= IntakeConstants.NOTE_AMPER2;
   }
+
+  public void swichMotorDirection(){
+    motorMove.setInverted(!motorMove.getInverted() ? true : false);
+  }
+
   
       /**
    * Checks if the note is in the motorMove
-   * @return is the amper is high for the motorMove
+   * @return is the amper is high for the motorMov1
    */
-  public boolean AmperHighMotorfeed(){
-    return motorMove.getSupplyCurrent().getValue() <= IntakeConstants.NOTE_AMPER;
+  public boolean AmperHighMotorMove(){
+    return motorMove.getSupplyCurrent().getValue() <= IntakeConstants.NOTE_AMPER_MOVE;
   }
 
   
   /** Gives power to both motors */
   public void setPowerMotors(double power){
+    if(power >0.35)
+    {
+      power = 0.35;
+    }
     motorFeed.setDuty(power);
     motorMove.setDuty(power);
   }
 
   /** Gives power to  motorMove */
   public void setPowerMotorMove(double power){
+    if(power >0.35)
+    {
+      power = 0.35;
+    }
     motorMove.setDuty(power);
   }
 
   /** Gives power to motorFeed */
   public void setPowerMotorFeed(double power){
+    if(power >0.35)
+    {
+      power = 0.35;
+    }
     motorFeed.setDuty(power);
   }
   
 
   /**this func center the note */
   public void centerNote(){
-    double senterTimes = 3;// how much sycles I need to center the note
-    double timeMoveNote = 1.2;//time to move note up and down
-    Timer timer = new Timer();
-    double power = 0.4;
-    for(int i = 0;i<senterTimes;i++){
-      while(timer.get()*1000<timeMoveNote){
-        setPowerMotorMove(power);
-      }
-      timer.reset();
-      power*=-1;
-    }
+
   }
 
 

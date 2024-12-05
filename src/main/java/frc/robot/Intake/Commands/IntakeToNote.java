@@ -12,7 +12,6 @@ import frc.robot.Intake.Subsystem.IntakeSubsystem;
 
 public class IntakeToNote extends Command {
   private IntakeSubsystem intakeSubsystem;
-  private boolean isNoteCentered = false;
   /**timer for the command */
   Timer timerCommand;
   /**timer for intake motors to move the note */
@@ -23,13 +22,12 @@ public class IntakeToNote extends Command {
 
   /**
    * Takes the intake subsystem
-   * @param intakeSubsystem2
+   * @param intake
    */
-  public IntakeToNote(IntakeSubsystem intakeSubsystem2) {
-    this.intakeSubsystem = intakeSubsystem2;
+  public IntakeToNote(IntakeSubsystem intake) {
+    this.intakeSubsystem = intake;
     timerCommand = new Timer();
     timerIntake = new Timer();
-    hasTaken = false;
     addRequirements(intakeSubsystem);
   }
 
@@ -39,7 +37,6 @@ public class IntakeToNote extends Command {
     timerCommand.start();
     timerIntake.reset();
     timerIntake.stop();
-    hasTaken = false;
     touchedDownWheels = false;
   }
 
@@ -50,20 +47,21 @@ public class IntakeToNote extends Command {
    */
   @Override
   public void execute() {
-    if(!touchedDownWheels){
-      //TODO:make a comand in vision that you can check if the note is centered in the fase when the note is not tuched the intake
-    }
-    if (intakeSubsystem.AmperHighMotorPickUp()) {
+    System.out.println("--------------------------------------------------------");
+    if (intakeSubsystem.AmperHighMotorPickUp() && !touchedDownWheels) {
+      System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++");
       intakeSubsystem.currentPosition = NotePosition.FIRST_TOUCH;
       touchedDownWheels = true;
     }
     if(touchedDownWheels && intakeSubsystem.AmperHighMotorPickUp2()) {
+      System.out.println("***************************************************");
       intakeSubsystem.isNoteInIntake = true;
       timerIntake.reset();
       timerIntake.start();
       touchedDownWheels = false;
     } 
-    
+    intakeSubsystem.setPowerMotorMove(intakeSubsystem.currentPosition.movePow);
+    intakeSubsystem.setPowerMotorFeed(intakeSubsystem.currentPosition.pickUpPow);
   }
 
 
@@ -73,14 +71,13 @@ public class IntakeToNote extends Command {
    */
   @Override
   public void end(boolean interrupted) {
+    System.out.println("ended");
     intakeSubsystem.setPowerMotors(0);
     timerCommand.stop();
     timerCommand.reset();
     timerIntake.stop();
     timerIntake.reset();
-    if(!isNoteCentered){
-      intakeSubsystem.centerNote();
-    }
+    //intakeSubsystem.centerNote();
   }
 
 
@@ -89,6 +86,7 @@ public class IntakeToNote extends Command {
    */
   @Override
   public boolean isFinished() {
-    return timerIntake.get()*1000 > IntakeConstants.STOP_AFTER_NOTE || timerCommand.get()*1000 > IntakeConstants.STOP_COMMAND_TIME;
+    
+    return timerIntake.get()*1000 > IntakeConstants.STOP_AFTER_NOTE || timerCommand.get()*1000 > IntakeConstants.STOP_COMMAND_TIME || !intakeSubsystem.AmperHighMotorMove();
   }
 }
