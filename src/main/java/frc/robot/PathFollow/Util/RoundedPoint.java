@@ -43,6 +43,8 @@ public class RoundedPoint{
         this.cornerDir = vectorAtoB.times(-1).getAngle().minus(this.cornerAngle.div(2));
     }
 
+    public 
+
     public double getMaxRadius()
     {
         return Math.sin(Math.abs(this.cornerAngle.getRadians()) / 2) * Math.min(vectorAtoB.getNorm(), vectorBtoC.getNorm());
