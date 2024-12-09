@@ -4,19 +4,28 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.Drive;
+import frc.robot.subsystems.Chassis;
 import frc.robot.utils.LogManager;
 
 
 public class RobotContainer {
   
   LogManager logManager;
+
+  Chassis chassis;
+  Joystick joystick;
+  Drive drive;
   
   public RobotContainer() {
+    chassis = new Chassis(15);
+    joystick = new Joystick(0);
+    drive = new Drive(chassis, joystick);
+
+    chassis.setDefaultCommand(drive);
+
     logManager = new LogManager();
 
     configureBindings();
