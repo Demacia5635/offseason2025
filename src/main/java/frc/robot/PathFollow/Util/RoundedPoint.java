@@ -47,7 +47,8 @@ public class RoundedPoint{
     {
         double angularVel = 2 * Math.PI; // THIS IS TEMPORARY
         double minRadius = velocity/angularVel;
-        this.radius = Math.min(getMaxRadius(), radius);
+        System.out.println("Max Radius : " + getMaxRadius());
+        this.radius = Math.min(getMaxRadius(), minRadius);
     }
 
     public double getMaxRadius()
@@ -154,6 +155,11 @@ public class RoundedPoint{
     public Leg getCtoCurveLeg()
     {
         return new Leg(endRange().plus(getCenterCircle()), cPoint);
+    }
+
+    public double getRadius()
+    {
+        return this.radius;
     }
 
     public Arc getArc()

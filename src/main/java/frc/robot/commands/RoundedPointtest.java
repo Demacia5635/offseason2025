@@ -25,10 +25,17 @@ public class RoundedPointtest extends Command {
     pathPoint b = new pathPoint(new Translation2d(3,3),zero,0.1);
     pathPoint c = new pathPoint(new Translation2d(0,6),zero,0);
     RoundedPoint point = new RoundedPoint(a,b,c, false);
-    point.setMinRadius(1);
+    double velocity = 3;
+    point.setMinRadius(velocity);
     System.out.println(point.getAtoCurveLeg());
     System.out.println(point.getArc());
     System.out.println(point.getCtoCurveLeg());
+
+    double time = point.getArc().getLength()/velocity;
+
+    System.out.println("Time to do arc : " + time);
+    System.out.println("Angular velocity : " + ((point.getArc().getLength()/time)/point.getRadius()));
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
