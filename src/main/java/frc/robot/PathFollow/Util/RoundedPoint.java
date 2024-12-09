@@ -43,7 +43,12 @@ public class RoundedPoint{
         this.cornerDir = vectorAtoB.times(-1).getAngle().minus(this.cornerAngle.div(2));
     }
 
-    public 
+    public void setMinRadius(double velocity)
+    {
+        double angularVel = 2 * Math.PI; // THIS IS TEMPORARY
+        double minRadius = velocity/angularVel;
+        this.radius = Math.min(getMaxRadius(), radius);
+    }
 
     public double getMaxRadius()
     {

@@ -25,6 +25,7 @@ public class RoundedPointtest extends Command {
     pathPoint b = new pathPoint(new Translation2d(3,3),zero,0.1);
     pathPoint c = new pathPoint(new Translation2d(0,6),zero,0);
     RoundedPoint point = new RoundedPoint(a,b,c, false);
+    point.setMinRadius(1);
     System.out.println(point.getAtoCurvelength());
     System.out.println(point.getArc());
     System.out.println(point.getCtoCurvelength());
