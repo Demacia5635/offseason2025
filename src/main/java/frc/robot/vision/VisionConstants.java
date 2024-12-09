@@ -105,13 +105,20 @@ public class VisionConstants {
     public static final double TAG_CAM_HIGHT = 0.220;
     public static final double TAG_CAM_ANGLE = 34;
 
-    // Camera position relative to robot center
+    // Camera to Tag position relative to robot center
     public static final Translation2d ROBOT_TO_CAM = new Translation2d(0.23,-0.14);
+
+
+    //NOTE Camera mounting configuration
+    public static final double NOTE_CAM_HIGHT = 213.86833 / 1000;
+    public static final double NOTE_CAM_X = 346.37030 / 1000;
+    public static final double NOTE_CAM_Y = 0;//TODO: Check value of the poition
+
+    // Camera to Note position relative to robot center
+    public static final Translation2d ROBOT_TO_CAM_NOTE = new Translation2d(NOTE_CAM_X,NOTE_CAM_Y);
 
     // NetworkTables key for AprilTag vision data
     public static final String TAG_TABLE = "limelight-tag";
 
-    //NOTE Camera mounting configuration
-    public static final double NOTE_CAM_HIGHT = 213.86833;
-    public static final double NOTE_CAM_X = 346.37030;
+
 }
