@@ -5,7 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
-
+import frc.robot.commands.*;
 
 public class RobotContainer {
 
@@ -21,6 +21,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return null;
+    return new RoundedPointtest();
   }
 }
