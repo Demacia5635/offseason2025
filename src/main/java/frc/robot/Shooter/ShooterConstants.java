@@ -52,6 +52,12 @@ public final class ShooterConstants  {
 
   }
 
+  public static class SHOOTER_POW{
+    public static final double FEEDING_MOTOR_POWER = 1;
+    public static final double INTAKE_MOTOR_POWER = 1;
+
+  }
+
   public static class AMP_VAR{
     
       public static final double AMP_ANGLE = 46;
@@ -95,6 +101,32 @@ public final class ShooterConstants  {
     public static final double MOTOR_UP_DELIVERY_VEL = 50;
     public static final double MOTOR_DOWN_DELIVERY_VEL = 50;
   }
+
+  public static class SHOOTER_ATRIBUTES {
+    public static final double RADIOS = 0.36;
+    public static final double SHOOTING_MOTORS_ROTATION_TO_METER = 2 * RADIOS * Math.PI;
+    public static final double MIL_SEC_TO_SHOOT = 1000;
+
+  }  
+
+  public static class LOOKUP_TABLE_DATA {
+    public static final double[][] DATA = {
+      {1.3, 53, 56, 53}, {2.5, 42, 58, 58}, {3.48, 38.5, 63, 60}
+    };
+  }
+
+  public static class ANGLE_CHANGING_VAR{
+
+    public static final double A = 128;
+    public static final double B = 128;
+    public static final double C = 80;
+
+    public static final double BASE_DIS = 25.12;
+    public static final double TOP_ANGLE = 70;
+    public static final double MIN_ANGLE = 37;
+
+}
+
 
   public enum STATE{
     AMP, STAGE, SUBWOFFER, DELIVERY, SPEAKER, IDLE, TESTING;

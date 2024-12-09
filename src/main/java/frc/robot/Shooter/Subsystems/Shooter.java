@@ -11,16 +11,19 @@ import frc.robot.utils.TalonConfig;
 import frc.robot.utils.TalonMotor;
 import static frc.robot.Shooter.ShooterConstants.MOTOR_IDS.*;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 public class Shooter extends SubsystemBase {
   
-  public boolean isReady;
+  public boolean isShotoerReady;
   public STATE shooterState;
 
   TalonMotor motorUp;
   TalonMotor motorDown;
   TalonSRX feedingMotor;
+
+  
 
   /** Creates a new Shooter. */
   public Shooter() {
@@ -37,11 +40,27 @@ public class Shooter extends SubsystemBase {
 
     shooterState = STATE.SPEAKER;
 
-    isReady = false;
+    isShotoerReady = false;
 
     SmartDashboard.putData("Shooter", this);
   }
 
+  public void setFeedingPower(double power){
+    feedingMotor.set(ControlMode.PercentOutput, power);
+  }
+
+  public void pidRunMotor(double velocity){
+    motorDown.setVelocity(velocity);
+    motorUp.setVelocity(velocity);
+  }
+
+  public void pidUpMotor(double velocity){
+    motorUp.setVelocity(velocity);
+  }
+
+  public void pidDownMotor(double velocity){
+    motorDown.setVelocity(velocity);
+  }
   
 
   @Override
