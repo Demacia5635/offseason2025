@@ -120,19 +120,15 @@ public class DataCollector {
                 else if (power <= Range50) {
                     dataRange60.set(nextRowRange60, i, value(gains[i], velocity, rad));
                     powerRange60.set(nextRowRange60, 0, power);
-                    System.out.println("next row 60: " + nextRowRange60);
                     nextRowRange60++;
                 }
 
                 else if(power <= maxPow){
                     dataRange100.set(nextRowRange100, i, value(gains[i], velocity, rad));
                     powerRange100.set(nextRowRange100, 0, power);
-                    System.out.println("next row100: " + nextRowRange100);
                     nextRowRange100++;
                 }
 
-                System.out.println("entered next row 60: " + (power >= Range50));
-                System.out.println("entered next row 100: " + (power >= maxPow));
                 
             }
             lastV = velocity;

@@ -249,25 +249,31 @@ public class Sysid {
      */
     public void analyze() {
         setPower.accept(0.0);
-        SimpleMatrix feedForwardValues20 = dataCollector.solve();
+        SimpleMatrix feedForwardValues30 = dataCollector.solve();
         SimpleMatrix feedForwardValues50 = dataCollector.solveRange60();
         SimpleMatrix feedForwardValues70 = dataCollector.solveRange100();
         result30 = new double[gains.length];
         result50 = new double[gains.length];
         result70 = new double[gains.length];
         for (int i = 0; i < gains.length; i++) {
-            result30[i] = feedForwardValues20.get(i, 0);
+            result30[i] = feedForwardValues30.get(i, 0);
             result50[i] = feedForwardValues50.get(i, 0);
             result70[i] = feedForwardValues70.get(i, 0);
-            SmartDashboard.putNumber("SysID-" + gains[i] + "-0-20 ranges", result30[i]);
+            SmartDashboard.putNumber("SysID-" + gains[i] + "-0-30 ranges", result30[i]);
             // System.out.println("Sysid: " + gains[i] + " = " + result[i]);
         }
+        double avgKS, avgKV, avgKA = 0.0;
+        
+        avgKS = (result30[0] + result50[0] + result70[0])/gains.length;
+        avgKV = (result30[1] + result50[1] + result70[1])/gains.length;
+        avgKA = (result30[2] + result50[2] + result70[2])/gains.length;
+        SmartDashboard.putNumber("avgKS", avgKS);
+        SmartDashboard.putNumber("avgKV", avgKV);
+        SmartDashboard.putNumber("avgKA", avgKA);
         // for(int i = 0; i < gains.length; i++){
         // SmartDashboard.putNumber("SysID-" + gains[i] + "-0-50 ranges", result50[i]);
         // }
-        SmartDashboard.putNumber("feed forward 20 columns", feedForwardValues20.getNumCols());
-        SmartDashboard.putNumber("data range 20 rows", dataCollector.dataRange30().getNumRows());
-        SimpleMatrix power = dataCollector.dataRange30().mult(feedForwardValues20);
+        SimpleMatrix power = dataCollector.dataRange30().mult(feedForwardValues30);
         SimpleMatrix error = dataCollector.power().minus(power);
         SimpleMatrix errorSquared = error.elementMult(error);
         double max = Math.sqrt(errorSquared.elementMax());

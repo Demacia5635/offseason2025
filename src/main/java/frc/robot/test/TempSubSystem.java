@@ -51,8 +51,8 @@ public class TempSubSystem extends SubsystemBase {
   //kp = 0.1, ki = 0.7, kd = 0.07
   public TempSubSystem() {
     steerMotor = new TalonMotor(
-      new TalonConfig(8, "rio", "steer motor") 
-      .withPID(0.1, 0.0, 0.0, 0.2608668730650151, 0.020429816749889147, 0.027562309396102925, 0)
+      new TalonConfig(8, "rio", "steer motor") //KS:0.2608668730650151, KV:0.020429816749889147, KA: 0.027562309396102925
+      .withPID(0.5, 0.0, 0.0, 0.40354361419956436, 0.020192665159358015, 0.09969980432087462, 0)
       .withMotionMagic(3*2*Math.PI, 5*2*Math.PI, 50*2*Math.PI)
       .withBrake(true).withInvert(true)
       .withMotorRatio(12.8).withRadiansMotor()
