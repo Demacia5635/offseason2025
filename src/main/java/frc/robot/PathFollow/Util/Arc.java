@@ -59,7 +59,7 @@ public class Arc extends Segment{
         Translation2d relativePos = pos.minus(p2);
         double dFromCenter = relativePos.getNorm();
 
-        Rotation2d tAngle = new Rotation2d(((velocity * CYCLE_DT) / radius) * Math.signum(angle.getDegrees()));
+        Rotation2d tAngle = new Rotation2d(((velocity * 0.02) / radius) * Math.signum(angle.getDegrees()));
 
 
         //tangent angle to arc, determined by the robot's position
