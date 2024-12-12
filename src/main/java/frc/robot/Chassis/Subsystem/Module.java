@@ -4,13 +4,14 @@
 
 package frc.robot.Chassis.Subsystem;
 
+import javax.swing.text.Position;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import frc.robot.Constants;
 import frc.robot.utils.Cancoder;
 import frc.robot.utils.CancoderConfig;
 import frc.robot.utils.TalonConfig;
 import frc.robot.utils.TalonMotor;
+import frc.robot.Chassis.utils.ModuleConstants;
 
 public class Module extends SubsystemBase {
   TalonMotor driveMotor;
@@ -22,14 +23,14 @@ public class Module extends SubsystemBase {
 
 
   /** Creates a new Module. */
-  public Module(TalonConfig driveConfig, TalonConfig steerConfig, CancoderConfig cancoderConfig) {
-    driveConfig = this.driveConfig;
+  public Module(ModuleConstants moduleConstants) {
+    driveConfig = moduleConstants.driveConfig;
     driveMotor = new TalonMotor(driveConfig);
 
-    steerConfig = this.steerConfig;
+    steerConfig = moduleConstants.steerConfig;
     steerMotor = new TalonMotor(driveConfig);
 
-    cancoderConfig = this.cancoderConfig;
+    cancoderConfig = moduleConstants.cancoderConfig;
     cancoder = new Cancoder(cancoderConfig);
   }
 
@@ -74,6 +75,9 @@ public class Module extends SubsystemBase {
     driveMotor.setBrake(isBrake);
   }
 
+
+
+
   public double getPosition(){
     return cancoder.getPositionRadians();
   }
@@ -84,5 +88,10 @@ public class Module extends SubsystemBase {
 
   public double getVelocity(){
     return cancoder.getVelocityRadiansPerSec();
+  }
+
+  public void setStop(){
+    setDriveMotorPower(0);
+    setSteerMotorPower(0);
   }
 }

@@ -3,46 +3,93 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.Chassis;
-
+import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.Chassis.utils.ModuleConstants;
+import frc.robot.utils.CancoderConfig;
+import frc.robot.utils.TalonConfig;
 
 /** Add your docs here. */
 public class ChassisConstants {
-    public static class RIGHT_FRONT{
-        // public static final int DRIVE_ID = 0;
-        // public static final String DRIVE_CANBUS = "rio";
-        // public static final String DRIVE_NAME = "drive motor";
-        // public static final double DRIVE_RADIOS = 0;
-        // public static final double DRIVE_circonference = DRIVE_RADIOS * 2 * Math.PI;
-        // public static final double DRIVE_KP = 0;
-        // public static final double DRIVE_KI = 0;
-        // public static final double DRIVE_KD = 0;
-        // public static final double DRIVE_KS = 0;
-        // public static final double DRIVE_KV = 0;
-        // public static final double DRIVE_KA = 0;
-        // public static final double DRIVE_KG = 0;
-        // public static final boolean DRIVE_IS_INVERT = false;
-        // public static final boolean DRIVE_IS_BRAKE = false;
-
-        // public static final int STEER_ID = 0;
-        // public static final String STEER_CANBUS = "rio";
-        // public static final String STEER_NAME = "steer motor";
-        // public static final int STEER_KP = 0;
-        // public static final int STEER_KI = 0;
-        // public static final int STEER_KD = 0;
-        // public static final int STEER_KS = 0;
-        // public static final int STEER_KV = 0;
-        // public static final int STEER_KA = 0;
-        // public static final int STEER_KG = 0;
-        // public static final int STEER_MOTION_MAGIC_VELOCITY = 0;
-        // public static final int STEER_MOTION_MAGIC_ACCELERATION = 0;
-        // public static final int STEER_MOTION_MAGIC_JERK = 0;
-        // public static final boolean STEER_IS_INVERT = false;
-        // public static final boolean STEER_IS_BRAKE = false;
-
-        // public static final int CANCODER_ID = 0;
-        // public static final String CANCODER_CANBUS = "rio";
-        // public static final String CANCODER_NAME = "cancoder motor";
-        // public static final double CANCODER_OFFSET = 0;
-        // public static final boolean CANCODER_IS_INVERT = false;
+    public class MODULES{
+        public static ModuleConstants RIGHT_FRONT = new ModuleConstants(
+            "FrontRight", 
+            new TalonConfig(0,"rio","FrontRightDrive")
+                .withPID(0, 0, 0, 0, 0, 0, 0)
+                .withInvert(false)
+                .withMeterMotor(1)
+                .withMotorRatio(1)
+                .withBrake(false),
+            new TalonConfig(0, "rio", "FrontRightSteer")
+                .withPID(0, 0, 0, 0, 0, 0, 0)
+                .withRadiansMotor()
+                .withInvert(false)
+                .withMotionMagic(0, 0, 0)
+                .withMotorRatio(1)
+                .withBrake(false),
+            new CancoderConfig(0, "rio", "FrontRightCancoder")
+                .withInvert(false)
+                .withOffset(0),
+            new Translation2d(0,0));
+        public static ModuleConstants RIGHT_BACK = new ModuleConstants(
+            "FrontRack", 
+            new TalonConfig(0,"rio","FrontRackDrive")
+                .withPID(0, 0, 0, 0, 0, 0, 0)
+                .withInvert(false)
+                .withMeterMotor(1)
+                .withMotorRatio(1)
+                .withBrake(false),
+            new TalonConfig(0, "rio", "FrontBackSteer")
+                .withPID(0, 0, 0, 0, 0, 0, 0)
+                .withRadiansMotor()
+                .withInvert(false)
+                .withMotionMagic(0, 0, 0)
+                .withMotorRatio(1)
+                .withBrake(false),
+            new CancoderConfig(0, "rio", "FrontRightCancoder")
+                .withInvert(false)
+                .withOffset(0),
+            new Translation2d(0,0));
+        public static ModuleConstants LEFT_FRONT = new ModuleConstants(
+            "FrontLeft", 
+            new TalonConfig(0,"rio","FrontLeftDrive")
+                .withPID(0, 0, 0, 0, 0, 0, 0)
+                .withInvert(false)
+                .withMeterMotor(1)
+                .withMotorRatio(1)
+                .withBrake(false),
+            new TalonConfig(0, "rio", "FrontLeftSteer")
+                .withPID(0, 0, 0, 0, 0, 0, 0)
+                .withRadiansMotor()
+                .withInvert(false)
+                .withMotionMagic(0, 0, 0)
+                .withMotorRatio(1)
+                .withBrake(false),
+            new CancoderConfig(0, "rio", "FrontRightCancoder")
+                .withInvert(false)
+                .withOffset(0),
+            new Translation2d(0,0));
+        public static ModuleConstants LEFT_BACK = new ModuleConstants(
+            "BackLeft", 
+            new TalonConfig(0,"rio","BackLeftDrive")
+                .withPID(0, 0, 0, 0, 0, 0, 0)
+                .withInvert(false)
+                .withMeterMotor(1)
+                .withMotorRatio(1)
+                .withBrake(false),
+            new TalonConfig(0, "rio", "BackLeftSteer")
+                .withPID(0, 0, 0, 0, 0, 0, 0)
+                .withRadiansMotor()
+                .withInvert(false)
+                .withMotionMagic(0, 0, 0)
+                .withMotorRatio(1)
+                .withBrake(false),
+            new CancoderConfig(0, "rio", "FrontRightCancoder")
+                .withInvert(false)
+                .withOffset(0),
+            new Translation2d(0,0));
+    }
+    public class GYRO {
+        public final static int GYRO_ID = 0;
+        public final static String GYRO_CANBUS = "rio";
     }
 }
