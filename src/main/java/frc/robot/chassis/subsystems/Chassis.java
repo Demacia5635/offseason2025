@@ -14,10 +14,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -201,10 +203,17 @@ public class Chassis extends SubsystemBase {
    * @param speeds In m/s and rad/s
    */
   public void setVelocities(ChassisSpeeds speeds) {
+
+   
+  
+    speeds = ChassisSpeeds.discretize(speeds, 0.02);
     ChassisSpeeds relSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getAngle());
+
+    
     SwerveModuleState[] states = KINEMATICS_DEMACIA.toSwerveModuleStates(relSpeeds, getVelocity(), getAngle(), getModuleStates());
     setModuleStates(states);
   }
+
 
 
   public void setVelocitiesRotateToSpeaker(ChassisSpeeds speeds){
@@ -345,6 +354,28 @@ public class Chassis extends SubsystemBase {
     LogManager.addEntry("chassis/gyro", gyro::getYaw);
     LogManager.addEntry("chassis/poseX", this::getPoseX);
     LogManager.addEntry("chassis/poseY", this::getPoseY);
+
+    SmartDashboard.putData("Swerve Drive", new Sendable() {
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.setSmartDashboardType("SwerveDrive");
+
+        builder.addDoubleProperty("Front Left Angle", () -> modules[0].getAbsDegrees().getRotations(), null);
+        builder.addDoubleProperty("Front Left Velocity", () -> modules[0].getVelocity(), null);
+
+        builder.addDoubleProperty("Front Right Angle", () -> modules[1].getAbsDegrees().getRotations(), null);
+        builder.addDoubleProperty("Front Right Velocity", () -> modules[1].getVelocity(), null);
+
+        builder.addDoubleProperty("Back Left Angle", () -> modules[2].getAbsDegrees().getRotations(), null);
+        builder.addDoubleProperty("Back Left Velocity", () -> modules[2].getVelocity(), null);
+
+        builder.addDoubleProperty("Back Right Angle", () -> modules[3].getAbsDegrees().getRotations(), null);
+        builder.addDoubleProperty("Back Right Velocity", () -> modules[3].getVelocity(), null);
+
+        builder.addDoubleProperty("Robot Angle", ()-> gyro.getYaw().getValue() / 360, null);
+        builder.addDoubleArrayProperty("Chassis velocity", ()->new double[]{getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond, getChassisSpeeds().omegaRadiansPerSecond}, null);
+      }
+    });
   }
   public void setModulesAngleFromSB(double angle) {;
     Rotation2d a = Rotation2d.fromDegrees(angle);

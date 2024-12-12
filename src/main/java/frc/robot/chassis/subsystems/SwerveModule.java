@@ -7,6 +7,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.chassis.ChassisConstants.SwerveModuleConstants;
@@ -80,6 +81,8 @@ public class SwerveModule extends SubsystemBase {
 
         SmartDashboard.putData(name, this);
 
+        SmartDashboard.putData(name + "set coast", new InstantCommand(()-> setBrake(false)).ignoringDisable(true));
+        SmartDashboard.putData(name + "set brake", new InstantCommand(()-> setBrake(true)).ignoringDisable(true));
     }
 
     @Override
@@ -160,7 +163,7 @@ public class SwerveModule extends SubsystemBase {
 
 
     public Rotation2d getAbsDegrees() {
-        return Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition().getValue());
+        return Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition().getValue() - angleOffset);
     }
 
     public double getAngleRaw() {

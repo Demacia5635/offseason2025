@@ -95,10 +95,10 @@ public class DemaciaKinematics extends SwerveDriveKinematics {
         wantedModuleStates[i] = new SwerveModuleState(moduleVel.getNorm(), moduleVel.getAngle());
       } 
       Rotation2d delta = wantedModuleStates[i].angle.minus(curModuleStates[i].angle);
-      if(Math.abs(delta.getDegrees())<=4
+      /*if(Math.abs(delta.getDegrees())<=4
       && velocityVector.getNorm() > 0.1 && rotationVelocity.getNorm() > 0.1){
-        wantedModuleStates[i].angle = wantedModuleStates[i].angle.plus(delta);
-      }
+        wantedModuleStates[i].angle = wantedModuleStates[i].angle.minus(delta);
+      }*/
         
       
     }

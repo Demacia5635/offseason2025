@@ -88,8 +88,9 @@ public class RobotContainer implements Sendable{
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    //return new RunCommand(()-> chassis.setVelocities(new ChassisSpeeds(0,0.3,1 )), chassis);
-    return new RunCommand(()-> chassis.setModulesAngleFromSB(90), chassis);
+    return new RunCommand(()->chassis.setVelocities(new ChassisSpeeds(0.25, 0, 0)), chassis).withTimeout(0.05).andThen(
+      new RunCommand(()-> chassis.setVelocities(new ChassisSpeeds(0.25,0,0.25)), chassis));
+    // return new RunCommand(()-> chassis.setModulesAngleFromSB(90), chassis);
   }
 
 }
