@@ -54,6 +54,7 @@ public final class ShooterConstants  {
 
   public static class SHOOTER_POW{
     public static final double FEEDING_MOTOR_POWER = 1;
+    public static final double REVERSE_FEEDING_POWER = -1;
     public static final double INTAKE_MOTOR_POWER = 1;
 
   }

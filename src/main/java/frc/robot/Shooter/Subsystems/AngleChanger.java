@@ -5,6 +5,7 @@
 package frc.robot.Shooter.Subsystems;
 
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Shooter.ShooterConstants.ANGLE_CHANGING_VAR;
@@ -19,7 +20,9 @@ public class AngleChanger extends SubsystemBase {
 
   TalonMotor angleChanging;
 
+  
   private boolean isCalibrated;
+  public DigitalInput limitSwitch;
   public LookUpTable lookUp;
   public STATE angleState;
   /** Creates a new AngleChanger. */
@@ -37,8 +40,8 @@ public class AngleChanger extends SubsystemBase {
 
   }
 
-  public double getAngle(){
-    return -1;
+  public boolean isMaxAngle() {
+    return !limitSwitch.get();
   }
 
   public void gotToAngle(double angle){
@@ -62,6 +65,19 @@ public class AngleChanger extends SubsystemBase {
     gotToAngle(wantedAngle);;
   }
 
+
+  public void setVoltage(double voltage){
+    angleChanging.setVoltage(voltage);
+  }
+
+  /**Need to add ShooterUtils so for not default is -1
+   * 
+   * @return current angle
+   */
+  public double getAngle() {
+    //return ShooterUtils.distanceToAngle(angleChangingMotor.getPosition().getValueAsDouble());
+    return -1;
+  }
 
 
   @Override

@@ -4,7 +4,9 @@
 
 package frc.robot.Shooter.Subsystems;
 
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Shooter.ShooterConstants.STATE;
 import frc.robot.utils.TalonConfig;
@@ -19,10 +21,11 @@ public class Shooter extends SubsystemBase {
   public boolean isShotoerReady;
   public STATE shooterState;
 
-  TalonMotor motorUp;
-  TalonMotor motorDown;
-  TalonSRX feedingMotor;
+  private TalonMotor motorUp;
+  private TalonMotor motorDown;
+  private TalonSRX feedingMotor;
 
+  private double disposeTest = 1;
   
 
   /** Creates a new Shooter. */
@@ -41,6 +44,7 @@ public class Shooter extends SubsystemBase {
     shooterState = STATE.SPEAKER;
 
     isShotoerReady = false;
+    SmartDashboard.putData("motor disposal", new InstantCommand(()->feedingMotor.set(ControlMode.PercentOutput, disposeTest)));
 
     SmartDashboard.putData("Shooter", this);
   }
@@ -61,7 +65,16 @@ public class Shooter extends SubsystemBase {
   public void pidDownMotor(double velocity){
     motorDown.setVelocity(velocity);
   }
+
+  public void setVoltage(double voltage){
+    motorDown.set(voltage);
+    motorUp.set(voltage);
+  }
   
+  @Override
+  public void initSendable(SendableBuilder builder) {
+      builder.addDoubleProperty("test disposal", ()-> disposeTest, null);
+  }
 
   @Override
   public void periodic() {

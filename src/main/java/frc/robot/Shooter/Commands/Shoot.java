@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Shooter.ShooterConstants.AMP_VAR;
 import frc.robot.Shooter.ShooterConstants.DELIVERY_VAR;
+import frc.robot.Shooter.ShooterConstants.SHOOTER_ATRIBUTES;
 import frc.robot.Shooter.ShooterConstants.SHOOTER_POW;
 import frc.robot.Shooter.ShooterConstants.STAGE_VAR;
 import frc.robot.Shooter.ShooterConstants.STATE;
@@ -17,7 +18,6 @@ import frc.robot.Shooter.ShooterConstants.SUBWOFFER_VAR;
 import frc.robot.Shooter.Subsystems.Shooter;
 import frc.robot.Shooter.Utils.LookUpTable;
 import edu.wpi.first.wpilibj.Timer;
-import static frc.robot.Shooter.ShooterConstants.*;
 
 public class Shoot extends Command {
 
@@ -135,10 +135,13 @@ public class Shoot extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    
     shooter.isShotoerReady = false;
     shooterTimer.stop();
     shooterTimer.reset();
     isTimerRunning = false;
+    shooter.setVoltage(0);
+    shooter.setFeedingPower(0);
 
     
 
