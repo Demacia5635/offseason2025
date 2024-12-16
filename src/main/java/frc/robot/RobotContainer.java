@@ -20,6 +20,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Odometry.DemaciaKinematics;
+import frc.robot.chassis.ChassisConstants;
 import frc.robot.chassis.commands.DriveCommand;
 import frc.robot.chassis.subsystems.Chassis;
 import frc.robot.utils.LogManager;
@@ -58,6 +60,7 @@ public class RobotContainer implements Sendable{
     chassis.setDefaultCommand(driveCommand);
   
     SmartDashboard.putData("RobotContainer", this);
+    SmartDashboard.putData("ki",ChassisConstants.KINEMATICS_DEMACIA);
     SmartDashboard.putData("reset gyro", new InstantCommand(()->gyro.setYaw(0)));
 
 

@@ -1,8 +1,6 @@
 package frc.robot.chassis.subsystems;
 
 
-import static frc.robot.chassis.ChassisConstants.*;
-
 import java.util.Arrays;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -32,8 +30,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Field;
 import frc.robot.RobotContainer;
-import frc.robot.chassis.utils.DemaciaOdometry;
 import frc.robot.utils.LogManager;
+import static frc.robot.chassis.ChassisConstants.*;
 
 
 
@@ -41,7 +39,6 @@ public class Chassis extends SubsystemBase {
   private final SwerveModule[] modules;
   public final Pigeon2 gyro;
   private SwerveDrivePoseEstimator poseEstimator;
-  private DemaciaOdometry demaciaOdometry;
   private final Field2d field;
   private Pose2d mergedPose;
  
@@ -67,7 +64,6 @@ public class Chassis extends SubsystemBase {
 
    
     poseEstimator = new SwerveDrivePoseEstimator(KINEMATICS, getRawAngle(), getModulePositions(), new Pose2d());
-    demaciaOdometry = new DemaciaOdometry(getRawAngle(), getModulePositions(), getPose());
     setBrake(true);
     field = new Field2d();
     SmartDashboard.putData(field);
@@ -205,12 +201,10 @@ public class Chassis extends SubsystemBase {
   public void setVelocities(ChassisSpeeds speeds) {
 
    
-  
-    speeds = ChassisSpeeds.discretize(speeds, 0.02);
     ChassisSpeeds relSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getAngle());
 
     
-    SwerveModuleState[] states = KINEMATICS_DEMACIA.toSwerveModuleStates(relSpeeds, getVelocity(), getAngle(), getModuleStates());
+    SwerveModuleState[] states = KINEMATICS_DEMACIA.toSwerveModuleStates(relSpeeds,getPose(), getVelocity(), getAngle(), getModuleStates());
     setModuleStates(states);
   }
 

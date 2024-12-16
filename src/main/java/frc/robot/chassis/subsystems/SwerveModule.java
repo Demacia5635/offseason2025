@@ -10,11 +10,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.chassis.ChassisConstants.SwerveModuleConstants;
 import frc.robot.utils.TalonMotor;
 
-import static frc.robot.chassis.ChassisConstants.MOTOR_ROTATION_PER_METER;
-import static frc.robot.chassis.ChassisConstants.WHEEL_DIAMETER;
+import static frc.robot.chassis.ChassisConstants.*;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;

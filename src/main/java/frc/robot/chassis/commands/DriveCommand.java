@@ -9,13 +9,11 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import static frc.robot.chassis.ChassisConstants.MAX_DRIVE_VELOCITY;
-import static frc.robot.chassis.ChassisConstants.MAX_OMEGA_VELOCITY;
-
 import frc.robot.RobotContainer;
 import frc.robot.chassis.subsystems.Chassis;
 import frc.robot.utils.LogManager;
 
+import static frc.robot.chassis.ChassisConstants.*;
 import static frc.robot.utils.Utils.deadband;
 
 public class DriveCommand extends Command  implements Sendable{
