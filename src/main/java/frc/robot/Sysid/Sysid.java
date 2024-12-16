@@ -260,6 +260,7 @@ public class Sysid {
             result50[i] = feedForwardValues50.get(i, 0);
             result70[i] = feedForwardValues70.get(i, 0);
             SmartDashboard.putNumber("SysID-" + gains[i] + "-0-30 ranges", result30[i]);
+            SmartDashboard.putNumber("SysId-" + gains[i] + "-30-50", result50[i]);
             // System.out.println("Sysid: " + gains[i] + " = " + result[i]);
         }
         double avgKS, avgKV, avgKA = 0.0;
@@ -278,10 +279,10 @@ public class Sysid {
         SimpleMatrix errorSquared = error.elementMult(error);
         double max = Math.sqrt(errorSquared.elementMax());
         double avg = errorSquared.elementSum() / errorSquared.getNumRows();
-        SmartDashboard.putNumber("Sysid/Max Error", max);
-        SmartDashboard.putNumber("Sysid/Avg Error Sqr", avg);
+        SmartDashboard.putNumber("Sysid-Max Error", max);
+        SmartDashboard.putNumber("Sysid-Avg Error Sqr", avg);
         double kp = (valueOf(Gains.KV, gains, result30) + valueOf(Gains.KA, gains, result30)) / 5.0;
-        SmartDashboard.putNumber("Sysid/KP (Roborio)", kp);
+        SmartDashboard.putNumber("Sysid-KP (Roborio)", kp);
     }
 
     /**
