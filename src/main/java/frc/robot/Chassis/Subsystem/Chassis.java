@@ -4,10 +4,13 @@
 
 package frc.robot.Chassis.Subsystem;
 
+import com.ctre.phoenix6.configs.Pigeon2Configuration;
+import com.ctre.phoenix6.configs.Pigeon2Configurator;
+import com.ctre.phoenix6.configs.Pigeon2FeaturesConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 
 import frc.robot.Chassis.ChassisConstants.*;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -31,6 +34,10 @@ public class Chassis extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
+  public double getGyroAngle(){
+    return gyro.getAngle();
+  }
+
   public void setModulesDrivePower(double pow) {
     for (var module : modules) {
       module.setDriveMotorPower(pow);
@@ -51,6 +58,40 @@ public class Chassis extends SubsystemBase {
     modules[index].setDriveMotorVelocity(vel);
   }
 
+  public void setModulesDrivePosition(double pos){
+    for (var module : modules) {
+      module.setDriveMotorPosition(pos);;
+    }
+  }
+
+  public void setModuleDrivePosition(double pos, int index){
+    modules[index].setDriveMotorPosition(pos);
+  }
+
+  public double[] getModulesDriveVelocity(){
+    double[] Velocities = new double[modules.length];
+    for (int i = 0; i < modules.length; i++) {
+      Velocities[i] = modules[i].getDriveMotorVelocity();
+    }
+    return Velocities;
+  }
+
+  public double getModuleDriveVelocity(int index){
+    return modules[index].getDriveMotorVelocity();
+  }
+
+  public double[] getModulesDrivePosition(){
+    double[] Positions = new double[modules.length];
+    for (int i = 0; i < modules.length; i++) {
+      Positions[i] = modules[i].getDrivePosition();
+    }
+    return Positions;
+  }
+
+  public double getModuleDrivePosition(int index){
+    return modules[index].getDrivePosition();
+  }
+
   public void setModulesSteerPower(double pow) {
     for (var module : modules) {
       module.setSteerMotorPower(pow);
@@ -63,7 +104,7 @@ public class Chassis extends SubsystemBase {
 
   public void setModulesSteerVelocity(double vel) {
     for (var module : modules) {
-      module.setDriveMotorPower(vel);
+      module.setDriveMotorVelocity(vel);
     }
   }
   
@@ -71,9 +112,19 @@ public class Chassis extends SubsystemBase {
     modules[index].setSteerMotorVelocity(vel);
   }
 
+  public void setModulesSteerPosition(double pos) {
+    for (var module : modules) {
+      module.setDriveMotorPosition(pos);
+    }
+  }
+  
+  public void setModuleSteerPosition(int pos, int index){
+    modules[index].setSteerMotorPosition(pos);
+  }
+
   public void setModulesSteeMotionMagic(double position) {
     for (var module : modules) {
-      module.setDriveMotorPower(position);   
+      module.setDriveMotorPower(position);
     }
   }
 
@@ -81,4 +132,27 @@ public class Chassis extends SubsystemBase {
     modules[index].setSteerMotorMotionMagic(position);
   }
 
+  public double[] getModulesSteerVelocity(){
+    double[] Velocities = new double[modules.length];
+    for (int i = 0; i < modules.length; i++) {
+      Velocities[i] = modules[i].getSteerVelocity();
+    }
+    return Velocities;
+  }
+
+  public double getModuleSteerVelocity(int index){
+    return modules[index].getSteerVelocity();
+  }
+
+  public double[] getModulesSteerPosition(){
+    double[] Positions = new double[modules.length];
+    for (int i = 0; i < modules.length; i++) {
+      Positions[i] = modules[i].getSteerPosition();
+    }
+    return Positions;
+  }
+
+  public double getModuleSteerPosition(int index){
+    return modules[index].getSteerPosition();
+  }
 }

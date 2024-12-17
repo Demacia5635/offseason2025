@@ -4,8 +4,6 @@
 
 package frc.robot.Chassis.Subsystem;
 
-import javax.swing.text.Position;
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Cancoder;
 import frc.robot.utils.CancoderConfig;
@@ -51,12 +49,16 @@ public class Module extends SubsystemBase {
     driveMotor.setBrake(isBrake);
   }
 
-  public double getDriveMotorPower(){
-    return driveMotor.getCurrentPosition();
+  public void setDriveMotorPosition(double pos){
+    driveMotor.setPosition(pos);
   }
 
   public double getDriveMotorVelocity(){
     return driveMotor.getCurrentVelocity();
+  }
+
+  public double getDrivePosition(){
+    return driveMotor.getCurrentPosition();
   }
 
   public void setSteerMotorPower(double power){
@@ -75,19 +77,21 @@ public class Module extends SubsystemBase {
     driveMotor.setBrake(isBrake);
   }
 
+  public void setSteerMotorPosition(double pos) {
+    steerMotor.setPosition(pos);
+    cancoder.setPosition(pos);
+  }
 
+  public double getSteerVelocity(){
+    return cancoder.getPositionRadians();
+  }
 
-
-  public double getPosition(){
+  public double getSteerPosition(){
     return cancoder.getPositionRadians();
   }
   
-  public double getAbsPosition(){
+  public double getSteerAbsPosition(){
     return cancoder.getAbsPositionRadians();
-  }
-
-  public double getVelocity(){
-    return cancoder.getVelocityRadiansPerSec();
   }
 
   public void setStop(){
