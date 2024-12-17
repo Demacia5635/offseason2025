@@ -3,6 +3,7 @@ package frc.robot.Sysid;
 import java.util.function.Supplier;
 import org.ejml.simple.SimpleMatrix;
 
+import edu.wpi.first.units.Velocity;
 import frc.robot.utils.LogManager;
 import frc.robot.utils.LogManager.LogEntry;
 
@@ -38,9 +39,13 @@ public class DataCollector {
     double Range50;
     double rad = 0; //current angle in in rad
     double voltageForHorizontal;
+    Supplier<Double> getAccel;
 
     SimpleMatrix testForData;
     SimpleMatrix testForPower;
+
+    DataTable[] datas;
+    int row = 0;
 
     
 
@@ -53,7 +58,7 @@ public class DataCollector {
      * @param voltageForHorizontal needed voltage for arm to stay in a horizontal state
      */
     public DataCollector(Gains[] gains, Supplier<Double> getVelocity,
-    int nPowerCycles, double powerCycleDuration, double voltageForHorizontal) {
+    int nPowerCycles, double powerCycleDuration, double voltageForHorizontal, Supplier<Double> getAccel) {
          this.gains = gains;
         this.getVelocity = getVelocity;
         this.nPowerCycles = nPowerCycles;
@@ -66,13 +71,19 @@ public class DataCollector {
         powerRange30 = new SimpleMatrix(matrixRows, 1);
         powerRange60 = new SimpleMatrix(matrixRows, 1);
         powerRange100 = new SimpleMatrix(matrixRows, 1);
-        nextRowRange30 = 0;
-        nextRowRange60 = 0;
-        nextRowRange100 = 0;
+        // nextRowRange30 = 0;
+        // nextRowRange60 = 0;
+        // nextRowRange100 = 0;
         lastV = 0;
+        this.getAccel = getAccel;
         this.voltageForHorizontal = voltageForHorizontal;
         testForData = new SimpleMatrix(matrixRows, gains.length);
         testForPower = new SimpleMatrix(matrixRows, 1);
+        datas = new DataTable[3];
+        datas[0] = new DataTable(0, matrixRows, gains.length);
+        datas[1] = new DataTable(0, matrixRows, gains.length);
+        datas[2] = new DataTable(0, matrixRows, gains.length);
+        
     }
 
 
@@ -96,7 +107,7 @@ public class DataCollector {
      * Adding the power to the right power matrix which is between the ranges of
      * 1-100 (including minus)
      * 
-     * @param power        is in -12 to 12 voltage unit
+     * @param power        is in -1 to 1 voltage unit
      * @param nextRow      adds a new row each time a dataRange30 is collected
      * @param powerRange30 adds all the power from range 1-30
      * @param powerRange100 adds all the power from range 31-70
@@ -104,30 +115,36 @@ public class DataCollector {
      * @param dataRange30         add raw dataRange30 to the matrix (velocity, signum(velocity))
      * @param i            signify the column of the maxtrix and index
      */
-    public void collect(double power, double maxPow, double minPow) {
-        if (valid(power, minPow)) {
-            Range1 = maxPow - minPow; 
-            Range30 = minPow + (Range1*0.3);
-            Range50 = minPow + (Range1 * 0.7);
+    public void collect(double maxVel) {
+        if (valid(maxVel)) {
+            double range = maxVel * 0.3;
             double velocity = getVelocity.get();
+            double acceleration = 0;//getAccel.get() !=  null ? getAccel.get() : 0;
+            row = getRange(maxVel, velocity);
             for (int i = 0; i < gains.length; i++) {
-                if (power <= Range30) {
-                    dataRange30.set(nextRowRange30, i, value(gains[i], velocity, rad));
-                    powerRange30.set(nextRowRange30, 0, power);
+                datas[row].dataMatrix.set(datas[0].getRow(), i, value(gains[i], velocity, rad, acceleration));
+                datas[row].updateRow();
+                if(velocity <= range){
+                    dataRange30.set(nextRowRange30, i, value(gains[i], velocity, rad, acceleration));
                     nextRowRange30++;
                 }
+            //     if (velocity <= Range30) {
+            //         dataRange30.set(nextRowRange30, i, value(gains[i], velocity, rad, acceleration));
+            //         powerRange30.set(nextRowRange30, 0, velocity);
+            //         nextRowRange30++;
+            //     }
                 
-                else if (power <= Range50) {
-                    dataRange60.set(nextRowRange60, i, value(gains[i], velocity, rad));
-                    powerRange60.set(nextRowRange60, 0, power);
-                    nextRowRange60++;
-                }
+            //     else if (velocity <= Range50) {
+            //         dataRange60.set(nextRowRange60, i, value(gains[i], velocity, acceleration, rad));
+            //         powerRange60.set(nextRowRange60, 0, velocity);
+            //         nextRowRange60++;
+            //     }
 
-                else if(power <= maxPow){
-                    dataRange100.set(nextRowRange100, i, value(gains[i], velocity, rad));
-                    powerRange100.set(nextRowRange100, 0, power);
-                    nextRowRange100++;
-                }
+            //     else if(power <= maxPow){
+            //         dataRange100.set(nextRowRange100, i, value(gains[i], velocity, acceleration, rad));
+            //         powerRange100.set(nextRowRange100, 0, power);
+            //         nextRowRange100++;
+            //     }
 
                 
             }
@@ -136,9 +153,31 @@ public class DataCollector {
 
     }
 
-    private boolean valid(double power, double minPow){
+    private int getRange(double maxVel, double velocity){
+        double range30 = maxVel * 0.3;
+        double range60 = maxVel * 0.6;
+        if(velocity <= range30){
+            return 0;
+        }
+        
+        else if(velocity <= range60){
+            return 1;
+        }
+
+        else if(velocity <= maxVel){
+            return 2;
+        }
+
+        return -1;
+    }
+
+    
+
+
+    private boolean valid(double maxVel){
         if(getVelocity == null) return false;
-        return (power != 0 && Math.abs(getVelocity.get()) > minPow);
+        if(maxVel < Math.abs(getVelocity.get())) return false;
+        return true;
     }
 
     /**
@@ -150,7 +189,7 @@ public class DataCollector {
      * @param meter
      * @return raw value of each gain (feed forward raw dataRange30)
      */
-    double value(Gains gain, double velocity, double rad) {
+    double value(Gains gain, double velocity, double acceleration, double rad) {
         switch (gain) {
             case KS:
                 return Math.signum(velocity);
@@ -209,6 +248,10 @@ public class DataCollector {
         return dataRange100.rows(0, nextRowRange100);
     }
 
+    public SimpleMatrix testFF(){
+        return dataRange30.solve(powerRange30);
+    }
+
     /**
      * 
      * @return the collected power range 0-20 (power matrix for ranges of 0-20
@@ -232,6 +275,18 @@ public class DataCollector {
      */
     public SimpleMatrix powerRange100() {
         return powerRange100.rows(0, nextRowRange100);
+    }
+
+    public SimpleMatrix solveFirstRange(){
+        return datas[0].solve();
+    }
+
+    public SimpleMatrix solveSecRange(){
+        return datas[1].solve();
+    }
+
+    public SimpleMatrix solveThirdRange(){
+        return datas[2].solve();
     }
 
     /**

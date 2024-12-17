@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Sysid.Sysid;
 import frc.robot.utils.Cancoder;
 import frc.robot.utils.CancoderConfig;
+import frc.robot.utils.LogManager;
 import frc.robot.utils.TalonConfig;
 import frc.robot.utils.TalonMotor;
 
@@ -37,11 +38,12 @@ public class TempSubSystem extends SubsystemBase {
   double motionMagicTest = 0;
 
 //radian 1 min 3 max radian
-  double minPow = 0.2;
-  double maxPow = 0.6;
+  double minPow = 0.0;
+  double maxPow = 5;
   double duration = 2;
   double delay = 0.02;
   Supplier<Double> getV;
+  Supplier<Double> getAccel;
 
 
   public double getDutyTest(){
@@ -70,13 +72,13 @@ public class TempSubSystem extends SubsystemBase {
     steerMotor.setPosition(cancoder.getAbsPositionRadians() / (2*Math.PI));
 
     getV = ()->(steerMotor.getCurrentVelocity());
-
+    getAccel = ()->(SmartDashboard.getNumber("steer motor/Acceleration", 0));
     
     steerMotor.hotReloadPidFf(0);
     SmartDashboard.putData("steer motor", steerMotor);
-
+    
     Consumer<Double> setPow = Power -> steerMotor.setDuty(Power);
-    id = new Sysid(setPow, getV, minPow, maxPow, duration , delay ,this);
+    id = new Sysid(setPow, getV, minPow, maxPow, duration , delay, null ,this);
     SmartDashboard.putData("set sysid" , id.runNormalSysId());
 
     SmartDashboard.putData("motor set pow", new RunCommand(()-> {

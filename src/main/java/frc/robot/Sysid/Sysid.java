@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import org.ejml.simple.SimpleMatrix;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -44,7 +45,7 @@ public class Sysid {
     Consumer<Double> setPower; // function to set the power
     DataCollector dataCollector; // the data collector class
     double minPow;
-    double maxPow;
+    double maxVel;
     double deltaPower; // the change of power between power cycles
     int nPowerCycles; // how many powers to use (the system will run each power in positive and
                       // negative values)
@@ -56,7 +57,7 @@ public class Sysid {
     Gains[] gains; // the gains we are looking for
     double[] result30 = null; // the result, after analyze
     double[] result50 = null;
-    double[] result70 = null;
+    double[] resultFF = null;
     boolean steadyOnly = false; // if we need steady only
     final static double voltageForHorizontal = 4; // voltage for staying at a horizontal state
 
@@ -75,6 +76,7 @@ public class Sysid {
             Supplier<Double> getVelocity,
             double minPow,
             double maxPow,
+            Supplier<Double> getAccel,
             Subsystem... subsystems) {
         this(new Gains[] { Gains.KS, Gains.KV, Gains.KA, Gains.KV2 },
                 setPower,
@@ -84,6 +86,7 @@ public class Sysid {
                 20,
                 defaultDuration,
                 defaultDelay,
+                getAccel,
                 subsystems);
     }
 
@@ -99,19 +102,21 @@ public class Sysid {
      */
     public Sysid(Consumer<Double> setPower,
             Supplier<Double> getVelocity,
-            double minPow,
-            double maxPow,
+            double minVel,
+            double maxVel,
             double powerCycleDuration,
             double powerCycleDelay,
+            Supplier<Double> getAccel,
             Subsystem... subsystems) {
         this(new Gains[] { Gains.KS, Gains.KV, Gains.KA },
                 setPower,
                 getVelocity,
-                minPow,
-                maxPow,
+                minVel,
+                maxVel,
                 20,
                 powerCycleDuration,
                 powerCycleDelay,
+                getAccel,
                 subsystems);
     }
 
@@ -127,21 +132,21 @@ public class Sysid {
     public Sysid(Gains[] types,
             Consumer<Double> setPower,
             Supplier<Double> getVelocity,
-            double minPow,
-            double maxPow,
+            double minVel,
+            double maxVel,
             int nPowerCycles,
             double powerCycleDuration,
             double powerCycleDelay,
+            Supplier<Double> getAccel,
             Subsystem... subsystems) {
 
         this.setPower = setPower;
-        dataCollector = new DataCollector(types, getVelocity, nPowerCycles, powerCycleDuration, voltageForHorizontal);
-        this.minPow = minPow;
-        this.maxPow = maxPow;
+        dataCollector = new DataCollector(types, getVelocity, nPowerCycles, powerCycleDuration, voltageForHorizontal, getAccel);
+        this.maxVel = maxVel;
         this.nPowerCycles = nPowerCycles;
         this.powerCycleDelay = powerCycleDelay;
         this.powerCycleDuration = powerCycleDuration;
-        deltaPower = (double) (maxPow - minPow) / (nPowerCycles);
+        deltaPower = (double) (maxVel - minVel) / (nPowerCycles);
         this.subsystems = subsystems;
         this.gains = types;
         SmartDashboard.putNumber("deltaPow", deltaPower);
@@ -165,10 +170,10 @@ public class Sysid {
      * @return commad
      */
     public static Command getSteadyCommand(Consumer<Double> setPower, Supplier<Double> getVelocity, double minPow,
-            double maxPow, double powerStep, boolean isMeter,
+            double maxPow, double powerStep, boolean isMeter, Supplier<Double> getAccel,
             Subsystem... subsystems) {
         Sysid id = new Sysid(new Gains[] { Gains.KS, Gains.KV, Gains.KV2 }, setPower, getVelocity,  minPow,
-                maxPow, 20, 1, 1, subsystems);
+                maxPow, 20, 1, 1, getAccel, subsystems);
         id.steadyOnly = true;
         Command cmd = new NoAccelerationPowerCommand(setPower, powerStep, id.dataCollector, false,
                 minPow, maxPow, maxPow,  subsystems);
@@ -209,7 +214,7 @@ public class Sysid {
         boolean resetDataCollector = true;
         Command cmd = new WaitCommand(powerCycleDelay);
         for (int cycle = 0; cycle < nPowerCycles; cycle++) {
-            double power = minPow + cycle * deltaPower;
+            double power = minPow + cycle * 0.01;
             cmd = cmd.andThen(getPowerCommand(power, resetDataCollector));
             resetDataCollector = false;
         }
@@ -221,8 +226,8 @@ public class Sysid {
     /**
      * Get the command for a power - with the duration and delay
      */
-    Command getPowerCommand(double velocity, boolean resetDataCollector) {
-        return ((new PowerCycleCommand(setPower, velocity, dataCollector, resetDataCollector, maxPow, minPow,
+    Command getPowerCommand(double power, boolean resetDataCollector) {
+        return ((new PowerCycleCommand(setPower, power, dataCollector, resetDataCollector, maxVel,
                 subsystems))
                 .withTimeout(powerCycleDuration)).andThen(new WaitCommand(powerCycleDelay));
     }
@@ -249,32 +254,37 @@ public class Sysid {
      */
     public void analyze() {
         setPower.accept(0.0);
-        SimpleMatrix feedForwardValues30 = dataCollector.solve();
-        SimpleMatrix feedForwardValues50 = dataCollector.solveRange60();
-        SimpleMatrix feedForwardValues70 = dataCollector.solveRange100();
+        // SimpleMatrix feedForwardValues30 = dataCollector.solve();
+        // SimpleMatrix feedForwardValues50 = dataCollector.solveRange60();
+        // SimpleMatrix feedForwardValues70 = dataCollector.solveRange100();
+
+        // SimpleMatrix testFF = dataCollector.testFF();
+        SimpleMatrix test = dataCollector.solveFirstRange();
+
         result30 = new double[gains.length];
         result50 = new double[gains.length];
-        result70 = new double[gains.length];
+        resultFF = new double[gains.length];
         for (int i = 0; i < gains.length; i++) {
-            result30[i] = feedForwardValues30.get(i, 0);
-            result50[i] = feedForwardValues50.get(i, 0);
-            result70[i] = feedForwardValues70.get(i, 0);
+            //result30[i] = feedForwardValues30.get(i, 0);
+            result50[i] = test.get(i, 0);
+            //resultFF[i] = testFF.get(i, 0);
             SmartDashboard.putNumber("SysID-" + gains[i] + "-0-30 ranges", result30[i]);
-            SmartDashboard.putNumber("SysId-" + gains[i] + "-30-50", result50[i]);
+            SmartDashboard.putNumber("SysId-" + gains[i] + "-testVel", result50[i]);
+            SmartDashboard.putNumber("SysId-" + gains[i] + "testFF", resultFF[i]);
             // System.out.println("Sysid: " + gains[i] + " = " + result[i]);
         }
         double avgKS, avgKV, avgKA = 0.0;
         
-        avgKS = (result30[0] + result50[0] + result70[0])/gains.length;
-        avgKV = (result30[1] + result50[1] + result70[1])/gains.length;
-        avgKA = (result30[2] + result50[2] + result70[2])/gains.length;
+        avgKS = (result30[0] + result50[0] + resultFF[0])/gains.length;
+        avgKV = (result30[1] + result50[1] + resultFF[1])/gains.length;
+        avgKA = (result30[2] + result50[2] + resultFF[2])/gains.length;
         SmartDashboard.putNumber("avgKS", avgKS);
         SmartDashboard.putNumber("avgKV", avgKV);
         SmartDashboard.putNumber("avgKA", avgKA);
         // for(int i = 0; i < gains.length; i++){
         // SmartDashboard.putNumber("SysID-" + gains[i] + "-0-50 ranges", result50[i]);
         // }
-        SimpleMatrix power = dataCollector.dataRange30().mult(feedForwardValues30);
+        SimpleMatrix power = dataCollector.dataRange30().mult(test);
         SimpleMatrix error = dataCollector.power().minus(power);
         SimpleMatrix errorSquared = error.elementMult(error);
         double max = Math.sqrt(errorSquared.elementMax());

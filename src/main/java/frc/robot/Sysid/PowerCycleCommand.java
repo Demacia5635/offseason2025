@@ -21,8 +21,7 @@ public class PowerCycleCommand extends Command {
     DataCollector dataCollector; // data collector
     Consumer<Double> setPower; // set power function
     boolean resetDataCollector; // reset the data collector data for rerun of the same command group
-    double minPow; // min power given to the motor
-    double maxPow; // max power given
+    double maxVel; // max velocity given
     /**
      * default Constructor - does not reset the data collector
      * 
@@ -31,10 +30,10 @@ public class PowerCycleCommand extends Command {
      * @param dataCollector collects data
      * @param subSystem     needed subsystem
      */
-    public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector, double maxPow, double minPow,
+    public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector, double maxVel,
             Subsystem... subSystem) {
 
-        this(setPower, power, dataCollector, false, maxPow, minPow, subSystem);
+        this(setPower, power, dataCollector, false, maxVel, subSystem);
         addRequirements(subSystem);
         
     }
@@ -49,18 +48,16 @@ public class PowerCycleCommand extends Command {
      * @param subSystem          needed subsystem
      */
     public PowerCycleCommand(Consumer<Double> setPower, double power, DataCollector dataCollector,
-            boolean resetDataCollector, double maxPow, double minPow, Subsystem... subSystem) {
+            boolean resetDataCollector, double maxVel, Subsystem... subSystem) {
         this.power = power;
         this.dataCollector = dataCollector;
         this.setPower = setPower;
         this.resetDataCollector = resetDataCollector;
-        this.minPow = minPow;
-        this.maxPow = maxPow;
+        this.maxVel = maxVel;
         addRequirements(subSystem);
     }
 
     /**
-     * starts timer
      * reset data collector if needed
      * adds power to the set power variable
      * reset last velocity
@@ -77,7 +74,7 @@ public class PowerCycleCommand extends Command {
 
     @Override
     public void execute() {
-        dataCollector.collect(power, maxPow, minPow);
+        dataCollector.collect(maxVel);
         
     }
 
