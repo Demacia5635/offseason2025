@@ -55,7 +55,7 @@ public class DriveCommand extends Command  implements Sendable{
 
     double velX = Math.pow(joyX, 2) * MAX_DRIVE_VELOCITY * Math.signum(joyX);
     double velY = Math.pow(joyY, 2) * MAX_DRIVE_VELOCITY * Math.signum(joyY);
-    double velRot = -rot * MAX_OMEGA_VELOCITY;
+    double velRot = rot * MAX_OMEGA_VELOCITY;
 
 
     if (precisionDrive) {

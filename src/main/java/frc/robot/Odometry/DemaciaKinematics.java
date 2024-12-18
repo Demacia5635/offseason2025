@@ -6,6 +6,7 @@ package frc.robot.Odometry;
 
 import java.lang.module.ModuleDescriptor;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -105,7 +106,7 @@ public class DemaciaKinematics extends SwerveDriveKinematics implements Sendable
       else{
         
         
-        wantedModuleStates[i] = calcModuleState(curPose,chassisSpeeds, curModuleStates, i);
+        wantedModuleStates[i] =  calcModuleState(curPose,chassisSpeeds, curModuleStates, i);
       } 
       /*if(Math.abs(delta.getDegrees())<=4
       && velocityVector.getNorm() > 0.1 && rotationVelocity.getNorm() > 0.1){
@@ -125,58 +126,32 @@ public class DemaciaKinematics extends SwerveDriveKinematics implements Sendable
   }
 
   private SwerveModuleState calcModuleState(Pose2d curPose, ChassisSpeeds wantedSpeeds, SwerveModuleState[] curModuleStates, int i){
+    
+    LogManager.log("Speeds: " + wantedSpeeds);
     Pose2d estimatedPose = new Pose2d(wantedSpeeds.vxMetersPerSecond * 0.02, wantedSpeeds.vyMetersPerSecond * 0.02, Rotation2d.fromRadians(wantedSpeeds.omegaRadiansPerSecond * 0.02));
-    LogManager.log("Estiamted Pose: " + estimatedPose);
-    LogManager.log("VELOCITY: " + wantedSpeeds.vxMetersPerSecond * 0.02);
 
     Translation2d estimatedModulePos = estimatedPose.getTranslation().plus(moduleTranslation[i].rotateBy(estimatedPose.getRotation()));
     Translation2d moduleDiff = estimatedModulePos.minus(moduleTranslation[i]);
-    Rotation2d alpha = curModuleStates[i].angle.minus(moduleDiff.getAngle());
-    LogManager.log("alpha: " + alpha);
+
+    Rotation2d alpha = Rotation2d.fromDegrees(MathUtil.inputModulus(
+      curModuleStates[i].angle.minus(moduleDiff.getAngle()).getDegrees(), -90, 90));
+
+    Boolean isTrajectoryPossible = Math.abs(alpha.getDegrees()) <= 3;
     Rotation2d wantedAngle = curModuleStates[i].angle.plus(alpha.times(2));
-  
-    double radius = moduleDiff.getNorm() / (2 * Math.sin(alpha.getRadians())); // using that alpha cant be 0 based on the prev checks
-    double wantedVelocity = (2*alpha.getRadians() * radius) / 0.02;
- 
-    return new SwerveModuleState(wantedVelocity, wantedAngle);
-    // Pose2d estimatedWantedPose = getEstimatedNextPose(curPose, wantedSpeeds);
-    // Translation2d curModulePos = curPose.getTranslation().plus(moduleTranslation[i].rotateBy(curPose.getRotation()));
-    // Translation2d nextModulePos = estimatedWantedPose.getTranslation().plus(moduleTranslation[i].rotateBy(estimatedWantedPose.getRotation()));
-    // Translation2d moduleDiffPos = nextModulePos.minus(curModulePos);
-    // Rotation2d alpha = curModuleStates[i].angle.minus(moduleDiffPos.getAngle());
-
-    // double radius = moduleDiffPos.getNorm() / (2 * Math.sin(alpha.getRadians())); // using that alpha cant be 0 based on the prev checks
-    // double wantedVelocity = (alpha.getRadians() * radius) / 0.02;
-    // Rotation2d wantedAngle = curModuleStates[i].angle.plus(alpha.times(2));
-
-    // return new SwerveModuleState(wantedVelocity, wantedAngle);
-
-
-    //Ron tries to fix above code
-    /*Pose2d estimatedWantedPose = getEstimatedNextPose(curPose, wantedSpeeds);
-    Translation2d curModulePos = curPose.getTranslation().plus(moduleTranslation[i].rotateBy(curPose.getRotation()));
-    Translation2d nextModulePos = estimatedWantedPose.getTranslation().plus(moduleTranslation[i].rotateBy(estimatedWantedPose.getRotation()));
-    LogManager.log("cur pose: " + curPose);
-    LogManager.log("next pose: " + estimatedWantedPose);
-
-    Translation2d moduleDiffPos = nextModulePos.minus(curModulePos);
-    //Added rotation of the module angle so it is field relative and not self relative
-    Rotation2d alpha = curModuleStates[i].angle.plus(curPose.getRotation()).minus(moduleDiffPos.getAngle());
-    
-    double radius = moduleDiffPos.getNorm() / (2 * Math.sin(alpha.getRadians())); // using that alpha cant be 0 based on the prev checks
-    // double circle_circumfrence = 2 * Math.PI * radius;
-    // double partial_arch = (2 * alpha.getDegrees() / 360) * circle_circumfrence;
-    double wantedVelocity = (2*alpha.getRadians() * radius) / 0.02;
-    LogManager.log(i + " vel " + wantedVelocity + " alpha Radians " + alpha.getRadians() + " radius " + radius);
-    Rotation2d wantedAngle = curModuleStates[i].angle.plus(alpha.times(2));
-    LogManager.log(i + " angle" + wantedAngle);
-    LogManager.log("in the function");
-
-    return new SwerveModuleState(wantedVelocity, wantedAngle);
-     */ 
-
   
    
+    LogManager.log("Module: " + i);
+    LogManager.log("alpha: " + alpha);
+    LogManager.log("wanted angle: " + wantedAngle);
+    
+   
+    double wantedVelocity = moduleDiff.getNorm() / 0.02;
+    LogManager.log("wanted velocity: " + wantedVelocity);
+    LogManager.log("IS OUR----------: " + isTrajectoryPossible);
+    return isTrajectoryPossible ? new SwerveModuleState(wantedVelocity, wantedAngle) : super.toSwerveModuleStates(wantedSpeeds)[i];
+    
+    //return Math.abs(radius) <= 0.05 || Math.abs(alpha.getDegrees()) <= 1 ? super.toSwerveModuleStates(wantedSpeeds)[i] : new SwerveModuleState(wantedVelocity, wantedAngle);
+  
   }
 
   private void factorVelocities(SwerveModuleState[] arr, double factor){
