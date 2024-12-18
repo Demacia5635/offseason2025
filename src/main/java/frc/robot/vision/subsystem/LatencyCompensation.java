@@ -6,6 +6,7 @@ package frc.robot.vision.subsystem;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -43,20 +44,36 @@ public class LatencyCompensation extends SubsystemBase {
     return totalLatency;
   }
 
-  public Pose2d predictPosition(double velocity) {
-    Rotation2d rotation = robotPose.getRotation();
-    
-    double predictedDistance = velocity * getTotalLatency(); // Distance traveled during latency
-
-    double predictedX = robotPose.getX() + predictedDistance * Math.cos(rotation.getRadians());
-    double predictedY = robotPose.getY() + predictedDistance * Math.sin(rotation.getRadians());
-
-    return new Pose2d(predictedX, predictedY, rotation);
+  public double getPipelineLatency(){
+    // Returns in milliseconds
+    return pipelineLatency;
   }
 
-  public double predictRotation(double angularVelocity) {
+  public double getImageCaptureLatency(){
+    // Returns in milliseconds
+    return imageCaptureLatency;
+  }
+
+  public Pose2d predictPosition(ChassisSpeeds chassisSpeeds) {
+    double latencySeconds = getTotalLatency();
+
+    // Convert robot-relative velocities to field-relative velocities
+    Rotation2d robotRotation = robotPose.getRotation();
+    double fieldRelativeVx = chassisSpeeds.vxMetersPerSecond * robotRotation.getCos() - chassisSpeeds.vyMetersPerSecond * robotRotation.getSin();
+    double fieldRelativeVy = chassisSpeeds.vxMetersPerSecond * robotRotation.getSin() + chassisSpeeds.vyMetersPerSecond * robotRotation.getCos();
+
+    // Calculate predicted X and Y displacements
+    double predictedX = robotPose.getX() + fieldRelativeVx * latencySeconds;
+    double predictedY = robotPose.getY() + fieldRelativeVy * latencySeconds;
+
+    return new Pose2d(predictedX, predictedY, robotPose.getRotation());
+  }
+  
+  public double predictRotation(ChassisSpeeds chassisSpeeds) {
+    double latency = getTotalLatency();
     Rotation2d currentAngle = robotPose.getRotation();
-    
-    return currentAngle.getRadians() + (angularVelocity * getTotalLatency());
+
+    double predictedRotation = currentAngle.getRadians() + chassisSpeeds.omegaRadiansPerSecond * latency;
+    return predictedRotation;
   }
 }
