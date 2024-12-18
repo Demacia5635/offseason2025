@@ -17,6 +17,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
@@ -183,6 +184,9 @@ public class Chassis extends SubsystemBase {
   public void setPose(Pose2d pose){
     poseEstimator.resetPosition(getRawAngle(), getModulePositions(), pose);
   }
+  public void resetPose(){
+    poseEstimator.resetPosition(new Rotation2d(), getModulePositions(), new Pose2d());
+  }
 
 
   /*public void setVelocitiesRobotRel(ChassisSpeeds speeds){
@@ -204,7 +208,7 @@ public class Chassis extends SubsystemBase {
     ChassisSpeeds relSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getAngle());
 
     
-    SwerveModuleState[] states = KINEMATICS_DEMACIA.toSwerveModuleStates(relSpeeds,getPose(), getVelocity(), getAngle(), getModuleStates());
+    SwerveModuleState[] states = KINEMATICS_DEMACIA.toSwerveModuleStates(relSpeeds, getVelocity(), getAngle(), getModuleStates());
     setModuleStates(states);
   }
 
@@ -338,6 +342,9 @@ public class Chassis extends SubsystemBase {
   public Pose2d getPose() {
     return poseEstimator.getEstimatedPosition();
   }
+  public boolean getertobool(boolean bool){
+    return !bool;
+  }
 
   @Override
   public void initSendable(SendableBuilder builder) {
@@ -368,6 +375,8 @@ public class Chassis extends SubsystemBase {
 
         builder.addDoubleProperty("Robot Angle", ()-> gyro.getYaw().getValue() / 360, null);
         builder.addDoubleArrayProperty("Chassis velocity", ()->new double[]{getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond, getChassisSpeeds().omegaRadiansPerSecond}, null);
+
+        builder.addBooleanProperty("reset pese", ()->getertobool(), (bool)->resetPose());
       }
     });
   }

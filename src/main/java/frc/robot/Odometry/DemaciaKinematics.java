@@ -4,10 +4,6 @@
 
 package frc.robot.Odometry;
 
-import java.lang.module.ModuleDescriptor;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -16,33 +12,25 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveWheelPositions;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.utils.LogManager;
 
 /** Add your docs here. */
-public class DemaciaKinematics extends SwerveDriveKinematics implements Sendable {
+public class DemaciaKinematics extends SwerveDriveKinematics {
 
     Translation2d[] moduleTranslation;
-    double MAX_VELOCITY = 3.8;
+    double maxVelocity = 3.8;
     double radius = 0.3;
-    double MIN_ANGLE = -1;
-    
 
 
     public DemaciaKinematics(Translation2d... moduleTranslationsMeters){
         super(moduleTranslationsMeters);
         this.moduleTranslation = moduleTranslationsMeters;
-        
     }
     public Translation2d[] getModulesTranslation()
     {
         return this.moduleTranslation;
     }
     
-   
-  @Override
+   @Override
   public Twist2d toTwist2d(SwerveDriveWheelPositions start, SwerveDriveWheelPositions end) {
     
     SwerveModulePosition[] newPositions = new SwerveModulePosition[start.positions.length];
@@ -57,13 +45,12 @@ public class DemaciaKinematics extends SwerveDriveKinematics implements Sendable
     return super.toTwist2d(newPositions);
   }
 
-  /*public SwerveModuleState[] toSwerveModuleStatesWithAccel(ChassisSpeeds chassisSpeeds, Pose2d curPose, Translation2d currentVelocity, Rotation2d robotAngle, SwerveModuleState[] curModuleStates){
+  public SwerveModuleState[] toSwerveModuleStatesWithAccel(ChassisSpeeds chassisSpeeds, Translation2d currentVelocity){
     Translation2d nextVel = getNextWantedVel(currentVelocity,
      new Translation2d(chassisSpeeds.vxMetersPerSecond,chassisSpeeds.vyMetersPerSecond));
-    
     return toSwerveModuleStates(new ChassisSpeeds(nextVel.getX(),nextVel.getY(),
-    chassisSpeeds.omegaRadiansPerSecond), curPose, curModuleStates);
-  }*/
+    chassisSpeeds.omegaRadiansPerSecond),currentVelocity);
+  }
   
   private Translation2d getNextWantedVel(Translation2d currentVel,Translation2d finalWantedVel){
     Translation2d accel = currentVel.times(-1).plus(finalWantedVel);
@@ -77,14 +64,12 @@ public class DemaciaKinematics extends SwerveDriveKinematics implements Sendable
     
   }
 
-
-
   private double square(double n){
     return Math.pow(n, 2);
   }
 
 
-  public SwerveModuleState[] toSwerveModuleStates(ChassisSpeeds chassisSpeeds, Pose2d curPose, Translation2d currentVelocity, Rotation2d robotAngle, SwerveModuleState[] curModuleStates){
+  public SwerveModuleState[] toSwerveModuleStates(ChassisSpeeds chassisSpeeds, Translation2d currentVelocity, Rotation2d robotAngle, SwerveModuleState[] curModuleStates){
 
     SwerveModuleState[] wantedModuleStates = new SwerveModuleState[moduleTranslation.length];
 
@@ -102,69 +87,23 @@ public class DemaciaKinematics extends SwerveDriveKinematics implements Sendable
       else if(velocityVector.getNorm() <= 0.1) wantedModuleStates[i] = new SwerveModuleState(rotationVelocity.getNorm(), rotationVelocity.getAngle());
       
 
-
       else{
+        Translation2d moduleVel = velocityVector.plus(rotationVelocity);
+
+        if((maxVelocity / moduleVel.getNorm()) < factor) factor = maxVelocity / moduleVel.getNorm();
         
-        
-        wantedModuleStates[i] =  calcModuleState(curPose,chassisSpeeds, curModuleStates, i);
+        wantedModuleStates[i] = new SwerveModuleState(moduleVel.getNorm(), moduleVel.getAngle());
       } 
-      /*if(Math.abs(delta.getDegrees())<=4
-      && velocityVector.getNorm() > 0.1 && rotationVelocity.getNorm() > 0.1){
-        wantedModuleStates[i].angle = wantedModuleStates[i].angle.minus(delta);
-      }*/
         
       
     }
     factorVelocities(wantedModuleStates, factor);
     return wantedModuleStates;
   }
-  private Pose2d getEstimatedNextPose(Pose2d curPose, ChassisSpeeds wantedSpeeds){
-    return new Pose2d(curPose.getX() + (wantedSpeeds.vxMetersPerSecond * 0.02),
-     curPose.getY() + (wantedSpeeds.vyMetersPerSecond * 0.02),
-      curPose.getRotation().plus(Rotation2d.fromRadians(wantedSpeeds.omegaRadiansPerSecond * 0.02)));
-
-  }
-
-  private SwerveModuleState calcModuleState(Pose2d curPose, ChassisSpeeds wantedSpeeds, SwerveModuleState[] curModuleStates, int i){
-    
-    LogManager.log("Speeds: " + wantedSpeeds);
-    Pose2d estimatedPose = new Pose2d(wantedSpeeds.vxMetersPerSecond * 0.02, wantedSpeeds.vyMetersPerSecond * 0.02, Rotation2d.fromRadians(wantedSpeeds.omegaRadiansPerSecond * 0.02));
-
-    Translation2d estimatedModulePos = estimatedPose.getTranslation().plus(moduleTranslation[i].rotateBy(estimatedPose.getRotation()));
-    Translation2d moduleDiff = estimatedModulePos.minus(moduleTranslation[i]);
-
-    Rotation2d alpha = Rotation2d.fromDegrees(MathUtil.inputModulus(
-      curModuleStates[i].angle.minus(moduleDiff.getAngle()).getDegrees(), -90, 90));
-
-    Boolean isTrajectoryPossible = Math.abs(alpha.getDegrees()) <= 3;
-    Rotation2d wantedAngle = curModuleStates[i].angle.plus(alpha.times(2));
   
-   
-    LogManager.log("Module: " + i);
-    LogManager.log("alpha: " + alpha);
-    LogManager.log("wanted angle: " + wantedAngle);
-    
-   
-    double wantedVelocity = moduleDiff.getNorm() / 0.02;
-    LogManager.log("wanted velocity: " + wantedVelocity);
-    LogManager.log("IS OUR----------: " + isTrajectoryPossible);
-    return isTrajectoryPossible ? new SwerveModuleState(wantedVelocity, wantedAngle) : super.toSwerveModuleStates(wantedSpeeds)[i];
-    
-    //return Math.abs(radius) <= 0.05 || Math.abs(alpha.getDegrees()) <= 1 ? super.toSwerveModuleStates(wantedSpeeds)[i] : new SwerveModuleState(wantedVelocity, wantedAngle);
-  
-  }
-
   private void factorVelocities(SwerveModuleState[] arr, double factor){
     for(int i = 0; i < arr.length; i++){
       arr[i].speedMetersPerSecond = arr[i].speedMetersPerSecond * factor;
     }
   }
-
-  public void initSendable(SendableBuilder builder) {
-
-  }
-
-
-  
 }
-

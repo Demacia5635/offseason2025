@@ -60,7 +60,6 @@ public class RobotContainer implements Sendable{
     chassis.setDefaultCommand(driveCommand);
   
     SmartDashboard.putData("RobotContainer", this);
-    SmartDashboard.putData("ki",ChassisConstants.KINEMATICS_DEMACIA);
     SmartDashboard.putData("reset gyro", new InstantCommand(()->gyro.setYaw(0)));
 
 
