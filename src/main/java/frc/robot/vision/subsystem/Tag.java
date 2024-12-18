@@ -10,18 +10,21 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.vision.VisionConstants.*;
 
-import com.ctre.phoenix6.hardware.Pigeon2;
+import java.util.function.Supplier;
+
 
 /**
  * Subsystem for processing AprilTag vision data and calculating robot position.
  * Uses Limelight camera data and a Pigeon2 gyro to determine robot position on field.
  */
-public class Tag extends SubsystemBase {
+public class Tag extends SubsystemBase implements Sendable{
 
   // NetworkTables communication
   private NetworkTable table;
@@ -36,24 +39,27 @@ public class Tag extends SubsystemBase {
   private double id;           // Current tag ID
   private double height;       // Height of current tag
   
-  private Pigeon2 gyro;       // Gyroscope for robot orientation
+  private Supplier<Rotation2d> getRobotAngle;       // Gyroscope for robot orientation
   private Field2d field;      // Field visualization for debugging
+
 
   /**
    * Creates a new Tag subsystem
-   * @param gyro Pigeon2 gyroscope for determining robot orientation
+   * @param robot_angle_from_pose Pigeon2 gyroscope for determining robot orientation
    */
-  public Tag(Pigeon2 gyro) {
-    this.gyro = gyro;
+  public Tag(Supplier<Rotation2d> robot_angle_from_pose) {
+    this.getRobotAngle = robot_angle_from_pose;
 
-        // Initialize NetworkTables connections
-        table = NetworkTableInstance.getDefault().getTable(TAG_TABLE);
-        tvEntry = table.getEntry("tv");
-        txEntry = table.getEntry("tx");
-        tyEntry = table.getEntry("ty");
-        tidEntry = table.getEntry("tid");
+    // Initialize NetworkTables connections
+    table = NetworkTableInstance.getDefault().getTable(TAG_TABLE);
+    tvEntry = table.getEntry("tv");
+    txEntry = table.getEntry("tx");
+    tyEntry = table.getEntry("ty");
+    tidEntry = table.getEntry("tid");
 
-        field = new Field2d();
+    field = new Field2d();
+    SmartDashboard.putData("Tag", this);
+    SmartDashboard.putData("field-tag",field);
 
   }
 
@@ -68,7 +74,7 @@ public class Tag extends SubsystemBase {
 
             // Calculate robot position if valid tag ID is detected
             if(id > 0 && id < TAG_ANGLE.length) {
-                Pose2d pose = new Pose2d(getOriginToRobot(), getGyroRotation2d());
+                Pose2d pose = new Pose2d(getOriginToRobot(), getRobotAngle.get());
                 field.setRobotPose(pose);
             }
             // set smart crop to tag 
@@ -113,14 +119,16 @@ public class Tag extends SubsystemBase {
       Translation2d originToRobot;
       Translation2d origintoTag = O_TO_TAG[(int)this.id];
       Rotation2d tagAngle = TAG_ANGLE[(int)this.id];
+      height = TAG_HIGHT[(int)this.id];
+      
 
       if(origintoTag != null) {
           // Get vector from robot to tag
-          Translation2d robotToTag = getRobotToTag();
+          Translation2d robotToTag = getRobotToTag();//
           Rotation2d robotToTagYaw = robotToTag.getAngle();
           
           // Convert to field coordinates using gyro
-          Rotation2d robotToTagYawFC = robotToTagYaw.plus(getGyroRotation2d());
+          Rotation2d robotToTagYawFC = robotToTagYaw.plus(getRobotAngle.get());
           
           // Calculate angle from tag to robot in field coordinates
           Rotation2d tagToRobotYawFC = tagAngle.minus(robotToTagYawFC)
@@ -135,13 +143,8 @@ public class Tag extends SubsystemBase {
       return new Translation2d();
   }
 
-  /**
-     * Gets current robot rotation from gyroscope
-     * @return Rotation2d representing robot orientation
-     */
-    public Rotation2d getGyroRotation2d() {
-      return Rotation2d.fromDegrees(gyro.getAngle());
-  }
+
+
 
 }
 
