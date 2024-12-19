@@ -67,7 +67,7 @@ public final static SwerveModuleConstants FRONT_LEFT = new SwerveModuleConstants
         .withInvert(true).withMotorRatio(STEER_RATIO),
       6,
       new Translation2d(0.165, 0.26),
-      -0.029);
+      -0.031);
 
   public final static SwerveModuleConstants FRONT_RIGHT = new SwerveModuleConstants(
 
@@ -81,7 +81,7 @@ public final static SwerveModuleConstants FRONT_LEFT = new SwerveModuleConstants
         .withMotionMagic(720, 1440, 3000),
       3,
       new Translation2d(0.165, -0.26),
-      0.319);
+      0.322);
 
   public final static SwerveModuleConstants BACK_LEFT = new SwerveModuleConstants(
 
@@ -95,7 +95,7 @@ public final static SwerveModuleConstants FRONT_LEFT = new SwerveModuleConstants
         .withMotionMagic(720, 1440, 3000),
       12,
       new Translation2d(-0.315, 0.27),
-      0.158);
+      0.159);
 
   public final static SwerveModuleConstants BACK_RIGHT = new SwerveModuleConstants(
 
@@ -109,7 +109,7 @@ public final static SwerveModuleConstants FRONT_LEFT = new SwerveModuleConstants
         .withMotionMagic(720, 1440, 3000),
       9,
       new Translation2d(-0.315, -0.27),
-      0.148);
+      0.151);
 
       
 

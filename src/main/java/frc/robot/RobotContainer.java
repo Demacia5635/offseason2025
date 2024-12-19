@@ -14,11 +14,14 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PS5Controller;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Odometry.DemaciaKinematics;
 import frc.robot.chassis.ChassisConstants;
@@ -51,7 +54,7 @@ public class RobotContainer implements Sendable{
     robotContainer = this;
     DataLogManager.start();
     DriverStation.startDataLog(DataLogManager.getLog());
-    driverController = new CommandXboxController(DRIVER_CONTROLLER_PORT);
+    driverController = new CommandXboxController(0);
   
     chassis = new Chassis();
     resetOdometry = new InstantCommand(()-> chassis.setOdometryToForward())
@@ -62,14 +65,9 @@ public class RobotContainer implements Sendable{
     SmartDashboard.putData("RobotContainer", this);
     SmartDashboard.putData("reset gyro", new InstantCommand(()->gyro.setYaw(0)));
 
-
-    configureBindings();
   }
 
 
-  private void configureBindings() {
-    driverController.povRight().onTrue(new InstantCommand(()->driveCommand.setPrecision()));
-    }
     
    
   public void isRed(boolean isRed) {
@@ -90,9 +88,8 @@ public class RobotContainer implements Sendable{
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new RunCommand(()->chassis.setVelocities(new ChassisSpeeds(0.25, 0, 0)), chassis).withTimeout(0.05).andThen(
-      new RunCommand(()-> chassis.setVelocities(new ChassisSpeeds(0.25,0,0.25)), chassis));
-    // return new RunCommand(()-> chassis.setModulesAngleFromSB(90), chassis);
+    return new RunCommand(()->chassis.setVelocities(new ChassisSpeeds(0.0, 0.5, 0)), chassis).withTimeout(2).andThen(new InstantCommand(()->chassis.stop(), chassis).andThen(new WaitCommand(3)))
+    .andThen(new RunCommand(()->chassis.setVelocities(new ChassisSpeeds(0.0, -0.5, 0)), chassis).withTimeout(2).andThen(new InstantCommand(()->chassis.stop(), chassis)));
   }
 
 }
