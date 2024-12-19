@@ -93,7 +93,9 @@ public class Tag extends SubsystemBase implements Sendable{
     public double GetDistFromCamera() {
       double alpha = camToTagPitch + TAG_CAM_ANGLE;
       double dist = (Math.abs(height - TAG_CAM_HIGHT)) / (Math.tan(Math.toRadians(alpha)));
-      return dist;
+      double absDist = dist/(Math.cos(camToTagYaw));
+      //double absDist = dist*(Math.cos(camToTagYaw)); //if the calculation above does not work
+      return absDist;
   }
 
   /**
