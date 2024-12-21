@@ -108,6 +108,8 @@ public class VisionConstants {
     // Camera to Tag position relative to robot center
     public static final Translation2d ROBOT_TO_CAM = new Translation2d(0.23,-0.14);
 
+    // resolution of cam
+    public static final double CROP_OFSET = 0.2;
     // NetworkTables key for AprilTag vision data
     public static final String TAG_TABLE = "limelight-tag";
     

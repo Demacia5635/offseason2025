@@ -7,6 +7,9 @@ package frc.robot.vision.subsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -17,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.vision.VisionConstants.*;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 
@@ -29,9 +33,10 @@ public class Tag extends SubsystemBase implements Sendable{
   // NetworkTables communication
   private NetworkTable table;
   private NetworkTableEntry tvEntry;  // Whether target is visible (0 or 1)
-  private NetworkTableEntry txEntry;  // Horizontal offset from crosshair to target (-31.65 to 31.65 degrees)
-  private NetworkTableEntry tyEntry;  // Vertical offset from crosshair to target (-24.85 to 24.85 degrees)
+  private NetworkTableEntry txEntry;  // Horizontal offset from crosshair to target (-31.25 to 31.25 degrees)
+  private NetworkTableEntry tyEntry;  // Vertical offset from crosshair to target (-24.45 to 24.45 degrees)
   private NetworkTableEntry tidEntry; // ID of currently tracked AprilTag
+  private NetworkTableEntry cropEntry;
 
   // Vision processing variables
   private double camToTagYaw;   // Horizontal angle to tag
@@ -56,6 +61,7 @@ public class Tag extends SubsystemBase implements Sendable{
     txEntry = table.getEntry("tx");
     tyEntry = table.getEntry("ty");
     tidEntry = table.getEntry("tid");
+    cropEntry = table.getEntry("crop");
 
     field = new Field2d();
     SmartDashboard.putData("Tag", this);
@@ -74,6 +80,7 @@ public class Tag extends SubsystemBase implements Sendable{
 
             // Calculate robot position if valid tag ID is detected
             if(id > 0 && id < TAG_ANGLE.length) {
+                crop(camToTagYaw, camToTagPitch);
                 Pose2d pose = new Pose2d(getOriginToRobot(), getRobotAngle.get());
                 field.setRobotPose(pose);
             }
@@ -120,10 +127,9 @@ public class Tag extends SubsystemBase implements Sendable{
     public Translation2d getOriginToRobot() {
       Translation2d originToRobot;
       Translation2d origintoTag = O_TO_TAG[(int)this.id];
+      field.getObject("Trajectory").setTrajectory(vector(new Translation2d(0,0), origintoTag));
       Rotation2d tagAngle = TAG_ANGLE[(int)this.id];
       height = TAG_HIGHT[(int)this.id];
-      
-
       if(origintoTag != null) {
           // Get vector from robot to tag
           Translation2d robotToTag = getRobotToTag();//
@@ -145,7 +151,21 @@ public class Tag extends SubsystemBase implements Sendable{
       return new Translation2d();
   }
 
+    public Trajectory vector(Translation2d start, Translation2d end){
+      return TrajectoryGenerator.generateTrajectory(
+            new Pose2d(start, end.getAngle().minus(start.getAngle())),
+            List.of(),
+            new Pose2d(end, end.getAngle().minus(start.getAngle())),
+            new TrajectoryConfig(4.0, 4.0));
+    }
 
+    public void crop(double camToTagYaw, double camToTagPitch){
+      double YawCrop = camToTagYaw/31.25;
+      double PitchCrop = camToTagPitch/24.45;
+      double[] crop = {YawCrop-CROP_OFSET,YawCrop+CROP_OFSET,PitchCrop-CROP_OFSET,PitchCrop+CROP_OFSET};
+      cropEntry.setDoubleArray(crop);
+
+    }
 
 
 }
