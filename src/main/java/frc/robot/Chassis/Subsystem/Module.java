@@ -93,9 +93,4 @@ public class Module extends SubsystemBase {
   public double getSteerAbsPosition(){
     return cancoder.getAbsPositionRadians();
   }
-
-  public void setStop(){
-    setDriveMotorPower(0);
-    setSteerMotorPower(0);
-  }
 }

@@ -4,15 +4,10 @@
 
 package frc.robot.Chassis.Subsystem;
 
-import com.ctre.phoenix6.configs.Pigeon2Configuration;
-import com.ctre.phoenix6.configs.Pigeon2Configurator;
-import com.ctre.phoenix6.configs.Pigeon2FeaturesConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import frc.robot.Chassis.ChassisConstants.*;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Chassis extends SubsystemBase {
@@ -50,7 +45,7 @@ public class Chassis extends SubsystemBase {
 
   public void setModulesDriveVelocity(double vel) {
     for (var module : modules) {
-      module.setDriveMotorPower(vel);
+      module.setDriveMotorVelocity(vel);
     }
   }
 
@@ -104,7 +99,7 @@ public class Chassis extends SubsystemBase {
 
   public void setModulesSteerVelocity(double vel) {
     for (var module : modules) {
-      module.setDriveMotorVelocity(vel);
+      module.setSteerMotorVelocity(vel);
     }
   }
   
@@ -114,7 +109,7 @@ public class Chassis extends SubsystemBase {
 
   public void setModulesSteerPosition(double pos) {
     for (var module : modules) {
-      module.setDriveMotorPosition(pos);
+      module.setSteerMotorPosition(pos);
     }
   }
   
@@ -124,7 +119,7 @@ public class Chassis extends SubsystemBase {
 
   public void setModulesSteeMotionMagic(double position) {
     for (var module : modules) {
-      module.setDriveMotorPower(position);
+      module.setSteerMotorMotionMagic(position);
     }
   }
 
@@ -154,5 +149,9 @@ public class Chassis extends SubsystemBase {
 
   public double getModuleSteerPosition(int index){
     return modules[index].getSteerPosition();
+  }
+
+  public void setVelocities(ChassisSpeeds speeds){
+    
   }
 }
