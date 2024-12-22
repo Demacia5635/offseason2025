@@ -13,77 +13,77 @@ public class ChassisConstants {
     public class MODULES{
         public static ModuleConstants RIGHT_FRONT = new ModuleConstants(
             "FrontRight", 
-            new TalonConfig(0,"rio","FrontRightDrive")
-                .withPID(0, 0, 0, 0, 0, 0, 0)
+            new TalonConfig(1,"rio","FrontRightDrive")
+                .withPID(0.1, 0, 0, 0, 0, 0, 0)
                 .withInvert(false)
                 .withMeterMotor(1)
                 .withMotorRatio(1)
                 .withBrake(false),
-            new TalonConfig(0, "rio", "FrontRightSteer")
-                .withPID(0, 0, 0, 0, 0, 0, 0)
+            new TalonConfig(2, "rio", "FrontRightSteer")
+                .withPID(0.1, 0, 0, 0, 0, 0, 0)
                 .withRadiansMotor()
                 .withInvert(false)
                 .withMotionMagic(0, 0, 0)
                 .withMotorRatio(1)
                 .withBrake(false),
-            new CancoderConfig(0, "rio", "FrontRightCancoder")
+            new CancoderConfig(3, "rio", "FrontRightCancoder")
                 .withInvert(false)
                 .withOffset(0),
             new Translation2d(0,0));
         public static ModuleConstants RIGHT_BACK = new ModuleConstants(
-            "FrontRack", 
-            new TalonConfig(0,"rio","FrontRackDrive")
+            "RightRack", 
+            new TalonConfig(10,"rio","RightBackDrive")
                 .withPID(0, 0, 0, 0, 0, 0, 0)
                 .withInvert(false)
                 .withMeterMotor(1)
                 .withMotorRatio(1)
                 .withBrake(false),
-            new TalonConfig(0, "rio", "FrontBackSteer")
+            new TalonConfig(11, "rio", "RightBackSteer")
                 .withPID(0, 0, 0, 0, 0, 0, 0)
                 .withRadiansMotor()
                 .withInvert(false)
                 .withMotionMagic(0, 0, 0)
                 .withMotorRatio(1)
                 .withBrake(false),
-            new CancoderConfig(0, "rio", "FrontRightCancoder")
+            new CancoderConfig(12, "rio", "rightBackeCancoder")
                 .withInvert(false)
                 .withOffset(0),
             new Translation2d(0,0));
         public static ModuleConstants LEFT_FRONT = new ModuleConstants(
             "FrontLeft", 
-            new TalonConfig(0,"rio","FrontLeftDrive")
-                .withPID(0, 0, 0, 0, 0, 0, 0)
+            new TalonConfig(4,"rio","FrontLeftDrive")
+                .withPID(0.1, 0, 0, 0, 0, 0, 0)
                 .withInvert(false)
                 .withMeterMotor(1)
                 .withMotorRatio(1)
                 .withBrake(false),
-            new TalonConfig(0, "rio", "FrontLeftSteer")
-                .withPID(0, 0, 0, 0, 0, 0, 0)
+            new TalonConfig(5, "rio", "FrontLeftSteer")
+                .withPID(0.1, 0, 0, 0, 0, 0, 0)
                 .withRadiansMotor()
                 .withInvert(false)
                 .withMotionMagic(0, 0, 0)
                 .withMotorRatio(1)
                 .withBrake(false),
-            new CancoderConfig(0, "rio", "FrontRightCancoder")
+            new CancoderConfig(6, "rio", "FrontLeftCancoder")
                 .withInvert(false)
                 .withOffset(0),
             new Translation2d(0,0));
         public static ModuleConstants LEFT_BACK = new ModuleConstants(
             "BackLeft", 
-            new TalonConfig(0,"rio","BackLeftDrive")
+            new TalonConfig(7,"rio","BackLeftDrive")
                 .withPID(0, 0, 0, 0, 0, 0, 0)
                 .withInvert(false)
                 .withMeterMotor(1)
                 .withMotorRatio(1)
                 .withBrake(false),
-            new TalonConfig(0, "rio", "BackLeftSteer")
+            new TalonConfig(8, "rio", "BackLeftSteer")
                 .withPID(0, 0, 0, 0, 0, 0, 0)
                 .withRadiansMotor()
                 .withInvert(false)
                 .withMotionMagic(0, 0, 0)
                 .withMotorRatio(1)
                 .withBrake(false),
-            new CancoderConfig(0, "rio", "FrontRightCancoder")
+            new CancoderConfig(9, "rio", "BackLeftCancoder")
                 .withInvert(false)
                 .withOffset(0),
             new Translation2d(0,0));
@@ -93,7 +93,7 @@ public class ChassisConstants {
     public final static Translation2d BACK_RIGHT_LOCATION = new Translation2d(0, 0);
     }
     public class GYRO {
-        public final static int GYRO_ID = 0;
+        public final static int GYRO_ID = 14;
         public final static String GYRO_CANBUS = "rio";
     }
 }

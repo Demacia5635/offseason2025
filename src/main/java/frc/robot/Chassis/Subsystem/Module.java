@@ -7,6 +7,8 @@ package frc.robot.Chassis.Subsystem;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Cancoder;
 import frc.robot.utils.CancoderConfig;
@@ -29,10 +31,12 @@ public class Module extends SubsystemBase {
     driveMotor = new TalonMotor(driveConfig);
 
     steerConfig = moduleConstants.steerConfig;
-    steerMotor = new TalonMotor(driveConfig);
+    steerMotor = new TalonMotor(steerConfig);
 
     cancoderConfig = moduleConstants.cancoderConfig;
     cancoder = new Cancoder(cancoderConfig);
+
+     SmartDashboard.putData(this);
   }
 
   @Override
@@ -65,19 +69,19 @@ public class Module extends SubsystemBase {
   }
 
   public void setSteerMotorPower(double power){
-    driveMotor.setDuty(power);
+    steerMotor.setDuty(power);
   }
   
   public void setSteerMotorVelocity(double velocity){
-    driveMotor.setVelocity(velocity);
+    steerMotor.setVelocity(velocity);
   }
 
   public void setSteerMotorMotionMagic(double position){
-    driveMotor.setMotionMagic(position);
+    steerMotor.setMotionMagic(position);
   }
 
   public void setSteerMotorBrake(boolean isBrake){
-    driveMotor.setBrake(isBrake);
+    steerMotor.setBrake(isBrake);
   }
 
   public void setSteerMotorPosition(double pos) {
@@ -112,5 +116,14 @@ public class Module extends SubsystemBase {
 
   public SwerveModuleState getState() {
     return new SwerveModuleState(getDriveMotorVelocity(), Rotation2d.fromRadians(getSteerAbsPosition()));
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.addDoubleProperty("drive position", () -> getDrivePosition(), null);
+    builder.addDoubleProperty("drive velocity", () -> getDriveMotorVelocity(), null);
+    builder.addDoubleProperty("steer position", () -> getSteerPosition(), null);
+    builder.addDoubleProperty("steer velocity", () -> getSteerVelocity(), null);
+    builder.addDoubleProperty("steer abs position", () -> getSteerAbsPosition(), null);
   }
 }
