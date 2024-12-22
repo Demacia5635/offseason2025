@@ -4,6 +4,7 @@
 
 package frc.robot.Shooter.Commands;
 
+import static frc.robot.RobotContainer.*;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,6 +16,8 @@ import frc.robot.Shooter.ShooterConstants.SHOOTER_POW;
 import frc.robot.Shooter.ShooterConstants.STAGE_VAR;
 import frc.robot.Shooter.ShooterConstants.STATE;
 import frc.robot.Shooter.ShooterConstants.SUBWOFFER_VAR;
+import frc.robot.Shooter.Subsystems.AngleChanger;
+import frc.robot.Shooter.Subsystems.Intake;
 import frc.robot.Shooter.Subsystems.Shooter;
 import frc.robot.Shooter.Utils.LookUpTable;
 import edu.wpi.first.wpilibj.Timer;
@@ -26,9 +29,10 @@ public class Shoot extends Command {
   private double downMotorVelocity;
   private double testingUpMotorVelocity;
   private double testingDownMotorVelocity;
+  private Intake intake;
 
   public STATE state;
-  private double distence;
+  private double distance;
   private double distenceX;
 
   public boolean isReady;
@@ -39,9 +43,9 @@ public class Shoot extends Command {
   private Timer shooterTimer;
   private boolean isTimerRunning;
 
-  private Translation2d speaker;
+  //private Translation2d speaker;
 
-  Shooter shooter;
+  private Shooter shooter;
 
   /** Creates a new Shoot. */
   public Shoot() {
@@ -57,11 +61,13 @@ public class Shoot extends Command {
     downMotorVelocity = 0;
     testingUpMotorVelocity = 0;
     testingDownMotorVelocity = 0;
-    distence = 0;
+    distance = 0;
     distenceX = 0;
 
+    intake = new Intake();
+
     SmartDashboard.putData(this);
-    addRequirements(shooter);
+    addRequirements(shooter, intake);
   }
 
   // Called when the command is initially scheduled.
@@ -93,7 +99,8 @@ public class Shoot extends Command {
         break;
 
       case SPEAKER:
-        double[] lookUpTableData = lookupTable.get(distence);
+        //distance = speaker.minus(Chassis)
+        double[] lookUpTableData = lookupTable.get(distance);
         upMotorVelocity = lookUpTableData[1];
         downMotorVelocity = lookUpTableData[2];
         break;
@@ -114,13 +121,12 @@ public class Shoot extends Command {
         break;
     }
 
-
+    isReady = isDriverOverwriteShooter;
     if (isReady) {
       shooter.setFeedingPower(SHOOTER_POW.FEEDING_MOTOR_POWER);
-      //intake.setPowerToMotors(SHOOTER_POW.INTAKE_MOTOR_POWER);
-      // intake.motorPickUpSetPower(0.5);
+      intake.setPowerMotors(SHOOTER_POW.INTAKE_MOTOR_POWER);
 
-      // System.out.println(shooterTimer.get());
+
       if (!isTimerRunning) {
         shooterTimer.start();
         isTimerRunning = true;
@@ -136,16 +142,22 @@ public class Shoot extends Command {
   @Override
   public void end(boolean interrupted) {
     
-    shooter.isShotoerReady = false;
+    if (state != STATE.TESTING && state != STATE.IDLE && state != STATE.DELIVERY) {
+      angleChanger.angleState = STATE.SPEAKER;
+      shooter.shooterState = STATE.SPEAKER;
+    }
+
+    shooter.isShooterReady = false;
     shooterTimer.stop();
     shooterTimer.reset();
     isTimerRunning = false;
     shooter.setVoltage(0);
     shooter.setFeedingPower(0);
+    intake.isNoteInIntake = false;
 
     
 
-    //shooter.isShotoerReady = Ready.isUpMotorReady(upMotorVelocity) && Ready.isDownMotorReady(downMotorVelocity);
+    //shooter.isShooterReady = Ready.isUpMotorReady(upMotorVelocity) && Ready.isDownMotorReady(downMotorVelocity);
     //isReady = isDriverOverwriteShooter;
 
   }
@@ -153,6 +165,6 @@ public class Shoot extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return isfinished || state == STATE.IDLE;
   }
 }

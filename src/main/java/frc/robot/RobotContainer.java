@@ -16,7 +16,9 @@ public class RobotContainer {
   
   LogManager logManager;
   Shooter shooter;
-  AngleChanger angleChanger;
+  public static AngleChanger angleChanger;
+
+  public static boolean isDriverOverwriteShooter = false;
   
   
   public RobotContainer() {

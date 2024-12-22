@@ -5,7 +5,6 @@ import frc.robot.Shooter.ShooterConstants.ANGLE_CHANGING_CALIBRATION;
 import frc.robot.Shooter.ShooterConstants.STATE;
 import frc.robot.Shooter.Subsystems.AngleChanger;
 
-import static frc.robot.Shooter.ShooterConstants.ANGLE_CHANGING_VAR.*;
 
 public class CalibrateAngle extends Command {
   
@@ -23,7 +22,6 @@ public class CalibrateAngle extends Command {
   @Override
   public void initialize() {
     finishedState = 0;
-    angleChanger.gotToAngle(TOP_ANGLE);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -42,6 +40,7 @@ public class CalibrateAngle extends Command {
   @Override
   public void end(boolean interrupted) {
     angleChanger.setVoltage(0);
+    angleChanger.setDuty(0);
     angleChanger.angleState = STATE.SUBWOFFER;
   }
 
