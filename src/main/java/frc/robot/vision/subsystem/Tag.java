@@ -47,7 +47,7 @@ public class Tag extends SubsystemBase implements Sendable{
   private Supplier<Rotation2d> getRobotAngle;       // Gyroscope for robot orientation
   private Field2d field;      // Field visualization for debugging
 
-
+  private Translation2d origin = new Translation2d(0,0);
   /**
    * Creates a new Tag subsystem
    * @param robot_angle_from_pose Pigeon2 gyroscope for determining robot orientation
@@ -114,6 +114,8 @@ public class Tag extends SubsystemBase implements Sendable{
       // Convert camera measurements to vector
       Translation2d cameraToTag = new Translation2d(GetDistFromCamera(), 
           Rotation2d.fromDegrees(camToTagYaw));
+      //field.getObject("Trajectory").setTrajectory(vector(origin, originToRobot));
+      //field.getObject("Trajectory").setTrajectory(vector(origin, ROBOT_TO_CAM));
       // Add camera offset to get robot center to tag vector
       Translation2d robotToTag = ROBOT_TO_CAM.plus(cameraToTag);
       return robotToTag;
@@ -127,12 +129,13 @@ public class Tag extends SubsystemBase implements Sendable{
     public Translation2d getOriginToRobot() {
       Translation2d originToRobot;
       Translation2d origintoTag = O_TO_TAG[(int)this.id];
-      field.getObject("Trajectory").setTrajectory(vector(new Translation2d(0,0), origintoTag));
+      field.getObject("Trajectory").setTrajectory(vector(origin, origintoTag));
       Rotation2d tagAngle = TAG_ANGLE[(int)this.id];
       height = TAG_HIGHT[(int)this.id];
       if(origintoTag != null) {
           // Get vector from robot to tag
           Translation2d robotToTag = getRobotToTag();//
+          field.getObject("Field").setTrajectory(vector(origin, robotToTag));
           Rotation2d robotToTagYaw = robotToTag.getAngle();
           
           // Convert to field coordinates using gyro
@@ -146,6 +149,7 @@ public class Tag extends SubsystemBase implements Sendable{
           double robotToTagDist = robotToTag.getNorm();
           originToRobot = origintoTag.plus(
               new Translation2d(robotToTagDist, tagToRobotYawFC));
+          field.getObject("Robot").setTrajectory(vector(origin, originToRobot));
           return originToRobot;
       }
       return new Translation2d();
@@ -153,9 +157,9 @@ public class Tag extends SubsystemBase implements Sendable{
 
     public Trajectory vector(Translation2d start, Translation2d end){
       return TrajectoryGenerator.generateTrajectory(
-            new Pose2d(start, end.getAngle().minus(start.getAngle())),
-            List.of(),
-            new Pose2d(end, end.getAngle().minus(start.getAngle())),
+            List.of(
+              new Pose2d(start, end.getAngle().minus(start.getAngle())),
+              new Pose2d(end, end.getAngle().minus(start.getAngle()))),
             new TrajectoryConfig(4.0, 4.0));
     }
 
