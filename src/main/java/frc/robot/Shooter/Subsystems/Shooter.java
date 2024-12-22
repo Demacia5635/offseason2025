@@ -12,6 +12,8 @@ import frc.robot.Shooter.ShooterConstants.STATE;
 import frc.robot.utils.TalonConfig;
 import frc.robot.utils.TalonMotor;
 import static frc.robot.Shooter.ShooterConstants.MOTOR_IDS.*;
+import static frc.robot.Shooter.ShooterConstants.SHOOTER_PID_FF.*;
+
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -25,18 +27,19 @@ public class Shooter extends SubsystemBase {
   private TalonMotor motorDown;
   private TalonSRX feedingMotor;
 
-  private double disposeTest = 1;
+  private double disposeTest = 0.5;
   
 
   /** Creates a new Shooter. */
   public Shooter() {
     motorDown = new TalonMotor(
       new TalonConfig(MOTOR_DOWN_ID, CANBUS, "down motor")
-      .withPID(ANGLE_CHANGING_ID, ANGLE_CHANGING_ID, MOTOR_UP_ID, MOTOR_FEEDING_ID, MOTOR_DOWN_ID, LIMIT_SWITCH_ID, ANGLE_CHANGING_ID)
+      .withPID(UP_MOTOR_KP, UP_MOTOR_KI, UP_MOTOR_KD, SHOOTER_KS, SHOOTER_KV, SHOOTER_KA, 0)
     );
 
     motorUp = new TalonMotor(
       new TalonConfig(MOTOR_UP_ID, CANBUS, "Up motor")
+      .withPID(UP_MOTOR_KP, UP_MOTOR_KI, UP_MOTOR_KD, SHOOTER_KS, SHOOTER_KV, SHOOTER_KA, 0)
     );
 
     feedingMotor = new TalonSRX(MOTOR_FEEDING_ID);
@@ -44,7 +47,15 @@ public class Shooter extends SubsystemBase {
     shooterState = STATE.SPEAKER;
 
     isShotoerReady = false;
-    SmartDashboard.putData("motor disposal", new InstantCommand(()->feedingMotor.set(ControlMode.PercentOutput, disposeTest)));
+    motorDown.hotReloadPidFf(0);
+    motorUp.hotReloadPidFf(0);
+
+    SmartDashboard.putData("just shoot", new InstantCommand(()->{
+      motorDown.setDuty(0.4);
+      motorUp.setDuty(0.4);
+    }));
+
+    //SmartDashboard.putData("motor disposal", new InstantCommand(()->feedingMotor.set(ControlMode.PercentOutput, disposeTest)));
 
     SmartDashboard.putData("Shooter", this);
   }

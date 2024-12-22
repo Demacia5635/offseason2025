@@ -22,6 +22,28 @@ public final class ShooterConstants  {
     public static final String CANBUS = "rio";
   }
 
+  public static class SHOOTER_PID_FF{
+    public static final double UP_MOTOR_KP = 0.0;
+    public static final double UP_MOTOR_KI = 0.0;
+    public static final double UP_MOTOR_KD = 0.0;
+    public static final double SHOOTER_KS = 0.0576789961667519;
+    public static final double SHOOTER_KV = 0.11915135567075642;
+    public static final double SHOOTER_KA =  0.0024124397972312365;
+    public static final double SHOOTER_KV2 = 7.229070730748346E-5;
+  }
+
+  public static class ANGLE_CHANGING_PID_FF{
+    
+    public static final double KP = 0.21;
+    public static final double KI = 0.0;
+    public static final double KD = 0.0;
+    public static final double KS = 0;
+    public static final double KV = 0;
+    public static final double KA = 0;
+    
+  }
+
+
   public static class ANGLE_CHANGING_CONFIGS{
 
     public static final double ANGLE_CHANGING_MAX_VELOCITY = 25;

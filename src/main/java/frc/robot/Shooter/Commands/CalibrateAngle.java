@@ -10,7 +10,7 @@ import static frc.robot.Shooter.ShooterConstants.ANGLE_CHANGING_VAR.*;
 public class CalibrateAngle extends Command {
   
   private AngleChanger angleChanger;
-  private int finishedState = 0;
+  private int finishedState;
 
   /** Creates a new Calibrition. */
   public CalibrateAngle(AngleChanger angleChanger) {

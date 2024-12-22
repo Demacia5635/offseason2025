@@ -15,6 +15,7 @@ import frc.robot.Shooter.Utils.LookUpTable;
 import frc.robot.utils.TalonConfig;
 import frc.robot.utils.TalonMotor;
 import static frc.robot.Shooter.ShooterConstants.MOTOR_IDS.*;
+import static frc.robot.Shooter.ShooterConstants.ANGLE_CHANGING_PID_FF.*;
 
 public class AngleChanger extends SubsystemBase {
 
@@ -29,9 +30,10 @@ public class AngleChanger extends SubsystemBase {
   public AngleChanger() {
     angleChanging = new TalonMotor(
       new TalonConfig(ANGLE_CHANGING_ID, CANBUS, "Angle Changing")
+      .withPID(KP, KI, KD, KS, KV, KA, 0)
     );
 
-    angleState = STATE.STAGE.IDLE;
+    angleState = STATE.IDLE;
     lookUp = new LookUpTable(LOOKUP_TABLE_DATA.DATA);
     
     isCalibrated = false;
