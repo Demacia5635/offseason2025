@@ -39,7 +39,7 @@ public class AngleChanger extends SubsystemBase {
   public AngleChanger() {
     angleChanging = new TalonMotor(
       new TalonConfig(ANGLE_CHANGING_ID, CANBUS, "Angle Changing")
-      .withPID(KP, KI, KD, KS, KV, KA, 0)   // Reminder values were made without Radians (false values)
+      .withPID(0.0, KI, KD, KS, KV, KA, 0)   // Reminder values were made without Radians (false values)
       .withMotorRatio(ANGLE_CHANGING_GEAR_RATIO).withRadiansMotor()
     );
 

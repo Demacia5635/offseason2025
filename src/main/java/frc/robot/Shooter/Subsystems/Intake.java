@@ -38,12 +38,16 @@ public class Intake extends SubsystemBase {
     configFeed = new TalonConfig(idMotors.idMotorfeed, idMotors.CANBUS, "motorFeed");
     configFeed.withBrake(true);
     configFeed.withInvert(false);
+    configFeed.withPID(0, 0, 0, 0, 0, 0, 0);
     motorFeed = new TalonMotor(configFeed);
+
 
     configMove = new TalonConfig(idMotors.idMotorIntakeToShooter, idMotors.CANBUS, "motorMove");
     configMove.withBrake(true);
     configMove.withInvert(false);
+    configMove.withPID(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     motorMove = new TalonMotor(configMove);
+    
 
     currentPosition = NotePosition.NO_NOTE;
     SmartDashboard.putData("intake", this);

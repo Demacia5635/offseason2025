@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Shooter.Subsystems.AngleChanger;
+import frc.robot.Shooter.Subsystems.Intake;
 import frc.robot.Shooter.Subsystems.Shooter;
 import frc.robot.utils.LogManager;
 
@@ -17,6 +18,7 @@ public class RobotContainer {
   LogManager logManager;
   Shooter shooter;
   public static AngleChanger angleChanger;
+  Intake intake;
 
   public static boolean isDriverOverwriteShooter = false;
   
@@ -25,6 +27,7 @@ public class RobotContainer {
     logManager = new LogManager();
     shooter = new Shooter();
     angleChanger = new AngleChanger();
+    intake = new Intake();
 
 
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance());

@@ -37,11 +37,13 @@ public class Shooter extends SubsystemBase {
     motorDown = new TalonMotor(
       new TalonConfig(MOTOR_DOWN_ID, CANBUS, "down motor")
       .withPID(UP_MOTOR_KP, UP_MOTOR_KI, UP_MOTOR_KD, SHOOTER_KS, SHOOTER_KV, SHOOTER_KA, 0)
+      .withMotorRatio(1).withMeterMotor(1)
     );
 
     motorUp = new TalonMotor(
       new TalonConfig(MOTOR_UP_ID, CANBUS, "Up motor")
       .withPID(UP_MOTOR_KP, UP_MOTOR_KI, UP_MOTOR_KD, SHOOTER_KS, SHOOTER_KV, SHOOTER_KA, 0)
+      .withMotorRatio(1).withMeterMotor(1)
     );
 
     feedingMotor = new TalonSRX(MOTOR_FEEDING_ID);
