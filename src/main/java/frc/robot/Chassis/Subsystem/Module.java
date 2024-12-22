@@ -4,6 +4,9 @@
 
 package frc.robot.Chassis.Subsystem;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Cancoder;
 import frc.robot.utils.CancoderConfig;
@@ -92,5 +95,22 @@ public class Module extends SubsystemBase {
   
   public double getSteerAbsPosition(){
     return cancoder.getAbsPositionRadians();
+  }
+
+  public SwerveModulePosition getSwerveModulePosition(){
+    return new SwerveModulePosition(getDrivePosition(),Rotation2d.fromRadians(getSteerPosition()));
+  }
+
+  public void setState(SwerveModuleState state){
+    double currPos = steerMotor.getCurrentPosition();
+    state = SwerveModuleState.optimize(state, Rotation2d.fromRadians(currPos));
+    double stateRadians = state.angle.getRadians();
+    double vel = state.speedMetersPerSecond;
+    setSteerMotorMotionMagic(currPos+stateRadians);
+    setDriveMotorVelocity(vel);
+  }
+
+  public SwerveModuleState getState() {
+    return new SwerveModuleState(getDriveMotorVelocity(), Rotation2d.fromRadians(getSteerAbsPosition()));
   }
 }

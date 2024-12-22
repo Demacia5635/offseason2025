@@ -87,6 +87,10 @@ public class ChassisConstants {
                 .withInvert(false)
                 .withOffset(0),
             new Translation2d(0,0));
+    public final static Translation2d FRONT_LEFT_LOCATION = new Translation2d(0, 0);
+    public final static Translation2d FRONT_RIGHT_LOCATION = new Translation2d(0, 0);
+    public final static Translation2d BACK_LEFT_LOCATION = new Translation2d(0, 0);
+    public final static Translation2d BACK_RIGHT_LOCATION = new Translation2d(0, 0);
     }
     public class GYRO {
         public final static int GYRO_ID = 0;
