@@ -115,17 +115,24 @@ public class DataCollector {
      * @param dataRange30         add raw dataRange30 to the matrix (velocity, signum(velocity))
      * @param i            signify the column of the maxtrix and index
      */
-    public void collect(double maxVel) {
+    public void collect(double maxVel, double power) {
         if (valid(maxVel)) {
             double range = maxVel * 0.3;
             double velocity = getVelocity.get();
             double acceleration = 0;//getAccel.get() !=  null ? getAccel.get() : 0;
             row = getRange(maxVel, velocity);
             for (int i = 0; i < gains.length; i++) {
-                datas[row].dataMatrix.set(datas[0].getRow(), i, value(gains[i], velocity, rad, acceleration));
+                datas[row].dataMatrix.set(datas[row].getRow(), i, value(gains[i], velocity, rad, acceleration));
+                datas[row].powerMatrix.set(datas[row].getRow(), 0, power);
                 datas[row].updateRow();
+
+                testForData.set(nextRowRange100, i, value(gains[i], velocity, rad, acceleration));
+                testForPower.set(nextRowRange100, 0, power);
+                nextRowRange100++;
+                
                 if(velocity <= range){
                     dataRange30.set(nextRowRange30, i, value(gains[i], velocity, rad, acceleration));
+                    powerRange30.set(nextRowRange30, 0, power);
                     nextRowRange30++;
                 }
             //     if (velocity <= Range30) {
@@ -249,7 +256,7 @@ public class DataCollector {
     }
 
     public SimpleMatrix testFF(){
-        return dataRange30.solve(powerRange30);
+        return testForData.solve(testForPower);
     }
 
     /**

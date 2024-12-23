@@ -54,7 +54,7 @@ public class TempSubSystem extends SubsystemBase {
   public TempSubSystem() { 
     steerMotor = new TalonMotor(
       new TalonConfig(8, "rio", "steer motor") //KS:0.2608668730650151, KV:0.020429816749889147, KA: 0.027562309396102925
-      .withPID(0.7, 0.0, 0.0, 0.2605232558139526, 0.022863453832577936, 0.02878478785202037, 0)
+      .withPID(5, 0.0, 1, 0.06536170212765954*12, 0.0225488216959815686*12, 0.05187756657493602*12, 0)//KS: 0.06007968127490036, KV: 0.02357481130738511, KA: 0.054110711834295666
       .withMotionMagic(3*2*Math.PI, 5*2*Math.PI, 50*2*Math.PI)
       .withBrake(true).withInvert(true)
       .withMotorRatio(12.8).withRadiansMotor()
@@ -83,8 +83,6 @@ public class TempSubSystem extends SubsystemBase {
 
     SmartDashboard.putData("motor set pow", new RunCommand(()-> {
       steerMotor.setDuty(dutyTest);
-      System.out.println(steerMotor.getVelocity());
-      System.out.println("Accel: " + steerMotor.getAcceleration());
     }, this));
     SmartDashboard.putData("motor set vel", new RunCommand(()-> steerMotor.setVelocity(velTest), this));
     SmartDashboard.putData("motor set motion magic", new RunCommand(()-> steerMotor.setMotionMagic(motionMagicTest), this));

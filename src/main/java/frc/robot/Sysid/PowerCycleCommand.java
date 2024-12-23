@@ -74,7 +74,7 @@ public class PowerCycleCommand extends Command {
 
     @Override
     public void execute() {
-        dataCollector.collect(maxVel);
+        dataCollector.collect(maxVel, power);
         
     }
 

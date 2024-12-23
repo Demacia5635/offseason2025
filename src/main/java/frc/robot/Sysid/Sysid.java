@@ -214,7 +214,7 @@ public class Sysid {
         boolean resetDataCollector = true;
         Command cmd = new WaitCommand(powerCycleDelay);
         for (int cycle = 0; cycle < nPowerCycles; cycle++) {
-            double power = minPow + cycle * 0.01;
+            double power = minPow + cycle * 0.02;
             cmd = cmd.andThen(getPowerCommand(power, resetDataCollector));
             resetDataCollector = false;
         }
@@ -259,19 +259,27 @@ public class Sysid {
         // SimpleMatrix feedForwardValues70 = dataCollector.solveRange100();
 
         // SimpleMatrix testFF = dataCollector.testFF();
-        SimpleMatrix test = dataCollector.solveFirstRange();
+        SimpleMatrix test = dataCollector.solve();//dataCollector.solveFirstRange();
+        System.out.println("break here?");
+        SimpleMatrix testFF = dataCollector.testFF();
+        System.out.println("break 2");
+        SimpleMatrix feedForwardValues30 = dataCollector.solve();
 
         result30 = new double[gains.length];
         result50 = new double[gains.length];
         resultFF = new double[gains.length];
         for (int i = 0; i < gains.length; i++) {
-            //result30[i] = feedForwardValues30.get(i, 0);
+            
+            System.out.println("break: " + i);
+            result30[i] = feedForwardValues30.get(i, 0);
             result50[i] = test.get(i, 0);
-            //resultFF[i] = testFF.get(i, 0);
-            SmartDashboard.putNumber("SysID-" + gains[i] + "-0-30 ranges", result30[i]);
+            
+            resultFF[i] = testFF.get(i, 0)*12;
             SmartDashboard.putNumber("SysId-" + gains[i] + "-testVel", result50[i]);
             SmartDashboard.putNumber("SysId-" + gains[i] + "testFF", resultFF[i]);
+            SmartDashboard.putNumber("DataTable" + gains[i] , result50[i]);
             // System.out.println("Sysid: " + gains[i] + " = " + result[i]);
+            SmartDashboard.putNumber("testFF" + gains[i],  resultFF[i]);
         }
         double avgKS, avgKV, avgKA = 0.0;
         
@@ -284,15 +292,15 @@ public class Sysid {
         // for(int i = 0; i < gains.length; i++){
         // SmartDashboard.putNumber("SysID-" + gains[i] + "-0-50 ranges", result50[i]);
         // }
-        SimpleMatrix power = dataCollector.dataRange30().mult(test);
-        SimpleMatrix error = dataCollector.power().minus(power);
-        SimpleMatrix errorSquared = error.elementMult(error);
-        double max = Math.sqrt(errorSquared.elementMax());
-        double avg = errorSquared.elementSum() / errorSquared.getNumRows();
-        SmartDashboard.putNumber("Sysid-Max Error", max);
-        SmartDashboard.putNumber("Sysid-Avg Error Sqr", avg);
-        double kp = (valueOf(Gains.KV, gains, result30) + valueOf(Gains.KA, gains, result30)) / 5.0;
-        SmartDashboard.putNumber("Sysid-KP (Roborio)", kp);
+        // SimpleMatrix power = dataCollector.solveFirstRange().mult(test);
+        // SimpleMatrix error = dataCollector.power().minus(power);
+        // SimpleMatrix errorSquared = error.elementMult(error);
+        // double max = Math.sqrt(errorSquared.elementMax());
+        // double avg = errorSquared.elementSum() / errorSquared.getNumRows();
+        // SmartDashboard.putNumber("Sysid-Max Error", max);
+        // SmartDashboard.putNumber("Sysid-Avg Error Sqr", avg);
+        // double kp = (valueOf(Gains.KV, gains, result30) + valueOf(Gains.KA, gains, result30)) / 5.0;
+        // SmartDashboard.putNumber("Sysid-KP (Roborio)", kp);
     }
 
     /**
