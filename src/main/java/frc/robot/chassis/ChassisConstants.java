@@ -37,12 +37,12 @@ public final class ChassisConstants {
 
   // PID
   public static final PID_Constants MOVE_PID = new PID_Constants(0.0000001, 0, 0);
-  public static final PID_Constants STEER_PID = new PID_Constants(29, /*1.57*/ 0.7 , 0.07);//(0.0025, 0.000004, 0.000022);
+  public static final PID_Constants STEER_PID = new PID_Constants(0, /*1.57*/0 , 0);//(0.0025, 0.000004, 0.000022);
   public static final double MOVE_KV2 = -0.059217884557999;
   public static final double MOVE_KVSQRT = -0.506283997180385;
   // Feed Forward Gains
   // public static final FF_Constants MOVE_FF = new FF_Constants(0.1496659759518384, 0.405476931680402, 0.02251759948634);
-  public static final FF_Constants STEER_FF = new FF_Constants(0.2742838015,1.51359078,  0.001411548535);
+  public static final FF_Constants STEER_FF = new FF_Constants(0.62915,0.8275,  0.000);
   public static final FF_Constants MOVE_FF_MORE = new FF_Constants(0.4, 2.7, 0.03251759948634);
 
 

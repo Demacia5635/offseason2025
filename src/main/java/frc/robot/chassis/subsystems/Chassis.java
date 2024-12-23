@@ -77,8 +77,7 @@ public class Chassis extends SubsystemBase {
 
   public void setVelRobot(ChassisSpeeds speeds){
     SwerveModuleState[] states = KINEMATICS_DEMACIA.toSwerveModuleStates(speeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_DRIVE_VELOCITY);
-    targetVelocity = new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond).getNorm() ;
+    targetVelocity = new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond).getNorm();
     currentVelocity = getVelocity().getNorm();
     
     setModuleStates(states);
@@ -361,22 +360,20 @@ public class Chassis extends SubsystemBase {
       public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("SwerveDrive");
 
-        builder.addDoubleProperty("Front Left Angle", () -> modules[0].getAbsDegrees().getRotations(), null);
+        builder.addDoubleProperty("Front Left Angle", () -> modules[0].getAbsDegrees().getDegrees(), null);
         builder.addDoubleProperty("Front Left Velocity", () -> modules[0].getVelocity(), null);
 
-        builder.addDoubleProperty("Front Right Angle", () -> modules[1].getAbsDegrees().getRotations(), null);
+        builder.addDoubleProperty("Front Right Angle", () -> modules[1].getAbsDegrees().getDegrees(), null);
         builder.addDoubleProperty("Front Right Velocity", () -> modules[1].getVelocity(), null);
 
-        builder.addDoubleProperty("Back Left Angle", () -> modules[2].getAbsDegrees().getRotations(), null);
+        builder.addDoubleProperty("Back Left Angle", () -> modules[2].getAbsDegrees().getDegrees(), null);
         builder.addDoubleProperty("Back Left Velocity", () -> modules[2].getVelocity(), null);
 
-        builder.addDoubleProperty("Back Right Angle", () -> modules[3].getAbsDegrees().getRotations(), null);
+        builder.addDoubleProperty("Back Right Angle", () -> modules[3].getAbsDegrees().getDegrees(), null);
         builder.addDoubleProperty("Back Right Velocity", () -> modules[3].getVelocity(), null);
 
-        builder.addDoubleProperty("Robot Angle", ()-> gyro.getYaw().getValue() / 360, null);
+        builder.addDoubleProperty("Robot Angle", ()-> gyro.getYaw().getValue(), null);
         builder.addDoubleArrayProperty("Chassis velocity", ()->new double[]{getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond, getChassisSpeeds().omegaRadiansPerSecond}, null);
-
-        builder.addBooleanProperty("reset pese", ()->getertobool(), (bool)->resetPose());
       }
     });
   }

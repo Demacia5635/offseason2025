@@ -270,6 +270,8 @@ public class SwerveModule extends SubsystemBase {
 //        builder.addDoubleProperty("distance", this::getDistance, null);
         builder.addDoubleProperty("abs encoder", () -> absoluteEncoder.getAbsolutePosition().getValue(), null);
         builder.addDoubleProperty("abs encoder in angle", ()-> Rotation2d.fromRotations(absoluteEncoder.getAbsolutePosition().getValue()).getDegrees(), null);
+        builder.addDoubleProperty("drive motor position", ()-> moveMotor.getPosition().getValueAsDouble() * MOTOR_ROTATION_PER_METER, null);
+        builder.addDoubleProperty(name + " module vel", ()->steerMotor.getCurrentVelocity(), null);
     }
 
 

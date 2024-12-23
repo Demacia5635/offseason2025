@@ -174,8 +174,17 @@ public class TalonMotor extends TalonFX {
   */
 
 
+  double lastError = 0;
   public void setMotorPosition(double position) {
-    setControl(positionVoltage.withPosition(position));
+    double kP = 5.8;
+    double kD = 0.06;
+    double error =  position - getCurrentPosition().getRotations();
+    double errorDiff = lastError - error;
+
+    double wantedVel = Math.abs(error) > 1 / 720.0 ? (error * kP) + (errorDiff * kD): 0;
+    lastError = error;
+
+    setControl(velocityVoltage.withVelocity(wantedVel));
     positionEntry.log(position);
   }
 
