@@ -10,45 +10,11 @@ import frc.robot.utils.TalonConfig;
 
 /** Add your docs here. */
 public class ChassisConstants {
+    public class GYRO {
+        public final static int GYRO_ID = 14;
+        public final static String GYRO_CANBUS = "rio";
+    }
     public class MODULES{
-        public static ModuleConstants RIGHT_FRONT = new ModuleConstants(
-            "FrontRight", 
-            new TalonConfig(1,"rio","FrontRightDrive")
-                .withPID(0.1, 0, 0, 0, 0, 0, 0)
-                .withInvert(false)
-                .withMeterMotor(1)
-                .withMotorRatio(1)
-                .withBrake(false),
-            new TalonConfig(2, "rio", "FrontRightSteer")
-                .withPID(0.1, 0, 0, 0, 0, 0, 0)
-                .withRadiansMotor()
-                .withInvert(false)
-                .withMotionMagic(0, 0, 0)
-                .withMotorRatio(1)
-                .withBrake(false),
-            new CancoderConfig(3, "rio", "FrontRightCancoder")
-                .withInvert(false)
-                .withOffset(0),
-            new Translation2d(0,0));
-        public static ModuleConstants RIGHT_BACK = new ModuleConstants(
-            "RightRack", 
-            new TalonConfig(10,"rio","RightBackDrive")
-                .withPID(0, 0, 0, 0, 0, 0, 0)
-                .withInvert(false)
-                .withMeterMotor(1)
-                .withMotorRatio(1)
-                .withBrake(false),
-            new TalonConfig(11, "rio", "RightBackSteer")
-                .withPID(0, 0, 0, 0, 0, 0, 0)
-                .withRadiansMotor()
-                .withInvert(false)
-                .withMotionMagic(0, 0, 0)
-                .withMotorRatio(1)
-                .withBrake(false),
-            new CancoderConfig(12, "rio", "rightBackeCancoder")
-                .withInvert(false)
-                .withOffset(0),
-            new Translation2d(0,0));
         public static ModuleConstants LEFT_FRONT = new ModuleConstants(
             "FrontLeft", 
             new TalonConfig(4,"rio","FrontLeftDrive")
@@ -61,10 +27,29 @@ public class ChassisConstants {
                 .withPID(0.1, 0, 0, 0, 0, 0, 0)
                 .withRadiansMotor()
                 .withInvert(false)
-                .withMotionMagic(0, 0, 0)
+                .withMotionMagic(25, 40, 130)
                 .withMotorRatio(1)
                 .withBrake(false),
             new CancoderConfig(6, "rio", "FrontLeftCancoder")
+                .withInvert(false)
+                .withOffset(0),
+            new Translation2d(0,0));
+        public static ModuleConstants RIGHT_FRONT = new ModuleConstants(
+            "FrontRight", 
+            new TalonConfig(1,"rio","FrontRightDrive")
+                .withPID(0.1, 0, 0, 0, 0, 0, 0)
+                .withInvert(false)
+                .withMeterMotor(1)
+                .withMotorRatio(1)
+                .withBrake(false),
+            new TalonConfig(2, "rio", "FrontRightSteer")
+                .withPID(0.1, 0, 0, 0, 0, 0, 0)
+                .withRadiansMotor()
+                .withInvert(false)
+                .withMotionMagic(25, 40, 130)
+                .withMotorRatio(1)
+                .withBrake(false),
+            new CancoderConfig(3, "rio", "FrontRightCancoder")
                 .withInvert(false)
                 .withOffset(0),
             new Translation2d(0,0));
@@ -80,10 +65,29 @@ public class ChassisConstants {
                 .withPID(0, 0, 0, 0, 0, 0, 0)
                 .withRadiansMotor()
                 .withInvert(false)
-                .withMotionMagic(0, 0, 0)
+                .withMotionMagic(25, 40, 130)
                 .withMotorRatio(1)
                 .withBrake(false),
             new CancoderConfig(9, "rio", "BackLeftCancoder")
+                .withInvert(false)
+                .withOffset(0),
+            new Translation2d(0,0));
+        public static ModuleConstants RIGHT_BACK = new ModuleConstants(
+            "RightBack", 
+            new TalonConfig(10,"rio","RightBackDrive")
+                .withPID(0, 0, 0, 0, 0, 0, 0)
+                .withInvert(false)
+                .withMeterMotor(1)
+                .withMotorRatio(1)
+                .withBrake(false),
+            new TalonConfig(11, "rio", "RightBackSteer")
+                .withPID(0, 0, 0, 0, 0, 0, 0)
+                .withRadiansMotor()
+                .withInvert(false)
+                .withMotionMagic(25, 40, 130)
+                .withMotorRatio(1)
+                .withBrake(false),
+            new CancoderConfig(12, "rio", "rightBackeCancoder")
                 .withInvert(false)
                 .withOffset(0),
             new Translation2d(0,0));
@@ -91,9 +95,5 @@ public class ChassisConstants {
     public final static Translation2d FRONT_RIGHT_LOCATION = new Translation2d(0, 0);
     public final static Translation2d BACK_LEFT_LOCATION = new Translation2d(0, 0);
     public final static Translation2d BACK_RIGHT_LOCATION = new Translation2d(0, 0);
-    }
-    public class GYRO {
-        public final static int GYRO_ID = 14;
-        public final static String GYRO_CANBUS = "rio";
     }
 }

@@ -15,7 +15,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -41,6 +43,7 @@ public class Chassis extends SubsystemBase {
     );
     poseEstimator = new SwerveDrivePoseEstimator(kinematics, getGyroAngle(), getSwerveModulesPositions(), new Pose2d());
     field = new Field2d();
+    SmartDashboard.putData(this);
   }
 
   @Override
@@ -97,7 +100,7 @@ public class Chassis extends SubsystemBase {
     }
   }
 
-  public void setModulerDrivePower(int pow, int index){
+  public void setModuleDrivePower(int pow, int index){
     modules[index].setDriveMotorPower(pow);
   }
 
@@ -175,7 +178,7 @@ public class Chassis extends SubsystemBase {
     modules[index].setSteerMotorPosition(pos);
   }
 
-  public void setModulesSteeMotionMagic(double position) {
+  public void setModulesSteerMotionMagic(double position) {
     for (var module : modules) {
       module.setSteerMotorMotionMagic(position);
     }
@@ -209,22 +212,27 @@ public class Chassis extends SubsystemBase {
     return modules[index].getSteerPosition();
   }
 
-  public void setModuelsStates(SwerveModuleState[] states){
+  public void setModulesStates(SwerveModuleState[] states){
     for(int i = 0; i < states.length; i++){
       modules[i].setState(states[i]);
     }
   }
 
-  public void setModuelState(SwerveModuleState state, int index){
+  public void setModuleState(SwerveModuleState state, int index){
     modules[index].setState(state);
   }
 
   public void setVelocities(ChassisSpeeds speeds){
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
-    setModuelsStates(states);
+    setModulesStates(states);
   }
 
   public SwerveDrivePoseEstimator getSwerveDrivePoseEstimator(){
     return poseEstimator;
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.addDoubleProperty("gyro angle", () -> getGyroAngle().getRadians(), null);
   }
 }
