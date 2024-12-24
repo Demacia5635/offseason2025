@@ -3,6 +3,8 @@ package frc.robot.Sysid;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import javax.xml.crypto.Data;
+
 import org.ejml.simple.SimpleMatrix;
 
 import edu.wpi.first.math.MathUtil;
@@ -43,7 +45,7 @@ public class Sysid {
     }
 
     Consumer<Double> setPower; // function to set the power
-    DataCollector dataCollector; // the data collector class
+    public DataCollector dataCollector; // the data collector class
     double minPow;
     double maxVel;
     double deltaPower; // the change of power between power cycles
@@ -274,15 +276,14 @@ public class Sysid {
             result30[i] = feedForwardValues30.get(i, 0);
             result50[i] = test.get(i, 0);
             
-            resultFF[i] = testFF.get(i, 0)*12;
-            SmartDashboard.putNumber("SysId-" + gains[i] + "-testVel", result50[i]);
+            resultFF[i] = testFF.get(i, 0);
             SmartDashboard.putNumber("SysId-" + gains[i] + "testFF", resultFF[i]);
             SmartDashboard.putNumber("DataTable" + gains[i] , result50[i]);
             // System.out.println("Sysid: " + gains[i] + " = " + result[i]);
             SmartDashboard.putNumber("testFF" + gains[i],  resultFF[i]);
         }
+        dataCollector.updateDataArr();
         double avgKS, avgKV, avgKA = 0.0;
-        
         avgKS = (result30[0] + result50[0] + resultFF[0])/gains.length;
         avgKV = (result30[1] + result50[1] + resultFF[1])/gains.length;
         avgKA = (result30[2] + result50[2] + resultFF[2])/gains.length;
@@ -301,6 +302,11 @@ public class Sysid {
         // SmartDashboard.putNumber("Sysid-Avg Error Sqr", avg);
         // double kp = (valueOf(Gains.KV, gains, result30) + valueOf(Gains.KA, gains, result30)) / 5.0;
         // SmartDashboard.putNumber("Sysid-KP (Roborio)", kp);
+    }
+
+    public double[] dataArr1(){
+        dataCollector.updateDataArr();
+        return dataCollector.dataArr1;
     }
 
     /**

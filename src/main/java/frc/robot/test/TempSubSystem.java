@@ -7,6 +7,8 @@ package frc.robot.test;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import javax.xml.crypto.Data;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.units.Power;
@@ -20,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Sysid.Sysid;
+import frc.robot.Sysid.Utils.FeedForward;
 import frc.robot.utils.Cancoder;
 import frc.robot.utils.CancoderConfig;
 import frc.robot.utils.LogManager;
@@ -53,32 +56,32 @@ public class TempSubSystem extends SubsystemBase {
   //kp = 0.1, ki = 0.7, kd = 0.07
   public TempSubSystem() { 
     steerMotor = new TalonMotor(
-      new TalonConfig(8, "rio", "steer motor") //KS:0.2608668730650151, KV:0.020429816749889147, KA: 0.027562309396102925
-      .withPID(5, 0.0, 1, 0.06536170212765954*12, 0.0225488216959815686*12, 0.05187756657493602*12, 0)//KS: 0.06007968127490036, KV: 0.02357481130738511, KA: 0.054110711834295666
+      new TalonConfig(8, "canivore", "steer motor") //KS:0.2608668730650151, KV:0.020429816749889147, KA: 0.027562309396102925
+      .withPID(0.0, 0.0, 0, 0.20278460278460256, 0.2620802620802621, 0.0, 0)//KS: 0.06007968127490036, KV: 0.02357481130738511, KA: 0.054110711834295666
       .withMotionMagic(3*2*Math.PI, 5*2*Math.PI, 50*2*Math.PI)
       .withBrake(true).withInvert(true)
       .withMotorRatio(12.8).withRadiansMotor()
     );
 
     driveMotor = new TalonMotor(
-      new TalonConfig(7, "rio", "drive motor")
+      new TalonConfig(7, "canivore", "drive motor")
       .withPID(0, 0, 0, 0, 0, 0, 0)
     );
     cancoder = new Cancoder(
-      new CancoderConfig(9, "rio", "cancoder")
+      new CancoderConfig(9, "canivore", "cancoder")
       .withInvert(false).withOffset(0)
       );
 
     steerMotor.setPosition(cancoder.getAbsPositionRadians() / (2*Math.PI));
 
     getV = ()->(steerMotor.getCurrentVelocity());
-    getAccel = ()->(SmartDashboard.getNumber("steer motor/Acceleration", 0));
+    getAccel = ()->(steerMotor.getAcceleration().getValueAsDouble());
     
     steerMotor.hotReloadPidFf(0);
     SmartDashboard.putData("steer motor", steerMotor);
     
     Consumer<Double> setPow = Power -> steerMotor.setDuty(Power);
-    id = new Sysid(setPow, getV, minPow, maxPow, duration , delay, null ,this);
+    id = new Sysid(setPow, getV, minPow, maxPow, duration , delay, getAccel ,this);
     SmartDashboard.putData("set sysid" , id.runNormalSysId());
 
     SmartDashboard.putData("motor set pow", new RunCommand(()-> {
@@ -108,9 +111,13 @@ public class TempSubSystem extends SubsystemBase {
     builder.addDoubleProperty("test pow", ()-> dutyTest, (double pow)-> dutyTest = pow);
     builder.addDoubleProperty("test vel", ()-> velTest, (double vel)-> velTest = vel);
     builder.addDoubleProperty("test motion magic pos", ()-> motionMagicTest, (double position)-> motionMagicTest = position);
+  //  builder.addDoubleArrayProperty("FF", ()->FeedForward.GetFF(new double[]{0.1, 0.5}, new double[]{3.805, 22.12}, new double[]{}), null);
 
   }
 
+  
+    
+  
 
   @Override
   public void periodic() {

@@ -26,6 +26,14 @@ public class DataCollector {
     SimpleMatrix powerRange30;
     SimpleMatrix powerRange60;
     SimpleMatrix powerRange100;
+
+    public double[][] dataArr;
+    public double[][] powerArr;
+
+
+    public double[] dataArr1;
+    public double[] dataArr2;
+    public double[] dataArr3;
     int nextRowRange30;
     int nextRowRange60;
     int nextRowRange100;
@@ -37,11 +45,11 @@ public class DataCollector {
     double Range1;
     double Range30;
     double Range50;
-    double rad = 0; //current angle in in rad
+    double rad = 0; //current angle in  rad
     double voltageForHorizontal;
     Supplier<Double> getAccel;
 
-    SimpleMatrix testForData;
+    public SimpleMatrix testForData;
     SimpleMatrix testForPower;
 
     DataTable[] datas;
@@ -79,6 +87,13 @@ public class DataCollector {
         this.voltageForHorizontal = voltageForHorizontal;
         testForData = new SimpleMatrix(matrixRows, gains.length);
         testForPower = new SimpleMatrix(matrixRows, 1);
+        dataArr  = new double[matrixRows][gains.length];
+        powerArr = new double[matrixRows][1];
+
+        dataArr1 = new double[matrixRows];
+        dataArr2 = new double[matrixRows];
+        dataArr3 = new double[matrixRows];
+
         datas = new DataTable[3];
         datas[0] = new DataTable(0, matrixRows, gains.length);
         datas[1] = new DataTable(0, matrixRows, gains.length);
@@ -117,22 +132,23 @@ public class DataCollector {
      */
     public void collect(double maxVel, double power) {
         if (valid(maxVel)) {
+            double volts = power * 12;
             double range = maxVel * 0.3;
             double velocity = getVelocity.get();
-            double acceleration = 0;//getAccel.get() !=  null ? getAccel.get() : 0;
+            double acceleration = getAccel.get() !=  null ? getAccel.get() : 0;
             row = getRange(maxVel, velocity);
             for (int i = 0; i < gains.length; i++) {
-                datas[row].dataMatrix.set(datas[row].getRow(), i, value(gains[i], velocity, rad, acceleration));
-                datas[row].powerMatrix.set(datas[row].getRow(), 0, power);
+                datas[row].dataMatrix.set(datas[row].getRow(), i, value(gains[i], velocity,  acceleration ,rad));
+                datas[row].powerMatrix.set(datas[row].getRow(), 0, volts);
                 datas[row].updateRow();
 
-                testForData.set(nextRowRange100, i, value(gains[i], velocity, rad, acceleration));
-                testForPower.set(nextRowRange100, 0, power);
+                testForData.set(nextRowRange100, i, value(gains[i], velocity,  acceleration, rad));
+                testForPower.set(nextRowRange100, 0, volts);
                 nextRowRange100++;
                 
                 if(velocity <= range){
-                    dataRange30.set(nextRowRange30, i, value(gains[i], velocity, rad, acceleration));
-                    powerRange30.set(nextRowRange30, 0, power);
+                    dataRange30.set(nextRowRange30, i, value(gains[i], velocity,  acceleration , rad));
+                    powerRange30.set(nextRowRange30, 0, volts);
                     nextRowRange30++;
                 }
             //     if (velocity <= Range30) {
@@ -203,7 +219,7 @@ public class DataCollector {
             case KV:
                 return velocity;
             case KA:
-                return velocity - lastV;
+                return acceleration;
             case KRad:
                 return rad;
             case KCos:
@@ -257,6 +273,53 @@ public class DataCollector {
 
     public SimpleMatrix testFF(){
         return testForData.solve(testForPower);
+    }
+
+    public void printData(){
+        for(int i = 0; i < testForData.getNumRows(); i++){
+            
+            for(int j = 0; j < testForData.getNumCols(); j++){
+                System.out.println("Row: " + i + " Col: " + j + " Data: " + testForData.get(i, j));
+            }
+        }
+    }
+
+    public void updatePowArr(){
+        for(int i = 0; i < testForData.getNumRows(); i++){
+            
+            for(int j = 0; j < testForData.getNumCols(); j++){
+                dataArr[i][j] = testForData.get(i, j);
+            }
+        }
+    }
+
+    public void updateDataArr(){
+        for(int i = 0; i < testForData.getNumRows(); i++){
+            
+            for(int j = 0; j < testForData.getNumCols(); j++){
+                if(i == 0){
+                    dataArr1[j] = testForData.get(i, j);
+                }
+
+                else if(i == 1){
+                    dataArr2[j] = testForData.get(i, j);
+                }
+
+                else{
+                    dataArr3[j] = testForData.get(i, j); 
+                }
+                
+            }
+        }
+    }
+
+    public void printPower(){
+        for(int i = 0; i < testForPower.getNumRows(); i++){
+            
+            for(int j = 0; j < testForPower.getNumCols(); j++){
+                System.out.println("Row: " + i + " Col: " + j + " Pow: " + testForPower.get(i, j));
+            }
+        }
     }
 
     /**
