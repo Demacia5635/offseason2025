@@ -4,27 +4,32 @@
 
 package frc.robot;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.chassis.commands.DriveCommand;
 import frc.robot.chassis.subsystem.Chassis;
 import frc.robot.utils.LogManager;
+import frc.robot.vision.subsystem.Tag;
 
 
 public class RobotContainer {
   
   LogManager logManager;
-  public static Boolean isRed = true;
+  public static Boolean isRed = false;
   CommandXboxController commandController;
 
   public Chassis chassis;
+  public Tag tag;
 
   public RobotContainer() {
     logManager = new LogManager();
     chassis = new Chassis();
     commandController = new CommandXboxController(0);
     chassis.setDefaultCommand(new DriveCommand(chassis, commandController));
+    tag = new Tag(()->chassis.getGyroRotation());
   }
 
   public void isRed(boolean isRed) {
