@@ -18,7 +18,7 @@ import frc.robot.vision.subsystem.Tag;
 public class RobotContainer {
   
   LogManager logManager;
-  public static Boolean isRed = false;
+  public static Boolean isRed = true;
   CommandXboxController commandController;
 
   public Chassis chassis;

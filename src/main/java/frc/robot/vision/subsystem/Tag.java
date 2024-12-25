@@ -99,6 +99,7 @@ public class Tag extends SubsystemBase implements Sendable{
     public double GetDistFromCamera() {
       double alpha = camToTagPitch + TAG_CAM_ANGLE;
       double dist = (Math.abs(height - TAG_CAM_HIGHT)) / (Math.tan(Math.toRadians(alpha)));
+      dist = dist/Math.cos(Math.toRadians(camToTagYaw));
       return dist;
   }
 
@@ -135,20 +136,28 @@ public class Tag extends SubsystemBase implements Sendable{
           Rotation2d robotToTagYaw = robotToTag.getAngle();
           
           // Convert to field coordinates using gyro
-          Rotation2d robotToTagYawFC = robotToTagYaw.plus(getRobotAngle.get());
+          Rotation2d robotToTagYawFC = robotToTagYaw.minus(getRobotAngle.get());
           
           // Calculate angle from tag to robot in field coordinates
-          Rotation2d tagToRobotYawFC = tagAngle.minus(robotToTagYawFC)
-              .rotateBy(Rotation2d.fromDegrees(180)).unaryMinus();
+          Rotation2d tagToRobotYawFC = tagAngle.plus(robotToTagYawFC)
+              .rotateBy(Rotation2d.fromDegrees(180));
           
           // Calculate final robot position using tag position and vector
           double robotToTagDist = robotToTag.getNorm();
           originToRobot = origintoTag.plus(
               new Translation2d(robotToTagDist, tagToRobotYawFC));
           //field.getObject("Robot").setTrajectory(vector(origin, originToRobot));
+          // //-----------------------------
+          // System.out.println("Tag Angle: " + tagAngle.getDegrees());
+          // System.out.println("Robot Angle: " + getRobotAngle.get().getDegrees());
+          // System.out.println("Robot to Tag Yaw: " + robotToTagYaw.getDegrees());
+          // System.out.println("Robot to Tag Yaw FC: " + robotToTagYawFC.getDegrees());
+          // System.out.println("Tag to Robot Yaw FC: " + tagToRobotYawFC.getDegrees());
+          // //-----------------------------
           return originToRobot;
       }
       return new Translation2d();
+      
   }
 
     public Trajectory vector(Translation2d start, Translation2d end){

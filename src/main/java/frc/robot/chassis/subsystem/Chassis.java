@@ -71,8 +71,9 @@ public class Chassis extends SubsystemBase {
      * @param chassisSpeeds Desired chassis speeds
      */
     public void setVelocities(ChassisSpeeds chassisSpeeds) {
+        ChassisSpeeds relSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getGyroRotation());
         // Convert chassis speeds to module states
-        SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(chassisSpeeds);
+        SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(relSpeeds);
         
         // Normalize wheel speeds
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, SwerveConstants.MAX_DRIVE_VELOCITY);
