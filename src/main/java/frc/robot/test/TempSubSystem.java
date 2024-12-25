@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Sysid.Sysid;
-import frc.robot.Sysid.Utils.FeedForward;
 import frc.robot.utils.Cancoder;
 import frc.robot.utils.CancoderConfig;
 import frc.robot.utils.LogManager;
@@ -111,8 +110,6 @@ public class TempSubSystem extends SubsystemBase {
     builder.addDoubleProperty("test pow", ()-> dutyTest, (double pow)-> dutyTest = pow);
     builder.addDoubleProperty("test vel", ()-> velTest, (double vel)-> velTest = vel);
     builder.addDoubleProperty("test motion magic pos", ()-> motionMagicTest, (double position)-> motionMagicTest = position);
-  //  builder.addDoubleArrayProperty("FF", ()->FeedForward.GetFF(new double[]{0.1, 0.5}, new double[]{3.805, 22.12}, new double[]{}), null);
-
   }
 
   

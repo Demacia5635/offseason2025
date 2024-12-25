@@ -1,4 +1,6 @@
-package frc.robot.Sysid.Utils;
+package frc.robot.test;
+
+import java.util.ArrayList;
 
 import org.ejml.simple.SimpleMatrix;
 
@@ -7,32 +9,32 @@ public class FeedForward {
     private static int kVindex = 1;
     private static int kAindex = 2;
 
-    private static void gatherData(double accel){
-        //double[] accel = new double[100];
-        double[] vel = new double[100];
-        double[] power = new double[100];
-        GetFF(null, null, null);
-    }
-
 
     /**
      * 
      * Ks , Kv
      */
-    public static double[] GetFF(double[] power, Double[] velocity, Double[] accel){
-        double[] signumV = new double[velocity.length];
+    public static double[] GetFF(ArrayList<Double> power, ArrayList<Double> velocity, ArrayList<Double> accel){
+        double[] signumV = new double[velocity.size()];
         for(int i = 0; i < signumV.length; i++){
-            signumV[i] = Math.signum(velocity[i]);
+            signumV[i] = Math.signum(velocity.get(i));
         }
-        double[][] matrix = new double[3][velocity.length];
-        for(int i = 0; i < matrix[kSindex].length; i++){
-            matrix[kSindex][i] = signumV[i];
-            matrix[kVindex][i] = velocity[i];
-            matrix[kAindex][i] = accel[i];
+        double[][] matrix = new double[velocity.size()][3];
+        for(int i = 0; i < signumV.length; i++){
+            matrix[i][kSindex] = signumV[i];
+            matrix[i][kVindex] = velocity.get(i);
+            matrix[i][kAindex] = accel.get(i);
+            System.out.println("I: " + i + "SIGNUM: " + signumV[i] + " V: " + velocity.get(i) + " Accel: " + accel.get(i));
+        }
+
+        double[] powers = new double[power.size()];
+        for(int i = 0; i < powers.length; i++){
+            powers[i] = power.get(i) * 12;
         }
         SimpleMatrix data = new SimpleMatrix(matrix);
-        SimpleMatrix powerMatrix = new SimpleMatrix(power);
+        SimpleMatrix powerMatrix = new SimpleMatrix(powers);
 
-        return data.solve(powerMatrix).toArray2()[0];
+
+        return data.solve(powerMatrix).transpose().toArray2()[0];
     } 
 }

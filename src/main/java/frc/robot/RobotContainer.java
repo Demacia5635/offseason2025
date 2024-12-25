@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.test.TempSubSystem;
+import frc.robot.test.getFFAccel;
+import frc.robot.test.getFFDrive;
 import frc.robot.utils.LogManager;
 
 
@@ -39,6 +41,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return null;
+    Command getFF = new getFFAccel(tempSubSystem, 0.3, 0.6, 20);
+    return getFF;
   }
 }
