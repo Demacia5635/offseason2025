@@ -6,6 +6,8 @@ package frc.robot.test;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -15,9 +17,9 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.utils.LogManager;
 
 public class getFFAccel extends Command {
-  Consumer<Double> setPower;
-  Supplier<Double> getVel;
-  Supplier<Double> getAccel;
+  DoubleConsumer setPower;
+  DoubleSupplier getVel;
+  DoubleSupplier getAccel;
 
   ArrayList<Double> vel;
   ArrayList<Double> accel;
@@ -33,7 +35,7 @@ public class getFFAccel extends Command {
   double time;
   
 
-  public getFFAccel(Consumer<Double> setPower, Supplier<Double> getVel, Supplier<Double> getAccel, double minPow, double maxPow, double time, boolean withNegative) {
+  public getFFAccel(DoubleConsumer setPower, DoubleSupplier getVel, DoubleSupplier getAccel, double minPow, double maxPow, double time, boolean withNegative) {
 
     this.setPower = setPower;
     this.withNegative = withNegative;
@@ -72,8 +74,8 @@ public class getFFAccel extends Command {
     curPow+= delta;
 
     setPower.accept(curPow);
-    vel.add(getVel.get());
-    accel.add(getAccel.get());
+    vel.add(getVel.getAsDouble());
+    accel.add(getAccel.getAsDouble());
     powers.add(curPow);
   }
   

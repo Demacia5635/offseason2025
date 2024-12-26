@@ -6,6 +6,9 @@ package frc.robot.test;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -14,9 +17,9 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.utils.LogManager;
 
 public class getFFDrive extends Command {
-  Consumer<Double> setPower;
-  Supplier<Double> getVel;
-  Supplier<Double> getAccel;
+  DoubleConsumer setPower;
+  DoubleSupplier getVel;
+  DoubleSupplier getAccel;
   ArrayList<Double> vel;
   ArrayList<Double> accel;
   ArrayList<Double> powers;
@@ -25,15 +28,13 @@ public class getFFDrive extends Command {
   double curPow;
   double deltaP = 0.1;
   double[] ffValues;
-  int direction;
 
   double currentCycleCount = 0;
   double maxCycleCount = 75;
-  boolean withNegative
+  boolean withNegative;
   
 
-  public getFFDrive(Consumer<Double> setPower, Supplier<Double> getVel, Supplier<Double> getAccel, double minPow, double maxPow, boolean withNegative) {
-    this.direction = 1;
+  public getFFDrive(DoubleConsumer setPower, DoubleSupplier getVel, DoubleSupplier getAccel, double minPow, double maxPow, boolean withNegative) {
     this.setPower = setPower;
     this.getVel = getVel;
     this.getAccel = getAccel;
@@ -69,8 +70,8 @@ public class getFFDrive extends Command {
       curPow+= deltaP;
     }
     setPower.accept(curPow);
-    vel.add(getVel.get());
-    accel.add(getAccel.get());
+    vel.add(getVel.getAsDouble());
+    accel.add(getAccel.getAsDouble());
     powers.add(curPow);
     currentCycleCount++;
   }
@@ -78,7 +79,7 @@ public class getFFDrive extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    setPower.accept(0);
+    setPower.accept(0.0);
     ffValues = FeedForward.GetFF(powers, vel, accel);
    
   }
