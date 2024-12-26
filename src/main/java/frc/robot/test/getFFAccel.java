@@ -5,6 +5,8 @@
 package frc.robot.test;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -13,7 +15,10 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.utils.LogManager;
 
 public class getFFAccel extends Command {
-  TempSubSystem subsystem;
+  Consumer<Double> setPower;
+  Supplier<Double> getVel;
+  Supplier<Double> getAccel;
+
   ArrayList<Double> vel;
   ArrayList<Double> accel;
   ArrayList<Double> powers;
@@ -23,13 +28,17 @@ public class getFFAccel extends Command {
   double diff;
   double[] ffValues;
   double delta;
+  boolean withNegative;
 
   double time;
   
 
-  public getFFAccel(TempSubSystem subsystem, double minPow, double maxPow, double time) {
+  public getFFAccel(Consumer<Double> setPower, Supplier<Double> getVel, Supplier<Double> getAccel, double minPow, double maxPow, double time, boolean withNegative) {
 
-    this.subsystem = subsystem;
+    this.setPower = setPower;
+    this.withNegative = withNegative;
+    this.getVel = getVel;
+    this.getAccel = getAccel;
     this.minPow = minPow;
     this.maxPow = maxPow;
     this.curPow = minPow;
@@ -59,20 +68,19 @@ public class getFFAccel extends Command {
 
   @Override
   public void execute() {
-    if(curPow >= maxPow) delta = -Math.abs(delta);
+    if(curPow >= maxPow && withNegative) delta = -Math.abs(delta);
     curPow+= delta;
 
-    subsystem.steerMotor.set(curPow);
-    vel.add(subsystem.getV.get());
-    accel.add(subsystem.getAccel.get());
+    setPower.accept(curPow);
+    vel.add(getVel.get());
+    accel.add(getAccel.get());
     powers.add(curPow);
   }
   
 
   @Override
   public void end(boolean interrupted) {
-    System.out.println("FINISHED");
-    subsystem.steerMotor.set(0);
+    setPower.accept(0.0);
     ffValues = FeedForward.GetFF(powers, vel, accel);
    
   }
@@ -86,6 +94,6 @@ public class getFFAccel extends Command {
 
   @Override
   public boolean isFinished() {
-    return curPow < minPow;
+    return (withNegative) ? curPow < minPow : curPow >= maxPow;
   }
 }

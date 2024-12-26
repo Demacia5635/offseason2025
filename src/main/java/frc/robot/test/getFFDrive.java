@@ -5,6 +5,7 @@
 package frc.robot.test;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -13,7 +14,9 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.utils.LogManager;
 
 public class getFFDrive extends Command {
-  TempSubSystem subsystem;
+  Consumer<Double> setPower;
+  Supplier<Double> getVel;
+  Supplier<Double> getAccel;
   ArrayList<Double> vel;
   ArrayList<Double> accel;
   ArrayList<Double> powers;
@@ -26,11 +29,15 @@ public class getFFDrive extends Command {
 
   double currentCycleCount = 0;
   double maxCycleCount = 75;
+  boolean withNegative
   
 
-  public getFFDrive(TempSubSystem subsystem, double minPow, double maxPow) {
+  public getFFDrive(Consumer<Double> setPower, Supplier<Double> getVel, Supplier<Double> getAccel, double minPow, double maxPow, boolean withNegative) {
     this.direction = 1;
-    this.subsystem = subsystem;
+    this.setPower = setPower;
+    this.getVel = getVel;
+    this.getAccel = getAccel;
+    this.withNegative = withNegative;
     this.minPow = minPow;
     this.maxPow = maxPow;
     this.curPow = minPow;
@@ -56,14 +63,14 @@ public class getFFDrive extends Command {
 
   @Override
   public void execute() {
-    if(curPow > maxPow) deltaP = -Math.abs(deltaP);
+    if(curPow > maxPow && withNegative) deltaP = -Math.abs(deltaP);
     if(currentCycleCount >= maxCycleCount){
       currentCycleCount = 0;
       curPow+= deltaP;
     }
-    subsystem.steerMotor.set(curPow);
-    vel.add(subsystem.getV.get());
-    accel.add(subsystem.getAccel.get());
+    setPower.accept(curPow);
+    vel.add(getVel.get());
+    accel.add(getAccel.get());
     powers.add(curPow);
     currentCycleCount++;
   }
@@ -71,8 +78,7 @@ public class getFFDrive extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    System.out.println("FINISHED");
-    subsystem.steerMotor.set(0);
+    setPower.accept(0);
     ffValues = FeedForward.GetFF(powers, vel, accel);
    
   }
@@ -86,6 +92,6 @@ public class getFFDrive extends Command {
 
   @Override
   public boolean isFinished() {
-    return curPow < minPow;
+    return (withNegative) ?  curPow < minPow : curPow > maxPow;
   }
 }
