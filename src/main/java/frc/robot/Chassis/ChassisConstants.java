@@ -10,6 +10,9 @@ import frc.robot.utils.TalonConfig;
 
 /** Add your docs here. */
 public class ChassisConstants {
+    public final static int MAX_DRIVE_VELOCITY = 4;
+    public final static int MAX_OMEGA_VELOCITY = 4;
+    public final static int CONTROLLER_PORT = 0;
     public class GYRO {
         public final static int GYRO_ID = 14;
         public final static String GYRO_CANBUS = "rio";

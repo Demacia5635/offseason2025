@@ -5,7 +5,6 @@
 package frc.robot.Chassis.Subsystem;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 
 import frc.robot.Chassis.ChassisConstants.*;
 import edu.wpi.first.math.geometry.Pose2d;
