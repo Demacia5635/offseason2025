@@ -20,7 +20,7 @@ import static frc.robot.Chassis.ChassisConstants.*;
 public class RobotContainer {
   LogManager logManager;
   Module module;
-  Chassis chassis;
+  //Chassis chassis;
   CommandXboxController controller;
   Command driveCommand;
   RunCommand testSteerPow;
@@ -30,25 +30,29 @@ public class RobotContainer {
   RunCommand testDriveVel;
   RunCommand testDrivePos;
   RunCommand testSteerPos;
-  RunCommand testModuleAngle;
-  RunCommand testModuleState;
+  //RunCommand testChassisAngle;
+  //RunCommand testChassisState;
+  RunCommand stopDrive;
+  RunCommand stopSteer;
   
   public RobotContainer() {
     logManager = new LogManager();
     module = new Module(MODULES.LEFT_FRONT);
-    chassis = new Chassis();
+    //chassis = new Chassis();
     controller = new CommandXboxController(CONTROLLER_PORT);
-    driveCommand = new CassisDrive(chassis, controller);
+    //driveCommand = new CassisDrive(chassis, controller);
     testSteerPow = new RunCommand(() -> module.setSteerMotorPower(0.1));
     testSteerVel = new RunCommand(() -> module.setSteerMotorVelocity(2 * Math.PI));
-    testSteerMagicMotion = new RunCommand(() -> module.setSteerMotorVelocity(0));
+    testSteerMagicMotion = new RunCommand(() -> module.setSteerMotorMotionMagic(Math.PI/2));
     testDrivePow = new RunCommand(() -> module.setDriveMotorPower(0.1));
-    testDriveVel = new RunCommand(() -> module.setDriveMotorVelocity(2 * Math.PI));
+    testDriveVel = new RunCommand(() -> module.setDriveMotorVelocity(1));
     testDrivePos = new RunCommand(() -> module.setDriveMotorPosition(0));
-    testSteerPos = new RunCommand(() -> module.setSteerMotorPosition(0));
-    testModuleAngle = new RunCommand(() -> chassis.setPose2d(Math.PI/4));
-    testModuleState = new RunCommand(() -> chassis.setVelocities(new ChassisSpeeds(1, 1, Math.PI/4)));
-    chassis.setDefaultCommand(driveCommand);
+    testSteerPos = new RunCommand(() -> module.setSteerMotorPosition(Math.PI));
+    //testChassisAngle = new RunCommand(() -> chassis.setPose2d(Math.PI/4));
+    //testChassisState = new RunCommand(() -> chassis.setVelocities(new ChassisSpeeds(1, 1, Math.PI/4)));
+    stopDrive = new RunCommand(() -> module.setDriveMotorPower(0));
+    stopSteer = new RunCommand(() -> module.setSteerMotorPower(0));
+    //chassis.setDefaultCommand(driveCommand);
     SmartDashboard.putData("test steer power",testSteerPow);
     SmartDashboard.putData("test steer velocity",testSteerVel);
     SmartDashboard.putData("test steer magic motion",testSteerMagicMotion);
@@ -56,7 +60,10 @@ public class RobotContainer {
     SmartDashboard.putData("test drive velocity",testDriveVel);
     SmartDashboard.putData("test drive position",testDrivePos);
     SmartDashboard.putData("test steer position",testSteerPos);
-    SmartDashboard.putData("test module angle",testModuleAngle);
+    //SmartDashboard.putData("test chassis angle",testChassisAngle);
+    //SmartDashboard.putData("test chassis state",testChassisState);
+    SmartDashboard.putData("stopDrive",stopDrive);
+    SmartDashboard.putData("stopSteer",stopSteer);
     configureBindings();
   }
 

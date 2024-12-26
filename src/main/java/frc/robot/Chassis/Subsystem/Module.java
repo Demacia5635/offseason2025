@@ -36,6 +36,9 @@ public class Module extends SubsystemBase {
     cancoderConfig = moduleConstants.cancoderConfig;
     cancoder = new Cancoder(cancoderConfig);
 
+    steerMotor.setPosition(getSteerAbsPosition());
+    cancoder.setPosition(getSteerAbsPosition());
+
      SmartDashboard.putData(this);
   }
 
