@@ -32,6 +32,8 @@ public class Chassis extends SubsystemBase {
     // Sensors
     private final Pigeon2 gyro;
 
+    private ChassisSpeeds chassisSpeeds;
+
     /**
      * Constructor for Chassis subsystem
      */
@@ -71,7 +73,8 @@ public class Chassis extends SubsystemBase {
      * @param chassisSpeeds Desired chassis speeds
      */
     public void setVelocities(ChassisSpeeds chassisSpeeds) {
-        ChassisSpeeds relSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getGyroRotation());
+        this.chassisSpeeds = chassisSpeeds;
+        ChassisSpeeds relSpeeds = chassisSpeeds.fromFieldRelativeSpeeds(chassisSpeeds, getGyroRotation());
         // Convert chassis speeds to module states
         SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(relSpeeds);
         
@@ -162,6 +165,9 @@ public class Chassis extends SubsystemBase {
           }
         });
       
+    }
+    public ChassisSpeeds getChassisSpeeds(){
+      return this.chassisSpeeds == null? new ChassisSpeeds(0,0,0): this.chassisSpeeds;
     }
 
 

@@ -18,7 +18,7 @@ import frc.robot.vision.subsystem.Tag;
 public class RobotContainer {
   
   LogManager logManager;
-  public static Boolean isRed = true;
+  public static Boolean isRed = false;
   CommandXboxController commandController;
 
   public Chassis chassis;
@@ -29,7 +29,7 @@ public class RobotContainer {
     chassis = new Chassis();
     commandController = new CommandXboxController(0);
     chassis.setDefaultCommand(new DriveCommand(chassis, commandController));
-    tag = new Tag(()->chassis.getGyroRotation());
+    tag = new Tag(()->chassis.getGyroRotation(), ()->chassis.getChassisSpeeds());
   }
 
   public void isRed(boolean isRed) {

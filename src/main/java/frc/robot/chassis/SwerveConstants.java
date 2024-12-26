@@ -75,7 +75,7 @@ public class SwerveConstants {
 
             new CancoderConfig(FRONT_LEFT_CANCODER_ID, CanBas, "frontLeft/CanCoder").withInvert(false),
             new Translation2d(0.332, 0.277),
-            0.670166015625
+            2.136835237524698
         );
 
     public final static SwerveModuleConstants FRONT_RIGHT = new SwerveModuleConstants("frontRight",
@@ -97,7 +97,7 @@ public class SwerveConstants {
 
             new CancoderConfig(FRONT_RIGHT_CANCODER_ID, CanBas, "frontRight/CanCoder").withInvert(false),
             new Translation2d(0.332, -0.277),
-            0.40840704496667312100014363982634
+            2.675
         );
     
     public final static SwerveModuleConstants BACK_LEFT = new SwerveModuleConstants("backLeft",
@@ -119,7 +119,7 @@ public class SwerveConstants {
 
             new CancoderConfig(BACK_LEFT_CANCODER_ID, CanBas, "backLeft/CanCoder").withInvert(false),
             new Translation2d(-0.332, 0.277),
-            2.41259765625
+            -2.515
         );
     
     public final static SwerveModuleConstants BACK_RIGHT = new SwerveModuleConstants("backRight",
@@ -141,7 +141,7 @@ public class SwerveConstants {
 
             new CancoderConfig(BACK_RIGHT_CANCODER_ID, CanBas, "backRight/CanCoder").withInvert(false),
             new Translation2d(-0.332, -0.277),
-            0.091796875
+            2.7105
             
         );
 

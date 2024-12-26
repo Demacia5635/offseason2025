@@ -7,6 +7,7 @@ package frc.robot.vision.subsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
@@ -46,14 +47,18 @@ public class Tag extends SubsystemBase implements Sendable{
   
   private Supplier<Rotation2d> getRobotAngle;       // Gyroscope for robot orientation
   private Field2d field;      // Field visualization for debugging
+  private Supplier<ChassisSpeeds> chassisSpeeds;
 
   private Translation2d origin = new Translation2d(0,0);
+
+  private LatencyCompensation LC;
   /**
    * Creates a new Tag subsystem
    * @param robot_angle_from_pose Pigeon2 gyroscope for determining robot orientation
    */
-  public Tag(Supplier<Rotation2d> robot_angle_from_pose) {
+  public Tag(Supplier<Rotation2d> robot_angle_from_pose, Supplier<ChassisSpeeds> chassisSpeeds) {
     this.getRobotAngle = robot_angle_from_pose;
+    this.chassisSpeeds = chassisSpeeds;
 
     // Initialize NetworkTables connections
     table = NetworkTableInstance.getDefault().getTable(TAG_TABLE);
@@ -66,6 +71,8 @@ public class Tag extends SubsystemBase implements Sendable{
     field = new Field2d();
     SmartDashboard.putData("Tag", this);
     SmartDashboard.putData("field-tag",field);
+
+    LC = new LatencyCompensation(new Pose2d(new Translation2d(0,0), Rotation2d.fromDegrees(0)), new ChassisSpeeds(0,0,0));
 
   }
 
@@ -82,7 +89,12 @@ public class Tag extends SubsystemBase implements Sendable{
             if(id > 0 && id < TAG_ANGLE.length) {
                 crop(camToTagYaw, camToTagPitch);
                 Pose2d pose = new Pose2d(getOriginToRobot(), getRobotAngle.get());
-                field.setRobotPose(pose);
+                field.getObject("Robot").setTrajectory(vector(O_TO_TAG[(int)this.id], getOriginToRobot()));
+                LC.UpdateLatencyCompensation(pose, chassisSpeeds.get());
+                field.setRobotPose(LC.predictPose2d());
+
+
+
             }
         }
         else{
@@ -112,7 +124,7 @@ public class Tag extends SubsystemBase implements Sendable{
       // Convert camera measurements to vector
       Translation2d cameraToTag = new Translation2d(GetDistFromCamera(), 
           Rotation2d.fromDegrees(camToTagYaw));
-      field.getObject("Trajectory").setTrajectory(vector(origin, cameraToTag));
+      // field.getObject("Trajectory").setTrajectory(vector(origin, cameraToTag));
       // Add camera offset to get robot center to tag vector
       Translation2d robotToTag = ROBOT_TO_CAM.plus(cameraToTag);
       return robotToTag;
@@ -126,7 +138,7 @@ public class Tag extends SubsystemBase implements Sendable{
     public Translation2d getOriginToRobot() {
       Translation2d originToRobot;
       Translation2d origintoTag = O_TO_TAG[(int)this.id];
-      //field.getObject("Trajectory").setTrajectory(vector(origin, origintoTag));
+      field.getObject("Trajectory").setTrajectory(vector(origin, origintoTag));
       Rotation2d tagAngle = TAG_ANGLE[(int)this.id];
       height = TAG_HIGHT[(int)this.id];
       if(origintoTag != null) {
@@ -161,6 +173,9 @@ public class Tag extends SubsystemBase implements Sendable{
   }
 
     public Trajectory vector(Translation2d start, Translation2d end){
+      // double x = end.getDistance(start);
+      // Rotation2d alpha = Rotation2d.fromDegrees((Math.asin(start.getNorm()*Math.sin(Math.toRadians(start.getAngle().getDegrees()-end.getAngle().getDegrees()))))/x);
+      // Rotation2d beta = Rotation2d.fromDegrees(90-alpha.getDegrees());
       return TrajectoryGenerator.generateTrajectory(
             List.of(
               new Pose2d(start, end.getAngle().minus(start.getAngle())),

@@ -6,6 +6,7 @@ package frc.robot.vision.subsystem;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -20,8 +21,15 @@ public class LatencyCompensation extends SubsystemBase {
   private double pipelineLatency; // Pipeline's latency contribution
   private double imageCaptureLatency; // Capture pipeline latency (default 11 ms)
   private double totalLatency; // Total latency
+  private ChassisSpeeds chassisSpeeds;
   
-  public LatencyCompensation(Pose2d robotPose) {
+  public LatencyCompensation(Pose2d robotPose, ChassisSpeeds chassisSpeeds) {
+    this.robotPose = robotPose;
+    this.chassisSpeeds = chassisSpeeds;
+    this.table = NetworkTableInstance.getDefault().getTable("limelight-tag");
+  }
+
+  public void UpdateLatencyCompensation(Pose2d robotPose, ChassisSpeeds chassisSpeeds) {
     this.robotPose = robotPose;
     this.table = NetworkTableInstance.getDefault().getTable("limelight-tag");
   }
@@ -54,7 +62,7 @@ public class LatencyCompensation extends SubsystemBase {
     return imageCaptureLatency;
   }
 
-  public Pose2d predictPosition(ChassisSpeeds chassisSpeeds) {
+  public Translation2d predictPosition() {
     double latencySeconds = getTotalLatency();
 
     // Convert robot-relative velocities to field-relative velocities
@@ -66,14 +74,18 @@ public class LatencyCompensation extends SubsystemBase {
     double predictedX = robotPose.getX() + fieldRelativeVx * latencySeconds;
     double predictedY = robotPose.getY() + fieldRelativeVy * latencySeconds;
 
-    return new Pose2d(predictedX, predictedY, robotPose.getRotation());
+    return new Translation2d(predictedX, predictedY);
   }
   
-  public double predictRotation(ChassisSpeeds chassisSpeeds) {
+  public Rotation2d predictRotation() {
     double latency = getTotalLatency();
     Rotation2d currentAngle = robotPose.getRotation();
 
     double predictedRotation = currentAngle.getRadians() + chassisSpeeds.omegaRadiansPerSecond * latency;
-    return predictedRotation;
+    return Rotation2d.fromRadians(predictedRotation);
+  }
+  
+  public Pose2d predictPose2d(){
+    return new Pose2d(predictPosition(), predictRotation());
   }
 }
