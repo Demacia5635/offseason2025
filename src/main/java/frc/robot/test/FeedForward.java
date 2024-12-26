@@ -24,7 +24,6 @@ public class FeedForward {
             matrix[i][kSindex] = signumV[i];
             matrix[i][kVindex] = velocity.get(i);
             matrix[i][kAindex] = accel.get(i);
-            System.out.println("I: " + i + "SIGNUM: " + signumV[i] + " V: " + velocity.get(i) + " Accel: " + accel.get(i));
         }
 
         double[] powers = new double[power.size()];
