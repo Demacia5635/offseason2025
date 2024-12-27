@@ -33,9 +33,19 @@ public class getFFAccel extends Command {
   boolean withNegative;
 
   double time;
-  
 
-  public getFFAccel(DoubleConsumer setPower, DoubleSupplier getVel, DoubleSupplier getAccel, double minPow, double maxPow, double time, boolean withNegative) {
+  /**
+   * 
+   * @param setPower     sets the power for the motor
+   * @param getVel       current velocity
+   * @param getAccel     current accel
+   * @param minPow
+   * @param maxPow       max power for the subsystem to work
+   * @param time
+   * @param withNegative
+   */
+  public getFFAccel(DoubleConsumer setPower, DoubleSupplier getVel, DoubleSupplier getAccel, double minPow,
+      double maxPow, double time, boolean withNegative) {
 
     this.setPower = setPower;
     this.withNegative = withNegative;
@@ -45,54 +55,50 @@ public class getFFAccel extends Command {
     this.maxPow = maxPow;
     this.curPow = minPow;
     this.time = time;
-    this.diff = maxPow-minPow;
+    this.diff = maxPow - minPow;
     this.delta = diff / (time * 50);
 
     ffValues = new double[3];
-    for(int i = 0; i < ffValues.length;i++){
+    for (int i = 0; i < ffValues.length; i++) {
       ffValues[0] = 0;
     }
 
     SmartDashboard.putData(this);
   }
 
-  
   @Override
   public void initialize() {
     vel = new ArrayList<Double>();
     accel = new ArrayList<Double>();
     powers = new ArrayList<Double>();
 
-
-    
-  
   }
 
   @Override
   public void execute() {
-    if(curPow >= maxPow && withNegative) delta = -Math.abs(delta);
-    curPow+= delta;
+    if (curPow >= maxPow && withNegative)
+      delta = -Math.abs(delta);
+    curPow += delta;
 
     setPower.accept(curPow);
     vel.add(getVel.getAsDouble());
     accel.add(getAccel.getAsDouble());
     powers.add(curPow);
   }
-  
 
   @Override
   public void end(boolean interrupted) {
     setPower.accept(0.0);
     ffValues = FeedForward.GetFF(powers, vel, accel);
-   
+
   }
+
   @Override
   public void initSendable(SendableBuilder builder) {
-    builder.addDoubleArrayProperty("FF VALUES", ()->ffValues, null);
-    builder.addDoubleProperty("CUR POW: ", ()-> curPow, null);
+    builder.addDoubleArrayProperty("FF VALUES", () -> ffValues, null);
+    builder.addDoubleProperty("CUR POW: ", () -> curPow, null);
 
   }
-
 
   @Override
   public boolean isFinished() {

@@ -5,6 +5,8 @@
 package frc.robot.test;
 
 import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import javax.xml.crypto.Data;
@@ -44,8 +46,10 @@ public class TempSubSystem extends SubsystemBase {
   double maxPow = 5;
   double duration = 2;
   double delay = 0.02;
-  Supplier<Double> getV;
-  Supplier<Double> getAccel;
+  public DoubleSupplier getV;
+  public DoubleSupplier getAccel;
+
+  public DoubleConsumer setSteerPow;
 
 
   public double getDutyTest(){
@@ -79,8 +83,8 @@ public class TempSubSystem extends SubsystemBase {
     steerMotor.hotReloadPidFf(0);
     SmartDashboard.putData("steer motor", steerMotor);
     
-    Consumer<Double> setPow = Power -> steerMotor.setDuty(Power);
-    id = new Sysid(setPow, getV, minPow, maxPow, duration , delay, getAccel ,this);
+    setSteerPow = Power -> steerMotor.setDuty(Power);
+
     SmartDashboard.putData("set sysid" , id.runNormalSysId());
 
     SmartDashboard.putData("motor set pow", new RunCommand(()-> {

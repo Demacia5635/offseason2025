@@ -41,7 +41,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    Command getFF = new getFFAccel(tempSubSystem, 0.3, 0.6, 20);
-    return getFF;
+    return new getFFAccel(tempSubSystem.setSteerPow, tempSubSystem.getV, tempSubSystem.getAccel, 0.3, 0.6, 20, false);
+    
   }
 }
