@@ -7,7 +7,6 @@ package frc.robot.vision.subsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
@@ -37,28 +36,31 @@ public class Tag extends SubsystemBase implements Sendable{
   private NetworkTableEntry txEntry;  // Horizontal offset from crosshair to target (-31.25 to 31.25 degrees)
   private NetworkTableEntry tyEntry;  // Vertical offset from crosshair to target (-24.45 to 24.45 degrees)
   private NetworkTableEntry tidEntry; // ID of currently tracked AprilTag
-  private NetworkTableEntry cropEntry;
+  private NetworkTableEntry cropEntry; // crop the image
+  private NetworkTableEntry tlEntry;
+  private NetworkTableEntry clEntry;
 
   // Vision processing variables
   private double camToTagYaw;   // Horizontal angle to tag
   private double camToTagPitch; // Vertical angle to tag
   private double id;           // Current tag ID
   private double height;       // Height of current tag
+  private double pipelineLatency; // Pipeline's latency contribution
+  private double imageCaptureLatency; // Capture pipeline latency (default 11 ms)
+  private double totalLatency; // Total latency
+  private double dist;
   
   private Supplier<Rotation2d> getRobotAngle;       // Gyroscope for robot orientation
   private Field2d field;      // Field visualization for debugging
-  private Supplier<ChassisSpeeds> chassisSpeeds;
 
   private Translation2d origin = new Translation2d(0,0);
 
-  private LatencyCompensation LC;
   /**
    * Creates a new Tag subsystem
    * @param robot_angle_from_pose Pigeon2 gyroscope for determining robot orientation
    */
-  public Tag(Supplier<Rotation2d> robot_angle_from_pose, Supplier<ChassisSpeeds> chassisSpeeds) {
+  public Tag(Supplier<Rotation2d> robot_angle_from_pose) {
     this.getRobotAngle = robot_angle_from_pose;
-    this.chassisSpeeds = chassisSpeeds;
 
     // Initialize NetworkTables connections
     table = NetworkTableInstance.getDefault().getTable(TAG_TABLE);
@@ -67,14 +69,41 @@ public class Tag extends SubsystemBase implements Sendable{
     tyEntry = table.getEntry("ty");
     tidEntry = table.getEntry("tid");
     cropEntry = table.getEntry("crop");
+    tlEntry = table.getEntry("tl");
+    clEntry = table.getEntry("cl");
 
     field = new Field2d();
     SmartDashboard.putData("Tag", this);
     SmartDashboard.putData("field-tag",field);
-
-    LC = new LatencyCompensation(new Pose2d(new Translation2d(0,0), Rotation2d.fromDegrees(0)), new ChassisSpeeds(0,0,0));
-
   }
+    /**
+   * Creates a new Tag subsystem for tests
+   * @param robot_angle_from_pose Pigeon2 gyroscope for determining robot orientation
+   * @parm dist the dist from tag
+   * @parm camToTagYaw Yaw to tag
+   * @Parm id the id of the thag
+   */
+  public Tag (Supplier<Rotation2d> robot_angle_from_pose, double dist, double camToTagYaw, double id){
+    this.getRobotAngle = robot_angle_from_pose;
+    this.dist = dist;
+    this.camToTagYaw = camToTagYaw;
+    this.id = id;
+    
+    // Initialize NetworkTables connections
+    table = NetworkTableInstance.getDefault().getTable(TAG_TABLE);
+    tvEntry = table.getEntry("tv");
+    txEntry = table.getEntry("tx");
+    tyEntry = table.getEntry("ty");
+    tidEntry = table.getEntry("tid");
+    cropEntry = table.getEntry("crop");
+    tlEntry = table.getEntry("tl");
+    clEntry = table.getEntry("cl");
+
+    field = new Field2d();
+    SmartDashboard.putData("Tag", this);
+    SmartDashboard.putData("field-tag",field);
+  }
+
 
   @Override
     public void periodic() {
@@ -84,14 +113,13 @@ public class Tag extends SubsystemBase implements Sendable{
             camToTagYaw = txEntry.getDouble(0);
             camToTagPitch = tyEntry.getDouble(0);
             id = tidEntry.getDouble(0);
-
             // Calculate robot position if valid tag ID is detected
             if(id > 0 && id < TAG_ANGLE.length) {
                 crop(camToTagYaw, camToTagPitch);
                 Pose2d pose = new Pose2d(getOriginToRobot(), getRobotAngle.get());
                 field.getObject("Robot").setTrajectory(vector(O_TO_TAG[(int)this.id], getOriginToRobot()));
-                LC.UpdateLatencyCompensation(pose, chassisSpeeds.get());
-                field.setRobotPose(LC.predictPose2d());
+                field.setRobotPose(pose);
+
 
 
 
@@ -110,7 +138,7 @@ public class Tag extends SubsystemBase implements Sendable{
      */
     public double GetDistFromCamera() {
       double alpha = camToTagPitch + TAG_CAM_ANGLE;
-      double dist = (Math.abs(height - TAG_CAM_HIGHT)) / (Math.tan(Math.toRadians(alpha)));
+      dist = (Math.abs(height - TAG_CAM_HIGHT)) / (Math.tan(Math.toRadians(alpha)));
       dist = dist/Math.cos(Math.toRadians(camToTagYaw));
       return dist;
   }
@@ -192,6 +220,12 @@ public class Tag extends SubsystemBase implements Sendable{
     public void cropStop(){
       double[] crop = {-1,1,-1, 1};
       cropEntry.setDoubleArray(crop);
+    }
+    public double getLatency(){
+      pipelineLatency = tlEntry.getDouble(0);
+      imageCaptureLatency = clEntry.getDouble(0);
+      totalLatency = pipelineLatency + imageCaptureLatency;
+      return totalLatency;
     }
 
 
