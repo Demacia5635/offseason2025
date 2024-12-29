@@ -19,7 +19,7 @@ public class RobotContainer {
 
   public RobotContainer() {
     logManager = new LogManager();
-    module = new SwerveModule(ChassisConstants.BACK_RIGHT_STEER, frc.robot.subsystems.chassis.ChassisConstants.FRONT_RIGHT_DRIVE);
+    module = new SwerveModule(ChassisConstants.ModuleConstants.FRONT_LEFT_STEER, ChassisConstants.ModuleConstants.FRONT_LEFT_DRIVE);
 
     configureBindings();
   }
@@ -30,6 +30,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new RunCommand(() -> module.setSteerPosition(10));
+    return new RunCommand(() -> module.setSteerPosition(5));
   }
 }
