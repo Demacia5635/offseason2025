@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.chassis.ChassisConstants;
 import frc.robot.subsystems.chassis.SwerveModule;
@@ -20,8 +19,7 @@ public class RobotContainer {
 
   public RobotContainer() {
     logManager = new LogManager();
-
-    module = new SwerveModule(ChassisConstants.FRONT_LEFT_STEER, frc.robot.subsystems.chassis.ChassisConstants.FRONT_LEFT_DRIVE);
+    module = new SwerveModule(ChassisConstants.BACK_RIGHT_STEER, frc.robot.subsystems.chassis.ChassisConstants.FRONT_RIGHT_DRIVE);
 
     configureBindings();
   }
@@ -32,6 +30,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new RunCommand(() -> module.setSteerVelocity(4 * Math.PI));
+    return new RunCommand(() -> module.setSteerPosition(10));
   }
 }
