@@ -6,8 +6,9 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import frc.robot.subsystems.chassis.ChassisConstants;
-import frc.robot.subsystems.chassis.SwerveModule;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.chassis.Drive;
+import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.utils.LogManager;
 
 
@@ -15,12 +16,15 @@ public class RobotContainer {
   
   LogManager logManager;
 
-  SwerveModule module;
+  Chassis chassis;
+  Drive drive;
 
   public RobotContainer() {
     logManager = new LogManager();
-    module = new SwerveModule(ChassisConstants.ModuleConstants.FRONT_LEFT_STEER, ChassisConstants.ModuleConstants.FRONT_LEFT_DRIVE);
-
+    chassis = new Chassis();
+    drive = new Drive(chassis, new CommandXboxController(0));
+    chassis.setDefaultCommand(drive);
+    
     configureBindings();
   }
 
@@ -30,6 +34,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new RunCommand(() -> module.setSteerPosition(5));
+    return new RunCommand(() -> chassis.setDriveVelocities(1), chassis);
+      // return new RunCommand(() -> chassis.setSteerPositions(0.5 * Math.PI), chassis);
   }
 }
