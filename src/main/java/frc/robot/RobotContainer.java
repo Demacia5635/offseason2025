@@ -4,11 +4,9 @@
 
 package frc.robot;
 
-import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.chassis.commands.DriveCommand;
 import frc.robot.chassis.subsystem.Chassis;
@@ -31,7 +29,7 @@ public class RobotContainer {
     commandController = new CommandXboxController(0);
     chassis.setDefaultCommand(new DriveCommand(chassis, commandController));
     tag = new Tag(()->chassis.getGyroRotation());
-    //tag = new Tag(()->tagTestAngle(180), 2,0,7);
+
   }
 
   public void isRed(boolean isRed) {

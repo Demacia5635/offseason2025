@@ -4,7 +4,6 @@
 
 package frc.robot.vision.subsystem;
 
-import java.lang.reflect.Field;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 

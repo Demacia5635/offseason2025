@@ -13,7 +13,6 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,7 +27,7 @@ import java.util.function.Supplier;
  * Subsystem for processing AprilTag vision data and calculating robot position.
  * Uses Limelight camera data and a Pigeon2 gyro to determine robot position on field.
  */
-public class Tag extends SubsystemBase implements Sendable{
+public class Tag extends SubsystemBase{
 
   // NetworkTables communication
   private NetworkTable table;
@@ -86,7 +85,7 @@ public class Tag extends SubsystemBase implements Sendable{
   public Tag (Supplier<Rotation2d> robot_angle_from_pose, double dist, double camToTagYaw, double id){
     this.getRobotAngle = robot_angle_from_pose;
     this.dist = dist;
-    this.camToTagYaw = camToTagYaw;
+    this.camToTagYaw = -camToTagYaw;
     this.id = id;
     
     // Initialize NetworkTables connections
@@ -110,14 +109,13 @@ public class Tag extends SubsystemBase implements Sendable{
         // Process vision data if a target is visible
         if(tvEntry.getDouble(0) != 0) {
             // Get latest measurements from Limelight
-            camToTagYaw = txEntry.getDouble(0);
+            camToTagYaw = -txEntry.getDouble(0);
             camToTagPitch = tyEntry.getDouble(0);
             id = tidEntry.getDouble(0);
             // Calculate robot position if valid tag ID is detected
             if(id > 0 && id < TAG_ANGLE.length) {
                 crop(camToTagYaw, camToTagPitch);
                 Pose2d pose = new Pose2d(getOriginToRobot(), getRobotAngle.get());
-                field.getObject("Robot").setTrajectory(vector(O_TO_TAG[(int)this.id], getOriginToRobot()));
                 field.setRobotPose(pose);
 
 
@@ -148,13 +146,14 @@ public class Tag extends SubsystemBase implements Sendable{
      * Accounts for camera offset from robot center
      * @return Translation2d representing vector to tag
      */
-    public Translation2d getRobotToTag() {
+    public Translation2d getRobotToTagRR() {
       // Convert camera measurements to vector
       Translation2d cameraToTag = new Translation2d(GetDistFromCamera(), 
           Rotation2d.fromDegrees(camToTagYaw));
-      // field.getObject("Trajectory").setTrajectory(vector(origin, cameraToTag));
+          
       // Add camera offset to get robot center to tag vector
       Translation2d robotToTag = ROBOT_TO_CAM.plus(cameraToTag);
+
       return robotToTag;
   }
 
@@ -166,26 +165,23 @@ public class Tag extends SubsystemBase implements Sendable{
     public Translation2d getOriginToRobot() {
       Translation2d originToRobot;
       Translation2d origintoTag = O_TO_TAG[(int)this.id];
-      field.getObject("Trajectory").setTrajectory(vector(origin, origintoTag));
-      Rotation2d tagAngle = TAG_ANGLE[(int)this.id];
+      field.getObject("Field").setTrajectory(vector(origin, origintoTag));
+
       height = TAG_HIGHT[(int)this.id];
       if(origintoTag != null) {
           // Get vector from robot to tag
-          Translation2d robotToTag = getRobotToTag();//
-          //field.getObject("Field").setTrajectory(vector(origin, robotToTag));
-          Rotation2d robotToTagYaw = robotToTag.getAngle();
+          Translation2d robotToTagRR = getRobotToTagRR();//
+          // Rotation2d robotToTagYaw = robotToTagRobotRelativ.getAngle();
+          // // Convert to field coordinates using gyro
+          // Rotation2d robotToTagYawFC = robotToTagYaw.plus(getRobotAngle.get());
+          // // Calculate angle from tag to robot in field coordinates
+          // Rotation2d tagToRobotYawFC = Rotation2d.fromDegrees(180)
+          //   .minus(robotToTagYawFC);
           
-          // Convert to field coordinates using gyro
-          Rotation2d robotToTagYawFC = robotToTagYaw.minus(getRobotAngle.get());
-          
-          // Calculate angle from tag to robot in field coordinates
-          Rotation2d tagToRobotYawFC = tagAngle.plus(robotToTagYawFC)
-              .rotateBy(Rotation2d.fromDegrees(180));
-          
-          // Calculate final robot position using tag position and vector
-          double robotToTagDist = robotToTag.getNorm();
-          originToRobot = origintoTag.plus(
-              new Translation2d(robotToTagDist, tagToRobotYawFC));
+          // // Calculate final robot position using tag position and vector
+          // double robotToTagDist = robotToTagRobotRelativ.getNorm();
+          Translation2d robotToTagFC = robotToTagRR.rotateBy(getRobotAngle.get());
+          originToRobot = origintoTag.plus(robotToTagFC.rotateBy(Rotation2d.fromDegrees(180)));
           //field.getObject("Robot").setTrajectory(vector(origin, originToRobot));
           // //-----------------------------
           // System.out.println("Tag Angle: " + tagAngle.getDegrees());
