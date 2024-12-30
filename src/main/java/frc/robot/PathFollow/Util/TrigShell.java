@@ -38,13 +38,13 @@ public class TrigShell extends Trigger{
 
           @Override
           public boolean getAsBoolean() {
-            return m_debouncer.calculate(getAsBoolean());
+            return m_debouncer.calculate(this.getAsBoolean());
           }
         };
         TrigShell trig = new TrigShell(cond);
         trig.deb_time = seconds;
         trig.deb_type = type;
-        
+
         return trig;
     }
     
