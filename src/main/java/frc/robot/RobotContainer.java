@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -12,29 +15,43 @@ import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.utils.LogManager;
 
 
-public class RobotContainer {
+public class RobotContainer implements Sendable{
   
   LogManager logManager;
-
+  public static Boolean isRed = false;
   Chassis chassis;
   Drive drive;
+  double num = 0;
 
   public RobotContainer() {
     logManager = new LogManager();
     chassis = new Chassis();
     drive = new Drive(chassis, new CommandXboxController(0));
     chassis.setDefaultCommand(drive);
-    
+    SmartDashboard.putData("RC", this);
     configureBindings();
   }
+  public double getNum(){ return num;}
+  public void setNum(double num){this.num = num;}
 
 
   private void configureBindings() {
 
   }
+  public void isRed(boolean isRed) {
+    this.isRed = isRed;
+  }
+
+  public static boolean isRed() {
+    return isRed;
+  }
+  @Override
+  public void initSendable(SendableBuilder builder) {
+      builder.addDoubleProperty("NUM", ()->getNum(), (double num)->setNum(num));
+  }
 
   public Command getAutonomousCommand() {
-    return new RunCommand(() -> chassis.setDriveVelocities(1), chassis);
-      // return new RunCommand(() -> chassis.setSteerPositions(0.5 * Math.PI), chassis);
+    //return new RunCommand(() -> chassis.setDriveVelocities(1), chassis);
+    return new RunCommand(() -> chassis.setSteerPositions(num), chassis);
   }
 }

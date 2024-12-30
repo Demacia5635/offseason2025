@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 
 public class Chassis extends SubsystemBase {
     private SwerveModule[] modules;
@@ -40,7 +41,7 @@ public class Chassis extends SubsystemBase {
     }
 
     public void setVelocities(ChassisSpeeds speeds) {
-        speeds = ChassisSpeeds.fromRobotRelativeSpeeds(speeds, getGyroAngle());
+        speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getGyroAngle());
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
         setModuleStates(states);
     }
@@ -87,5 +88,8 @@ public class Chassis extends SubsystemBase {
     public void periodic() {
         poseEstimator.update(getGyroAngle(), getModulePositions());
         field.setRobotPose(poseEstimator.getEstimatedPosition());
+    }
+        public boolean isRed() {
+        return RobotContainer.isRed();
     }
 }
