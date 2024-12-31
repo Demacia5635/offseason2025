@@ -4,16 +4,24 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.utils.LogManager;
+
 import frc.robot.PathFollow.Util.TrigShell;
 import frc.robot.PathFollow.Util.TriggerHandler;
 import frc.robot.PathFollow.Util.Triggertest;
 import frc.robot.commands.*;
 
 public class RobotContainer {
-
-  Triggertest test = new Triggertest();
+  
+  LogManager logManager;
+  
   public RobotContainer() {
+    logManager = new LogManager();
 
     configureBindings();
     TrigShell shell = new TrigShell(() -> test.exceedsSpeed());
