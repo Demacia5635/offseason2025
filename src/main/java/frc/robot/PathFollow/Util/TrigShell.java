@@ -31,7 +31,7 @@ public class TrigShell extends Trigger{
 
     public Command getOnFalse()
     {
-        return this.onfalse;
+        return this.onFalse;
     }
 
     public Command getWhileTrue()
