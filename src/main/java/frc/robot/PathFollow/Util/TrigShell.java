@@ -24,6 +24,46 @@ public class TrigShell extends Trigger{
     double deb_time; //seconds
     DebounceType deb_type;
 
+    public Command getOnTrue()
+    {
+        return this.onTrue;
+    }
+
+    public Command getOnFalse()
+    {
+        return this.onfalse;
+    }
+
+    public Command getWhileTrue()
+    {
+        return this.whileTrue;
+    }
+
+    public Command getWhileFalse()
+    {
+        return this.whileFalse;
+    }
+
+    public Command getToggleOnTrue()
+    {
+        return this.toggleOnTrue;
+    }
+
+    public Command getToggleOnFalse()
+    {
+        return this.toggleOnFalse;
+    }
+
+    public double getDebTime()
+    {
+        return this.deb_time;
+    }
+
+    public DebounceType getDebType()
+    {
+        return this.deb_type;
+    }
+
     public TrigShell(BooleanSupplier cond)
     {
         super(cond);
