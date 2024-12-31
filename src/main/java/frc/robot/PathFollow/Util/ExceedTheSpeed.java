@@ -9,8 +9,8 @@ import frc.robot.utils.TalonMotor;
 
 public class ExceedTheSpeed extends Command {
   /** Creates a new ExceedTheSpeed. */
-  TalonMotor left_back;
-  public ExceedTheSpeed(TalonMotor left_back) {
+  Triggertest left_back;
+  public ExceedTheSpeed(Triggertest left_back) {
     this.left_back = left_back;
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -22,13 +22,13 @@ public class ExceedTheSpeed extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    this.left_back.setVelocity(2);
+    this.left_back.exceedSpeed();
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    this.left_back.stopMotor();
+    this.left_back.stop();
   }
 
   // Returns true when the command should end.

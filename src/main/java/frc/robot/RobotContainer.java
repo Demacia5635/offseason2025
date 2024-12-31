@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.utils.LogManager;
-
+import frc.robot.PathFollow.Util.ExceedTheSpeed;
 import frc.robot.PathFollow.Util.TrigShell;
 import frc.robot.PathFollow.Util.TriggerHandler;
 import frc.robot.PathFollow.Util.Triggertest;
@@ -21,7 +21,8 @@ import frc.robot.commands.*;
 public class RobotContainer {
   
   LogManager logManager;
-  Triggertest test = new Triggertest()
+  Triggertest test = new Triggertest();
+  ExceedTheSpeed com;
   
   public RobotContainer() {
     logManager = new LogManager();
@@ -29,6 +30,7 @@ public class RobotContainer {
     configureBindings();
     TrigShell shell = new TrigShell(() -> test.exceedsSpeed());
     TriggerHandler.set("exceedsSpeed",shell);
+    this.com = new ExceedTheSpeed(test);
     InstantCommand print = new InstantCommand(() -> LogManager.log("EXCEEDS"),test);
     TriggerHandler.get("exceedsSpeed").onTrue(print);
   }
@@ -39,6 +41,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new RoundedPointtest();
+    return this.com;
   }
 }

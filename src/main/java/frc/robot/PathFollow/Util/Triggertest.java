@@ -22,6 +22,16 @@ public class Triggertest extends SubsystemBase {
     return motor.getVelocity().getValueAsDouble() > 1;
   }
   
+  public void exceedSpeed()
+  {
+    motor.setVelocity(2);
+  }
+
+  public void stop()
+  {
+    motor.stopMotor();
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
