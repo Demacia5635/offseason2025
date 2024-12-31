@@ -35,13 +35,15 @@ public class ChassisConstants {
     public static final double STEER_KD = 0;
     public static final double STEER_KS = 0.2;
     public static final double STEER_KV = 0.24;
-    public static final double STEER_KA = 0;
+    public static final double STEER_KA = 0.002;
 
     public static final double DRIVE_KP = 0.06;
     public static final double DRIVE_KI = 0;
     public static final double DRIVE_KD = 0.004;
-    public static final double DRIVE_KS = 0;
+    public static final double DRIVE_KS = 0.2;
     public static final double DRIVE_KV = 0.45;
+    public static final double DRIVE_KA = 0.004;
+
     public static final double MOTION_MAGIC_VEL = 15  * 2 * Math.PI;
     public static final double MOTION_MAGIC_ACCEL = 40 * 2 * Math.PI;
     public static final double MOTION_MAGIC_JERK = 100 * 2 * Math.PI;
@@ -52,13 +54,13 @@ public class ChassisConstants {
             .withMotionMagic(MOTION_MAGIC_VEL, MOTION_MAGIC_ACCEL, MOTION_MAGIC_JERK)
             .withBrake(true).withMotorRatio(STEER_GEAR_RATIO).withRadiansMotor(),
         new TalonConfig(4, BUS, "Front Left Drive")
-            .withMeterMotor(WHEEL_CIRCUMFERENCE)
-            .withPID(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KS, DRIVE_KV, 0, 0)
+            .withPID(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KS, DRIVE_KV, DRIVE_KA, 0)
             .withBrake(true)
-            .withInvert(true).withMotorRatio(DRIVE_GEAR_RATIO),
+            .withInvert(true)
+            .withMotorRatio(DRIVE_GEAR_RATIO).withMeterMotor(WHEEL_CIRCUMFERENCE),
         new CancoderConfig(6, BUS, "Front Left Cancoder"),
         new Translation2d(0.266, 0.249),
-        -0.16 
+        -0.233
     );
     public static final SwerveModuleConfigs FRONT_RIGHT = new SwerveModuleConfigs(
         new TalonConfig(2, BUS, "Front Right Steer")
@@ -66,13 +68,13 @@ public class ChassisConstants {
             .withMotionMagic(MOTION_MAGIC_VEL, MOTION_MAGIC_ACCEL, MOTION_MAGIC_JERK)
             .withBrake(true).withMotorRatio(STEER_GEAR_RATIO).withRadiansMotor(),
         new TalonConfig(1, BUS, "Front Right Drive")
-            .withMeterMotor(WHEEL_CIRCUMFERENCE)
-            .withPID(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KS, DRIVE_KV, 0, 0)
+            .withPID(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KS, DRIVE_KV, DRIVE_KA, 0)
             .withBrake(true)
-            .withInvert(true).withMotorRatio(DRIVE_GEAR_RATIO),
+            .withInvert(true)
+            .withMotorRatio(DRIVE_GEAR_RATIO).withMeterMotor(WHEEL_CIRCUMFERENCE),
         new CancoderConfig(3, BUS, "Front Right Cancoder"),
         new Translation2d(0.266, -0.249),
-        2.05 
+        2.01
     );
     public static final SwerveModuleConfigs BACK_LEFT = new SwerveModuleConfigs(
         new TalonConfig(11, BUS, "Back Left Steer")
@@ -80,13 +82,13 @@ public class ChassisConstants {
             .withMotionMagic(MOTION_MAGIC_VEL, MOTION_MAGIC_ACCEL, MOTION_MAGIC_JERK)
             .withBrake(true).withMotorRatio(STEER_GEAR_RATIO).withRadiansMotor(),
         new TalonConfig(10, BUS, "Back Left Drive")
-            .withMeterMotor(WHEEL_CIRCUMFERENCE)
-            .withPID(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KS, DRIVE_KV, 0, 0)
+            .withPID(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KS, DRIVE_KV, DRIVE_KA, 0)
             .withBrake(true)
-            .withInvert(true).withMotorRatio(DRIVE_GEAR_RATIO),
+            .withInvert(true)
+            .withMotorRatio(DRIVE_GEAR_RATIO).withMeterMotor(WHEEL_CIRCUMFERENCE),
         new CancoderConfig(12, BUS, "Back Left Cancoder"),
         new Translation2d(-0.266, 0.249),
-        0.96
+        1.01
     );
     public static final SwerveModuleConfigs BACK_RIGHT = new SwerveModuleConfigs(
         new TalonConfig(8, BUS, "Back Right Steer")
@@ -94,12 +96,12 @@ public class ChassisConstants {
             .withMotionMagic(MOTION_MAGIC_VEL, MOTION_MAGIC_ACCEL, MOTION_MAGIC_JERK)
             .withBrake(true).withMotorRatio(STEER_GEAR_RATIO).withRadiansMotor(),
         new TalonConfig(7, BUS, "Back Right Drive")
-            .withMeterMotor(WHEEL_CIRCUMFERENCE)
-            .withPID(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KS, DRIVE_KV, 0, 0)
+            .withPID(DRIVE_KP, DRIVE_KI, DRIVE_KD, DRIVE_KS, DRIVE_KV, DRIVE_KA, 0)
             .withBrake(true)
-            .withInvert(true).withMotorRatio(DRIVE_GEAR_RATIO),
+            .withInvert(true)
+            .withMotorRatio(DRIVE_GEAR_RATIO).withMeterMotor(WHEEL_CIRCUMFERENCE),
         new CancoderConfig(9, BUS, "Back Right Cancoder"),
         new Translation2d(-0.266, -0.249),
-        0.88
+        0.977
     );
 }
