@@ -7,10 +7,11 @@ package frc.robot.PathFollow.Util;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.TalonMotor;
 
 public class Triggertest extends SubsystemBase {
   /** Creates a new triggertest. */
-  TalonFX motor = new TalonFX(1);
+  TalonMotor motor = new TalonMotor(Constants.)
   public Triggertest() {
 
   }
