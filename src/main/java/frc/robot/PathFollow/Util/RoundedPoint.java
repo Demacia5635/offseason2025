@@ -46,7 +46,7 @@ public class RoundedPoint{
     public void setMinRadius(double velocity)
     {
         double angularVel = 2 * Math.PI; // THIS IS TEMPORARY
-        double minRadius = velocity/angularVel;
+        double minRadius = (velocity*velocity)/angularVel;
         System.out.println("Max Radius : " + getMaxRadius());
         this.radius = Math.min(getMaxRadius(), minRadius);
     }
