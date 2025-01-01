@@ -214,7 +214,12 @@ public class PathFollow extends Command {
 
     Translation2d currentVelocity = chassis.getVelocity();
     distanceLeft -= segments[segmentIndex].distancePassed(chassisPose.getTranslation());
-
+    //IMPORTANT NOTE FOR TRAJECTORY CHECKING (which may happen at 1/1/2025)
+    //at line 216, you should not subtract distancePassed() at distance left
+    //despite the confusing name (im sorry), distancePassed() is a function that gives
+    //the "position" of the robot at the segment, not how much distance it has made since the last cycle.
+    //instead, distanceLeft should be subtracted with something like this:
+    //distanceLeft -= (currPose.minus(prevPose)).GetNorm()
     if (finishedSegment() && (!isLastSegment() || isSegmentTooShort())) {
       segmentIndex++;
     }
