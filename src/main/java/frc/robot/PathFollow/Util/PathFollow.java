@@ -228,6 +228,7 @@ public class PathFollow extends Command {
 
     driveVelocity = driveTrapezoid.calc(distanceLeft, currentVelocity.getNorm(), finishVel);
     rotationVelocity = rotationTrapezoid.calc(wantedAngle.getRadians(), chassis.getChassisSpeeds().omegaRadiansPerSecond, 0);
+    
     Translation2d velVector = segments[segmentIndex].calc(chassisPose.getTranslation(), driveVelocity);
 
     wantedAngle = points[segmentIndex].getRotation();
