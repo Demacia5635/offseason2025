@@ -20,12 +20,11 @@ import frc.robot.commands.*;
 
 public class RobotContainer {
   
-  LogManager logManager;
+  LogManager logManager = new LogManager();
   Triggertest test = new Triggertest();
   ExceedTheSpeed com;
   
   public RobotContainer() {
-    logManager = new LogManager();
 
     configureBindings();
     TrigShell shell = new TrigShell(() -> test.exceedsSpeed());
