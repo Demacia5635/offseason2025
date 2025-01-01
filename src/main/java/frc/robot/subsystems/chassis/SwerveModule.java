@@ -11,7 +11,7 @@ public class SwerveModule {
     private TalonMotor steerMotor;
     private TalonMotor driveMotor;
     private Cancoder cancoder;
-
+    //TODO getState  
     public SwerveModule(SwerveModuleConfigs configs) {
         steerMotor = new TalonMotor(configs.STEER_CONFIG);
         driveMotor = new TalonMotor(configs.DRIVE_CONFIG);
@@ -48,6 +48,11 @@ public class SwerveModule {
     public Rotation2d getSteerAngle() {
         return Rotation2d.fromRadians(steerMotor.getCurrentPosition());
     }
+
+    // public SwerveModuleState getState()
+    // {
+    //     state = new SwerveModuleState()
+    // }
 
     public void setState(SwerveModuleState state) {
         state = SwerveModuleState.optimize(state, getSteerAngle());
