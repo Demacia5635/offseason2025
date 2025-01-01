@@ -35,7 +35,7 @@ public class PathFollow extends Command {
   Segment[] segments;
   Translation2d vecVel;
   Rotation2d wantedAngle;
-
+  Translation2d prevPos;
   PathsTrapezoid driveTrapezoid;
   PathsTrapezoid rotationTrapezoid;
   Field2d trajField = new Field2d();
@@ -167,6 +167,7 @@ public class PathFollow extends Command {
   
   @Override
   public void initialize() {
+    this.prevPos = chassis.getPose().getTranslation();
     isRed = RobotContainer.robotContainer.isRed();
     // sets first point to chassis pose to prevent bugs with red and blue alliance
     setFirstPoint(isRed);
@@ -211,9 +212,10 @@ public class PathFollow extends Command {
 
     trajField.setRobotPose(chassis.getPose());
     chassisPose = chassis.getPose();
-
+    double distancePassed = (chassisPose.getTranslation().minus(prevPos)).getNorm();
     Translation2d currentVelocity = chassis.getVelocity();
-    distanceLeft -= segments[segmentIndex].distancePassed(chassisPose.getTranslation());
+    distanceLeft -= distancePassed;
+    //distanceLeft -= segments[segmentIndex].distancePassed(chassisPose.getTranslation());
     //IMPORTANT NOTE FOR TRAJECTORY CHECKING (which may happen at 1/1/2025)
     //at line 216, you should not subtract distancePassed() at distance left
     //despite the confusing name (im sorry), distancePassed() is a function that gives
