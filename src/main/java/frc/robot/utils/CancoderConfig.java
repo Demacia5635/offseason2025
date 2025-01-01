@@ -3,7 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.utils;
-
+ 
 /** Add your docs here. */
 public class CancoderConfig {
     public int id;                  // Canbus ID

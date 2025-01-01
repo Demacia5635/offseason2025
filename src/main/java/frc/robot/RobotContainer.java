@@ -14,7 +14,7 @@ import frc.robot.utils.LogManager;
 import frc.robot.vision.subsystem.Tag;
 
 
-public class RobotContainer {
+public class RobotContainer implements Sendable{
   
   LogManager logManager;
   public static Boolean isRed = false;
