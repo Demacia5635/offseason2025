@@ -4,14 +4,21 @@
 
 package frc.robot;
 
+import java.util.function.Consumer;
+
+import edu.wpi.first.math.proto.System;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.chassis.Drive;
-import frc.robot.subsystems.chassis.Chassis;
+import frc.robot.Sysid.Sysid;
+import frc.robot.chassis.commands.Drive;
+import frc.robot.chassis.subsystems.Chassis;
+import frc.robot.chassis.subsystems.SwerveModule;
+import frc.robot.test.getFFAccel;
+import frc.robot.test.getFFDrive;
 import frc.robot.utils.LogManager;
 
 
@@ -22,6 +29,8 @@ public class RobotContainer implements Sendable{
   Chassis chassis;
   Drive drive;
   double num = 0;
+  private System sysid;
+
 
   public RobotContainer() {
     logManager = new LogManager();
@@ -29,6 +38,7 @@ public class RobotContainer implements Sendable{
     drive = new Drive(chassis, new CommandXboxController(0));
     chassis.setDefaultCommand(drive);
     SmartDashboard.putData("RC", this);
+
     configureBindings();
   }
   public double getNum(){ return num;}
@@ -38,6 +48,7 @@ public class RobotContainer implements Sendable{
   private void configureBindings() {
 
   }
+
   public void isRed(boolean isRed) {
     this.isRed = isRed;
   }
@@ -51,6 +62,6 @@ public class RobotContainer implements Sendable{
   }
 
   public Command getAutonomousCommand() {
-    return null;
+    return new getFFDrive((pow)->chassis.setSteerPower(pow,1), ()->chassis.getSteerVelocity(1), ()->chassis.getSteeracceleration(1),0.2, 0.5,false);
   }
 }
