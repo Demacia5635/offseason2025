@@ -20,10 +20,12 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Sysid.Sysid;
+import frc.robot.Sysid.SysidNew;
 import frc.robot.utils.Cancoder;
 import frc.robot.utils.CancoderConfig;
 import frc.robot.utils.LogManager;
@@ -44,13 +46,17 @@ public class TempSubSystem extends SubsystemBase {
 //radian 1 min 3 max radian
   double minPow = 0.0;
   double maxPow = 5;
-  double duration = 2;
-  double delay = 0.02;
+  double duration = 1;
+  double delay = 0.5;
+  double maxVelocity = 15;
+  double[] velocities = {2, 6};
+
   public DoubleSupplier getV;
   public DoubleSupplier getAccel;
+  public DoubleSupplier getVolt;
 
   public DoubleConsumer setSteerPow;
-
+  public Command sysid;
 
   public double getDutyTest(){
     return this.dutyTest;
@@ -79,32 +85,15 @@ public class TempSubSystem extends SubsystemBase {
 
     getV = ()->(steerMotor.getCurrentVelocity());
     getAccel = ()->(steerMotor.getAcceleration().getValueAsDouble());
+    getVolt = ()->(steerMotor.getMotorVoltage().getValueAsDouble());
     
-    steerMotor.hotReloadPidFf(0);
-    SmartDashboard.putData("steer motor", steerMotor);
-    
-    setSteerPow = Power -> steerMotor.setDuty(Power);
+//    SmartDashboard.putData("steer motor", steerMotor);    
+    setSteerPow = (power) -> steerMotor.setDuty(power/12);
+    sysid = SysidNew.simpleMotorSysidCommand(
+      setSteerPow, getVolt, getV, getAccel, velocities, 6, duration, 
+      delay, 4.0, 0.0, this);
 
-    SmartDashboard.putData("set sysid" , id.runNormalSysId());
-
-    SmartDashboard.putData("motor set pow", new RunCommand(()-> {
-      steerMotor.setDuty(dutyTest);
-    }, this));
-    SmartDashboard.putData("motor set vel", new RunCommand(()-> steerMotor.setVelocity(velTest), this));
-    SmartDashboard.putData("motor set motion magic", new RunCommand(()-> steerMotor.setMotionMagic(motionMagicTest), this));
-    SmartDashboard.putData("motor stop", new InstantCommand(()-> steerMotor.setDuty(0), this));
-    SmartDashboard.putData("cancoder", cancoder);
-    SmartDashboard.putData("drive po w", new RunCommand(()-> driveMotor.setDuty(dutyTest), this));
-    SmartDashboard.putData("swerve drive", new Sendable() {
-      @Override
-      public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("SwerveDrive");
-
-        builder.addDoubleProperty("Back Right Angle", ()-> cancoder.getAbsPositionRadians(), null);
-        builder.addDoubleProperty("Back Right Velocity", ()-> driveMotor.getCurrentVelocity(), null);
-      }
-    });
-    SmartDashboard.putData("test subsystem", this);
+    SmartDashboard.putData("sysid" , sysid);
   } 
 
 

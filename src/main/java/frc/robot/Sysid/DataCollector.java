@@ -3,10 +3,6 @@ package frc.robot.Sysid;
 import java.util.function.Supplier;
 import org.ejml.simple.SimpleMatrix;
 
-import edu.wpi.first.units.Velocity;
-import frc.robot.utils.LogManager;
-import frc.robot.utils.LogManager.LogEntry;
-
 import static frc.robot.Sysid.Sysid.Gains;
 
 /**
