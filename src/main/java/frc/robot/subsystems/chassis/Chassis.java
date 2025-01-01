@@ -40,6 +40,11 @@ public class Chassis extends SubsystemBase {
         field = new Field2d();
     }
 
+
+    public Pose2d getPose()
+    {
+        return poseEstimator.getEstimatedPosition();
+    }
     public void setVelocities(ChassisSpeeds speeds) {
         speeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getGyroAngle());
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);

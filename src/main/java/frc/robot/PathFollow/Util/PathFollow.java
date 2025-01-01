@@ -8,20 +8,20 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
-
-import static frc.robot.chassis.ChassisConstants.*;
+import frc.robot.Robot;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.chassis.Chassis;
+import frc.robot.subsystems.chassis.ChassisConstants;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import frc.robot.RobotContainer;
-import frc.robot.chassis.subsystems.Chassis;
+import frc.robot.subsystems.chassis.Chassis;
 
 import static frc.robot.PathFollow.Util.PathsConstants.*;
 
 public class PathFollow extends Command {
-
   Chassis chassis;
   RoundedPoint[] corners;
   Pose2d closestAprilTag = new Pose2d();
@@ -50,7 +50,7 @@ public class PathFollow extends Command {
   pathPoint[] points;
   double finishVel;
   
-
+  
   public PathFollow(pathPoint[] points, double velocity) {
     this(RobotContainer.robotContainer.chassis, points, velocity, velocity * 2, 0);
   }
