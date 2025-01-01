@@ -17,9 +17,15 @@ import frc.robot.PathFollow.Util.TrigShell;
 import frc.robot.PathFollow.Util.TriggerHandler;
 import frc.robot.PathFollow.Util.Triggertest;
 import frc.robot.commands.*;
+import frc.robot.commands.chassis.Drive;
+import frc.robot.subsystems.chassis.Chassis;
 
-public class RobotContainer {
-  
+public class RobotContainer implements Sendable{
+  public static Boolean isRed = false;
+  Chassis chassis;
+  Drive drive;
+  double num = 0;
+
   LogManager logManager = new LogManager();
   Triggertest test = new Triggertest();
   ExceedTheSpeed com;
