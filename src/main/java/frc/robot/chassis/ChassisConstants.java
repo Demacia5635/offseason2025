@@ -1,4 +1,4 @@
-package frc.robot.subsystems.chassis;
+package frc.robot.chassis;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.utils.CancoderConfig;

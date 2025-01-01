@@ -1,9 +1,10 @@
-package frc.robot.subsystems.chassis;
+package frc.robot.chassis.subsystems;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.subsystems.chassis.ChassisConstants.SwerveModuleConfigs;
+import frc.robot.chassis.ChassisConstants;
+import frc.robot.chassis.ChassisConstants.SwerveModuleConfigs;
 import frc.robot.utils.Cancoder;
 import frc.robot.utils.TalonMotor;
 
@@ -47,6 +48,12 @@ public class SwerveModule {
 
     public Rotation2d getSteerAngle() {
         return Rotation2d.fromRadians(steerMotor.getCurrentPosition());
+    }
+    public double getSteerVel() {
+        return steerMotor.getCurrentVelocity();
+    }
+    public double getSteeraccel() {
+        return steerMotor.getAcceleration().getValueAsDouble();
     }
 
     public void setState(SwerveModuleState state) {

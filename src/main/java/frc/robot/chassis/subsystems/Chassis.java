@@ -1,4 +1,4 @@
-package frc.robot.subsystems.chassis;
+package frc.robot.chassis.subsystems;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 
@@ -12,6 +12,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.chassis.ChassisConstants;
 
 public class Chassis extends SubsystemBase {
     private SwerveModule[] modules;
@@ -38,6 +39,7 @@ public class Chassis extends SubsystemBase {
         );
         poseEstimator = new SwerveDrivePoseEstimator(kinematics, getGyroAngle(), getModulePositions(), new Pose2d());
         field = new Field2d();
+
     }
 
     public void setVelocities(ChassisSpeeds speeds) {
@@ -52,9 +54,21 @@ public class Chassis extends SubsystemBase {
         }
     }
 
+    public void setSteerPower(double pow, int id){
+        modules[id].setSteerPower(pow);
+    }
+
+    public double getSteerVelocity(int id){
+        return modules[id].getSteerVel();
+    }
+    public double getSteeracceleration(int id){
+        return modules[id].getSteeraccel();
+    }
+
     public void setSteerPositions(double position) {
         setSteerPositions(new double[] { position, position, position, position});
     }
+
 
     public void setDriveVelocities(double[] velocities) {
         for (int i = 0; i < velocities.length; i++) {
