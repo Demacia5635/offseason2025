@@ -13,12 +13,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Sysid.Sysid;
 import frc.robot.chassis.commands.Drive;
 import frc.robot.chassis.subsystems.Chassis;
 import frc.robot.chassis.subsystems.SwerveModule;
-import frc.robot.test.getFFAccel;
-import frc.robot.test.getFFDrive;
 import frc.robot.utils.LogManager;
 
 
@@ -58,10 +55,10 @@ public class RobotContainer implements Sendable{
   }
   @Override
   public void initSendable(SendableBuilder builder) {
-      builder.addDoubleProperty("NUM", ()->getNum(), (double num)->setNum(num));
+    builder.addDoubleProperty("NUM", ()->getNum(), (double num)->setNum(num));
   }
 
   public Command getAutonomousCommand() {
-    return new getFFDrive((pow)->chassis.setSteerPower(pow,1), ()->chassis.getSteerVelocity(1), ()->chassis.getSteeracceleration(1),0.2, 0.5,false);
+    return null;
   }
 }
