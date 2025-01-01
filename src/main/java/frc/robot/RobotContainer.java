@@ -4,8 +4,8 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -33,10 +33,23 @@ public class RobotContainer {
     InstantCommand print = new InstantCommand(() -> LogManager.log("EXCEEDS"),test);
     TriggerHandler.get("exceedsSpeed").onTrue(print);
   }
+  public double getNum(){ return num;}
+  public void setNum(double num){this.num = num;}
 
 
   private void configureBindings() {
 
+  }
+  public void isRed(boolean isRed) {
+    this.isRed = isRed;
+  }
+
+  public static boolean isRed() {
+    return isRed;
+  }
+  @Override
+  public void initSendable(SendableBuilder builder) {
+      builder.addDoubleProperty("NUM", ()->getNum(), (double num)->setNum(num));
   }
 
   public Command getAutonomousCommand() {
