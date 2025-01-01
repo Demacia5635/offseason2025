@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import frc.robot.utils.LogManager;
 
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
@@ -36,7 +35,6 @@ public class    SysidNew extends Command {
         }
 
         void analyze() {
-            LogManager.log("Analyzing " + maxVelocity + " n=" + nextRow);
             if(nextRow > 50) {;
                 SimpleMatrix d = data.rows(0, nextRow-1);
                 SimpleMatrix v = volts.rows(0,nextRow-1);
@@ -125,7 +123,6 @@ public class    SysidNew extends Command {
         this.baseVolt = baseVolt;
         this.maxVolt = maxVolt;
         this.deltaVolt = this.maxVolt/nPowerCycles;
-        LogManager.log(" delta volt = " + this.deltaVolt + " " + this.maxVolt + " " + nPowerCycles); 
         this.subsystems = subsystems;
         int nRange = velocitiesRange.length;
         int nRows = (int)(50*(nPowerCycles * 2 * powerCycleDuration + accelerationTime * 2 + 1));
@@ -191,7 +188,6 @@ public class    SysidNew extends Command {
     }
 
     private void setSteadyCycle(double volt) {
-        LogManager.log("Cycle - " + volt);
         cycleStartTime = Timer.getFPGATimestamp();
         currentVolt = volt;
         forwardCycle = volt > 0;
@@ -245,11 +241,9 @@ public class    SysidNew extends Command {
 
     double getCurrentVolt() {
         if(ended) {
-            LogManager.log("Ended");
             return 0;
         }
-        if(cycleStartTime == 0) { // starting
-            LogManager.log("Start");
+        if(cycleStartTime == 0) {
             setSteadyCycle(deltaVolt);
             return currentVolt;
         }
@@ -287,7 +281,6 @@ public class    SysidNew extends Command {
     }
 
     public void analyze() {
-        LogManager.log("Analyze");
         setVolt.accept(0.0);
         for(Data d : data) {
             d.analyze();
