@@ -8,13 +8,13 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.chassis.commands.DriveCommand;
-import frc.robot.chassis.subsystem.Chassis;
+import frc.robot.chassis.commands.Drive;
+import frc.robot.chassis.subsystems.Chassis;
 import frc.robot.utils.LogManager;
 import frc.robot.vision.subsystem.Tag;
 
 
-public class RobotContainer implements Sendable{
+public class RobotContainer{
   
   LogManager logManager;
   public static Boolean isRed = false;
@@ -27,7 +27,7 @@ public class RobotContainer implements Sendable{
     logManager = new LogManager();
     chassis = new Chassis();
     commandController = new CommandXboxController(0);
-    chassis.setDefaultCommand(new DriveCommand(chassis, commandController));
+    chassis.setDefaultCommand(new Drive(chassis, commandController));
     tag = new Tag(()->chassis.getGyroRotation());
 
   }

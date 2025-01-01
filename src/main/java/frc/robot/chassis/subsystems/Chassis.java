@@ -103,7 +103,11 @@ public class Chassis extends SubsystemBase {
         poseEstimator.update(getGyroAngle(), getModulePositions());
         field.setRobotPose(poseEstimator.getEstimatedPosition());
     }
-        public boolean isRed() {
+    public boolean isRed() {
         return RobotContainer.isRed();
+    }
+
+    public Rotation2d getGyroRotation(){
+        return Rotation2d.fromDegrees(gyro.getAngle());
     }
 }
