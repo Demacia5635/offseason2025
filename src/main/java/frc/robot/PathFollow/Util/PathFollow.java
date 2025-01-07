@@ -21,7 +21,10 @@ import frc.robot.subsystems.chassis.Chassis;
 
 import static frc.robot.PathFollow.Util.PathsConstants.*;
 
+
+
 public class PathFollow extends Command {
+  RobotContainer rc = RobotContainer.rc;
   Chassis chassis;
   RoundedPoint[] corners;
   Pose2d closestAprilTag = new Pose2d();
@@ -52,11 +55,11 @@ public class PathFollow extends Command {
   
   
   public PathFollow(pathPoint[] points, double velocity) {
-    this(RobotContainer.robotContainer.chassis, points, velocity, velocity * 2, 0);
+    this(RobotContainer.rc.chassis, points, velocity, velocity * 2, 0);
   }
 
   public PathFollow(pathPoint[] points) {
-    this(RobotContainer.robotContainer.chassis, points, MAX_VELOCITY, ACCEL,0);
+    this(RobotContainer.rc.chassis, points, MAX_VELOCITY, ACCEL,0);
   }
 
   public PathFollow(Chassis chassis, pathPoint[] points, double maxVel, double maxAcc, double finishVel) {
@@ -168,7 +171,7 @@ public class PathFollow extends Command {
   @Override
   public void initialize() {
     this.prevPos = chassis.getPose().getTranslation();
-    isRed = RobotContainer.robotContainer.isRed();
+    isRed = RobotContainer.isRed();
     // sets first point to chassis pose to prevent bugs with red and blue alliance
     setFirstPoint(isRed);
 

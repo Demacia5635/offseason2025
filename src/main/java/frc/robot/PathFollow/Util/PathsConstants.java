@@ -4,6 +4,8 @@
 
 package frc.robot.PathFollow.Util;
 
+import edu.wpi.first.math.geometry.Pose2d;
+
 /** Add your docs here. */
 public class PathsConstants {
     public final static double FIELD_LENGTH = 16.54; // in meters
@@ -16,4 +18,7 @@ public class PathsConstants {
     public final static double FINISH_OFFSET = 0.05;
     public final static double MIN_SEGMENT_LENGTH = 0.15;
     public final static double MAX_RADIAL_ACCEL = -1;
+
+    public final static Pose2d[] STATIONS = new Pose2d[12]; //please arrange it clockwise
+
 }

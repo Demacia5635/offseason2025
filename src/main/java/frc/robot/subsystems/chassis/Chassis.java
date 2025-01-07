@@ -59,6 +59,21 @@ public class Chassis extends SubsystemBase {
         setModuleStates(states);
     }
 
+    public double getVelocity()
+    {
+        return 0;
+    }
+
+    public ChassisSpeeds getChassisSpeeds()
+    {
+        return new ChassisSpeeds();
+    }
+
+    public void stop()
+    {
+        //st0p!!1
+    }
+
     public void setSteerPositions(double[] positions) {
         for (int i = 0; i < positions.length; i++) {
             modules[i].setSteerPosition(positions[i]);
@@ -95,10 +110,7 @@ public class Chassis extends SubsystemBase {
     {
         SwerveModuleState[] states = new SwerveModuleState[this.modules.length];
 
-        for(int i = 0; i < states.length; i++)
-        {
-            states[i] = this.modules[i].state
-        }
+        return states;//TODO
     }
 
     private void setModuleStates(SwerveModuleState[] states) {
