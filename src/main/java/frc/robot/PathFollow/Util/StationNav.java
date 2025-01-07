@@ -5,6 +5,7 @@
 package frc.robot.PathFollow.Util;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import static frc.robot.PathFollow.Util.PathsConstants.STATIONS;
 
@@ -67,7 +68,16 @@ public class StationNav {
         }
 
         return pointsArray;
-        
+    }
+
+    public static PathFollow goToScore(Pose2d curPose, Pose2d scorePose){
+        Rotation2d angleToScore = scorePose.getRotation();
+        Translation2d[] points = calcPositionPoints(curPose, scorePose.getTranslation());
+        pathPoint[] pathPoints = new pathPoint[points.length];
+        for(int i = 0; i < pathPoints.length; i++){
+            pathPoints[i] = new pathPoint(points[i], angleToScore);
+        }
+        return new PathFollow(pathPoints);
     }
 
     
