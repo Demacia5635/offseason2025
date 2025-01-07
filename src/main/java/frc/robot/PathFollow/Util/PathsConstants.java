@@ -19,6 +19,19 @@ public class PathsConstants {
     public final static double MIN_SEGMENT_LENGTH = 0.15;
     public final static double MAX_RADIAL_ACCEL = -1;
 
-    public final static Pose2d[] STATIONS = new Pose2d[12]; //please arrange it clockwise
+    public final static Pose2d[] STATIONS = new Pose2d[]{
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d(),
+        new Pose2d()
+    }; //please arrange it clockwise
 
 }

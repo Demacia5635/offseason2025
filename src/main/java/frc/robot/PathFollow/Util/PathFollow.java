@@ -216,7 +216,7 @@ public class PathFollow extends Command {
     trajField.setRobotPose(chassis.getPose());
     chassisPose = chassis.getPose();
     double distancePassed = (chassisPose.getTranslation().minus(prevPos)).getNorm();
-    Translation2d currentVelocity = chassis.getVelocity();
+    double currentVelocity = chassis.getVelocity();
     distanceLeft -= distancePassed;
     //distanceLeft -= segments[segmentIndex].distancePassed(chassisPose.getTranslation());
     //IMPORTANT NOTE FOR TRAJECTORY CHECKING (which may happen at 1/1/2025)
@@ -229,7 +229,7 @@ public class PathFollow extends Command {
       segmentIndex++;
     }
 
-    driveVelocity = driveTrapezoid.calc(distanceLeft, currentVelocity.getNorm(), finishVel);
+    driveVelocity = driveTrapezoid.calc(distanceLeft, currentVelocity, finishVel);
     rotationVelocity = rotationTrapezoid.calc(wantedAngle.getRadians(), chassis.getChassisSpeeds().omegaRadiansPerSecond, 0);
     
     Translation2d velVector = segments[segmentIndex].calc(chassisPose.getTranslation(), driveVelocity);

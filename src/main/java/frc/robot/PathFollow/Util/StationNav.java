@@ -7,10 +7,73 @@ package frc.robot.PathFollow.Util;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import static frc.robot.PathFollow.Util.PathsConstants.STATIONS;
+
+import java.nio.file.Paths;
+import java.util.ArrayList;
+
 import static frc.robot.PathFollow.Util.PathFollow.*;
 
 /** Add your docs here. */
 public class StationNav {
+    private static Translation2d getEntryPoint(Translation2d curPose){
+        double minDistance = Integer.MAX_VALUE;
+        int minIndex = -1;
+        for (int i = 0; i < PathsConstants.STATIONS.length; i++) {
+            Pose2d curStation = PathsConstants.STATIONS[i];
+            if(curPose.getDistance(curStation.getTranslation()) < minDistance){
+                minDistance = curPose.getDistance(curStation.getTranslation());
+                minIndex = i;
+            }
+        }
+        return PathsConstants.STATIONS[minIndex].getTranslation();
+    }
+    private static int getIndex(Translation2d pos){
+        
+        for(int i = 0; i < PathsConstants.STATIONS.length; i++){
+            if(pos == PathsConstants.STATIONS[i].getTranslation()) return i;
+        }
+        return -1;
+    }
+
+    private static void reverseArray(Translation2d[] array){
+        for (int i = 0; i < array.length / 2; i++) {
+            Translation2d t = array[i];
+            array[i] = array[array.length - 1 - i];
+            array[array.length - 1 - i] = t;
+        }
+
+
+    }
+    private static Translation2d[] calcPositionPoints(Pose2d curPose, Translation2d finalPoint){
+        Translation2d entryPoint = getEntryPoint(curPose.getTranslation());
+        int entryPointIndex = getIndex(entryPoint);
+        int finalPointIndex = getIndex(finalPoint);
+        
+        ArrayList<Translation2d> points = new ArrayList<>();
+        Translation2d[] pointsArray;
+
+        if(entryPointIndex < finalPointIndex){
+            for(int i = entryPointIndex; i < finalPointIndex; i++){
+                points.add(PathsConstants.STATIONS[i].getTranslation());
+            }
+            pointsArray = (Translation2d[]) points.toArray();
+        }
+        else{
+            for(int i = finalPointIndex; i < entryPointIndex; i++){
+                points.add(PathsConstants.STATIONS[i].getTranslation());
+            }
+            pointsArray = (Translation2d[]) points.toArray();
+            reverseArray(pointsArray);
+        }
+
+        return pointsArray;
+        
+    }
+
+    
+
+
+
     public static PathFollow genLineByDis(Translation2d initial,Pose2d fin,double velocity){
         
         int closeInit = 0;
