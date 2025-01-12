@@ -42,5 +42,9 @@ public class pathPoint extends Pose2d{
       return isAprilTag;
     }
 
+    @Override
+    public String toString() {
+        return "Pose : " + super.toString() + "\nRadius : " + this.radius +"\n";
+    }
 
 }

@@ -83,7 +83,10 @@ public class PathFollow extends Command {
   }
 
 
-
+  public pathPoint[] getPoints()
+  {
+    return this.points;
+  }
   /*
    * public String currentSegmentInfo() {
    * 
