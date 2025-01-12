@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -13,9 +16,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.utils.LogManager;
 import frc.robot.PathFollow.Util.ExceedTheSpeed;
+import frc.robot.PathFollow.Util.PathFollow;
+import frc.robot.PathFollow.Util.StationNav;
 import frc.robot.PathFollow.Util.TrigShell;
 import frc.robot.PathFollow.Util.TriggerHandler;
 import frc.robot.PathFollow.Util.Triggertest;
+import frc.robot.PathFollow.Util.pathPoint;
 import frc.robot.commands.*;
 import frc.robot.commands.chassis.Drive;
 import frc.robot.subsystems.chassis.Chassis;
@@ -25,7 +31,7 @@ import frc.robot.subsystems.chassis.Chassis;
 public class RobotContainer implements Sendable{
   public static Boolean isRed = false;
   public static RobotContainer rc;
-  public Chassis chassis; // im sorry
+  public Chassis chassis = new Chassis(); // im sorry
   Drive drive;
   double num = 0;
 
@@ -35,7 +41,22 @@ public class RobotContainer implements Sendable{
   ExceedTheSpeed com;
   
   public RobotContainer() {
+    this.logManager = new LogManager();
     rc = this;
+
+    Translation2d init = new Translation2d(0,0);
+    Pose2d fin = new Pose2d(new Translation2d(5,-30), new Rotation2d(0));
+    
+    PathFollow path = StationNav.genLineByDis(init, fin, 2);
+
+    pathPoint[] points = path.getPoints();
+
+    System.out.println("incoming");
+    for(int i = 0; i < points.length; i++)
+    {
+      System.out.println(points[i]);
+    }
+    System.out.println("incoming");
 
     
     configureBindings();

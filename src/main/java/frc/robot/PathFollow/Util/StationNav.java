@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import static frc.robot.PathFollow.Util.PathsConstants.STATIONS;
+import static frc.robot.PathFollow.Util.PathsConstants.STATION_RADIUS;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -84,34 +85,42 @@ public class StationNav {
 
 
 
-    private static PathFollow genByClock(int closeInit,int closeFin, Translation2d init, Pose2d fin)
+    private static PathFollow bridgeClock(int closeInit,int closeFin, Translation2d init, Pose2d fin)
     {
         int diff = Math.abs(closeFin-closeInit);
-        int cPoints = diff + 3; //diff + initclose + init + fin
+        int cPoints = closeFin > closeInit ? diff + 3 : STATIONS.length - diff + 3; 
         pathPoint[] points = new pathPoint[cPoints];
         points[0] = new pathPoint(init,fin.getRotation());
 
-        for(int i = 1,j=closeInit; i < cPoints-2; i++,j++)
-            points[i] = new pathPoint(STATIONS[j].getTranslation(), fin.getRotation());
+        for(int i = 1,j=closeInit; i < cPoints - 2; i++,j++){
+            // System.out.println("index : " + j%(STATIONS.length));
+            points[i] = new pathPoint(STATIONS[j%(STATIONS.length)].getTranslation(), fin.getRotation());
+        }
         
+        points[cPoints - 2] = new pathPoint(STATIONS[closeFin].getTranslation(), fin.getRotation());
         points[cPoints - 1] = new pathPoint(fin.getTranslation(), fin.getRotation());
 
         return new PathFollow(points);
 
     }
 
-    private static PathFollow genByCounter(int closeInit,int closeFin, Translation2d init, Pose2d fin)
+
+    private static PathFollow bridgeCounter(int closeInit,int closeFin, Translation2d init, Pose2d fin)
     {
         int diff = Math.abs(closeFin-closeInit);
-        int cPoints = STATIONS.length - diff + 1;// stations - diff + initclose
+        int cPoints = closeInit > closeFin ? diff + 3: STATIONS.length - diff + 3;// stations - diff + initclose + fin+ init
         pathPoint[] points = new pathPoint[cPoints];
         points[0] = new pathPoint(init,fin.getRotation());
 
-        for(int i = 1,j = closeInit; j >= 0; j--,i++)
+        for(int i = 1,j=closeInit; i < cPoints - 2; i++,j--)
         {
-            points[j] = new pathPoint(STATIONS[j].getTranslation(), fin.getRotation());
+            // System.out.println("index : " + j%(STATIONS.length));
+            points[i] = new pathPoint(STATIONS[j].getTranslation(), fin.getRotation());
+            if(j == 0)
+                j = STATIONS.length;
         }
 
+        points[cPoints - 2] = new pathPoint(STATIONS[closeFin].getTranslation(), fin.getRotation());
         points[cPoints - 1] = new pathPoint(fin.getTranslation(), fin.getRotation());
 
         return new PathFollow(points);
@@ -127,11 +136,11 @@ public class StationNav {
             Pose2d station = STATIONS[i];
 
             double d_init = station.getTranslation().minus(initial).getNorm();
-            double d_initclose = station.getTranslation().minus(
+            double d_initclose = initial.minus(
                 STATIONS[closeInit].getTranslation()).getNorm();
 
             double d_fin = station.getTranslation().minus(fin.getTranslation()).getNorm();
-            double d_finclose = station.getTranslation().minus(
+            double d_finclose = fin.getTranslation().minus(
                 STATIONS[closeFin].getTranslation()).getNorm();
             
             if (d_init < d_initclose)
@@ -141,17 +150,18 @@ public class StationNav {
         }
 
         int diff = Math.abs(closeFin-closeInit);
-        
-        if (closeInit > closeFin)
+        if (closeInit < closeFin)
         {
             if(diff < STATIONS.length/2)
             {
-                return genByClock(closeInit, closeFin, initial, fin);
+                System.out.println("small diff, init - fin");
+                return bridgeClock(closeInit, closeFin, initial, fin);
 
             }
             else
             {
-                return genByCounter(closeInit, closeFin, initial, fin);
+                System.out.println("big diff, init - fin");
+                return bridgeCounter(closeInit, closeFin, initial, fin);
             }
         }
         else{
@@ -164,18 +174,22 @@ public class StationNav {
                 return new PathFollow(points);
             }
             else{
-                 if(diff < STATIONS.length/2)
+
+                if(diff < STATIONS.length/2)
                 {
-                    return genByCounter(closeInit, closeFin, initial, fin);
+                    System.out.println("small diff, fin - init");
+                    return bridgeCounter(closeInit, closeFin, initial, fin);
 
                 }
                 else
                 {
-                    return genByClock(closeInit, closeFin, initial, fin);
+                    System.out.println("big diff, fin - init");
+                    return bridgeClock(closeInit, closeFin, initial, fin);
                 }
             }
+
+           
         }
-        
     }
 
     public static void genLineClockwise(Translation2d initial,Pose2d fin,double velocity)

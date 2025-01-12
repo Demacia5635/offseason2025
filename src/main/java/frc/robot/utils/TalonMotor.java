@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class TalonMotor extends TalonFX {
 
+  LogManager man = new LogManager();
 	TalonConfig config;
   String name;
   TalonFXConfiguration cfg;
