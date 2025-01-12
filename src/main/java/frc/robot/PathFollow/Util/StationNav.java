@@ -84,6 +84,39 @@ public class StationNav {
 
 
 
+    private static PathFollow genByClock(int closeInit,int closeFin, Translation2d init, Pose2d fin)
+    {
+        int diff = Math.abs(closeFin-closeInit);
+        int cPoints = diff + 3; //diff + initclose + init + fin
+        pathPoint[] points = new pathPoint[cPoints];
+        points[0] = new pathPoint(init,fin.getRotation());
+
+        for(int i = 1,j=closeInit; i < cPoints-2; i++,j++)
+            points[i] = new pathPoint(STATIONS[j].getTranslation(), fin.getRotation());
+        
+        points[cPoints - 1] = new pathPoint(fin.getTranslation(), fin.getRotation());
+
+        return new PathFollow(points);
+
+    }
+
+    private static PathFollow genByCounter(int closeInit,int closeFin, Translation2d init, Pose2d fin)
+    {
+        int diff = Math.abs(closeFin-closeInit);
+        int cPoints = STATIONS.length - diff + 1;// stations - diff + initclose
+        pathPoint[] points = new pathPoint[cPoints];
+        points[0] = new pathPoint(init,fin.getRotation());
+
+        for(int i = 1,j = closeInit; j >= 0; j--,i++)
+        {
+            points[j] = new pathPoint(STATIONS[j].getTranslation(), fin.getRotation());
+        }
+
+        points[cPoints - 1] = new pathPoint(fin.getTranslation(), fin.getRotation());
+
+        return new PathFollow(points);
+    }
+
     public static PathFollow genLineByDis(Translation2d initial,Pose2d fin,double velocity){
         
         int closeInit = 0;
@@ -107,62 +140,41 @@ public class StationNav {
                 closeFin = i;
         }
 
-        int cClock = 0;
-        int cCounter = 0;
-        int iter = closeInit;
-
-        for(int i = 0; i < STATIONS.length && iter % STATIONS.length != closeFin; i++)
+        int diff = Math.abs(closeFin-closeInit);
+        
+        if (closeInit > closeFin)
         {
-            cClock++;
-            iter++;
-            iter = iter % STATIONS.length;
-        }
-        iter = 0;
-        for(int i = 0; i < STATIONS.length && Math.abs(iter) % STATIONS.length != closeFin; i++)
-        {
-            cCounter++;
-            iter--;
-            iter = iter % STATIONS.length;
-        }
-
-        int cPoints = Math.abs(closeFin-closeInit) + 2;
-
-        if(cCounter < cClock)
-        {
-            pathPoint[] points = new pathPoint[cPoints];
-
-            points[0] = new pathPoint(initial,fin.getRotation());
-
-            for(int i = closeInit,j = 1; i != -1;i--,j++)
+            if(diff < STATIONS.length/2)
             {
-                points[j] = new pathPoint(STATIONS[i].getTranslation(), fin.getRotation());
-            }
+                return genByClock(closeInit, closeFin, initial, fin);
 
-            for(int i = cPoints - closeInit,j = 1 + closeInit; i >= closeFin;i--,j++)
+            }
+            else
             {
-                points[j] = new pathPoint(STATIONS[i].getTranslation(), fin.getRotation());
+                return genByCounter(closeInit, closeFin, initial, fin);
             }
-
-            points[cPoints - 1] = new pathPoint(fin.getTranslation(), fin.getRotation());
-
-            return new PathFollow(points);
         }
-        else
-        {
-            pathPoint[] points = new pathPoint[cPoints];
-
-            points[0] = new pathPoint(initial,fin.getRotation());
-
-            for(int i = closeInit,j = 1; i != closeFin;i++,j++)
+        else{
+            if(closeInit == closeFin)
             {
-                points[j] = new pathPoint(STATIONS[i%STATIONS.length].getTranslation(), fin.getRotation());
+                pathPoint[] points = new pathPoint[3];
+                points[0] = new pathPoint(initial, fin.getRotation());
+                points[1] = new pathPoint(STATIONS[closeInit].getTranslation(),fin.getRotation());
+                points[2] = new pathPoint(fin.getTranslation(), fin.getRotation());
+                return new PathFollow(points);
             }
+            else{
+                 if(diff < STATIONS.length/2)
+                {
+                    return genByCounter(closeInit, closeFin, initial, fin);
 
-            points[cPoints - 1] = new pathPoint(fin.getTranslation(), fin.getRotation());
-
-            return new PathFollow(points);
+                }
+                else
+                {
+                    return genByClock(closeInit, closeFin, initial, fin);
+                }
+            }
         }
-
         
     }
 
