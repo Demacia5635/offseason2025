@@ -39,4 +39,129 @@ public class PathsConstants {
         new Pose2d(new Translation2d(0.866,0.5).times(STATION_RADIUS).plus(STATION_CENTER),new Rotation2d(((Math.PI*2)/12)*11 - Math.PI))
     }; //please arrange it clockwise
 
+    public static double proj_scalar_pow2(Translation2d v1, Translation2d v2){
+        double dot1 = v1.getX()*v2.getX() + v1.getY()*v2.getY();
+
+        double v1_len_squared = v1.getX()*v1.getX() + v1.getY()*v1.getY();
+        
+        double x = v1.getX()*(dot1/v1_len_squared);
+        double y = v1.getY()*(dot1/v1_len_squared);
+        System.out.println("Vector proj : " + new Translation2d(x,y));
+        return x*x + y*y;
+    }
+    
+    //Count segment and circle intersections
+
+    public static int cSegCircleInter(Translation2d a, Translation2d b, Translation2d c_pos, double r)
+    {
+        Translation2d ab = a.minus(b);
+        Translation2d a_cpos = c_pos.minus(a);
+
+        double r_squared = r*r;
+        double hypo_squared = a_cpos.getX()*a_cpos.getX() + a_cpos.getY()*a_cpos.getY();
+
+        double proj_squared = proj_scalar_pow2(ab, a_cpos);
+        
+        double min_x = Math.min(a.getX(), b.getX());
+        double max_x = Math.max(a.getX(), b.getX());
+
+
+        if(hypo_squared - proj_squared == r_squared)
+        {
+            if(min_x < (c_pos.getX() - r) && max_x > (c_pos.getX() + r)) 
+            {
+                return 1;
+            }
+            else{
+                //check x of line intersection, make sure x is in range of a&b's x
+                // y = mx + b
+                if(a.getX() != b.getX() && a.getY() != b.getY()){
+                    double ab_m = (a.getY() - b.getY()) / (a.getX() - b.getX());
+                    double ab_m_norm = -1 / ab_m;
+
+                    double ab_b = -ab_m*a.getX() + a.getY();
+                    double ab_b_norm = -ab_m_norm*c_pos.getX() + c_pos.getY();
+
+                    double inter_x = (ab_b_norm - ab_b) / (ab_m - ab_m_norm);
+                    
+                    System.out.println("Inter x : " + inter_x);
+
+                    if(inter_x > min_x && inter_x < max_x)
+                    {
+                        return 1;
+                    }
+                    else{
+                        return 0;
+                    }
+                }
+                else{
+                    if(Math.abs(a.getY() - c_pos.getY()) == r)
+                        return 1;
+                    if(Math.abs(a.getX() - c_pos.getX()) == r)
+                        return 1;
+                    return 0;
+                } 
+            }
+            
+        }
+        else{
+            if(hypo_squared - proj_squared < r_squared)
+            {
+                if(min_x < (c_pos.getX() - r) && max_x > (c_pos.getX() + r)) 
+                {
+                    System.err.println("e1");
+                    return 2;
+                }
+                else
+                {
+                    Translation2d b_cpos = b.minus(c_pos);
+                    double hypo_b_squared = b_cpos.getX()*b_cpos.getX() + b_cpos.getY()*b_cpos.getY();
+                    if (hypo_b_squared < r_squared && hypo_squared < r_squared)
+                        return -1; //Line inside circle
+
+                    //points on circle
+                    if (hypo_b_squared == r_squared && hypo_squared == r_squared)
+                        return 2;
+                    
+                    // point 1 inside circle, point b outside circle
+                    if(hypo_b_squared < r_squared && hypo_squared >= r_squared || hypo_b_squared >= r_squared && hypo_squared < r_squared)
+                        return 1;
+                    
+                    //check x of line intersection, make sure x is in range of a&b's x
+                    // y = mx + b
+
+                    if(a.getX() != b.getX() && a.getY() != b.getY())
+                    {
+                        double ab_m = (a.getY() - b.getY()) / (a.getX() - b.getX());
+                        double ab_m_norm = -1 / ab_m;
+
+                        double ab_b = -ab_m*a.getX() + a.getY();
+                        double ab_b_norm = -ab_m_norm*c_pos.getX() + c_pos.getY();
+
+                        double inter_x = (ab_b_norm - ab_b) / (ab_m - ab_m_norm);
+
+                        if(inter_x > min_x && inter_x < max_x)
+                        {
+                            return 2;
+                        }
+                        else{
+                            return 0;
+                        }
+                    }
+                    else{
+                        if(Math.abs(a.getY() - c_pos.getY()) < r)
+                            return 2;
+                        if(Math.abs(a.getX() - c_pos.getX()) < r)
+                            return 2;
+                        return 0;
+                    }
+                    
+                }
+
+            }
+            return 0;
+        }
+
+    }
+
 }

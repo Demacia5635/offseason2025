@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.utils.LogManager;
 import frc.robot.PathFollow.Util.ExceedTheSpeed;
 import frc.robot.PathFollow.Util.PathFollow;
+import frc.robot.PathFollow.Util.PathsConstants;
 import frc.robot.PathFollow.Util.StationNav;
 import frc.robot.PathFollow.Util.TrigShell;
 import frc.robot.PathFollow.Util.TriggerHandler;
@@ -44,27 +45,33 @@ public class RobotContainer implements Sendable{
     this.logManager = new LogManager();
     rc = this;
 
-    Translation2d init = new Translation2d(0,0);
-    Pose2d fin = new Pose2d(new Translation2d(5,-30), new Rotation2d(0));
+    // Translation2d init = new Translation2d(0,0);
+    // Pose2d fin = new Pose2d(new Translation2d(5,-30), new Rotation2d(0));
     
-    PathFollow path = StationNav.genLineByDis(init, fin, 2);
+    // PathFollow path = StationNav.genLineByDis(init, fin, 2);
 
-    pathPoint[] points = path.getPoints();
+    // pathPoint[] points = path.getPoints();
 
-    System.out.println("incoming");
-    for(int i = 0; i < points.length; i++)
-    {
-      System.out.println(points[i]);
-    }
-    System.out.println("incoming");
+    // System.out.println("incoming");
+    // for(int i = 0; i < points.length; i++)
+    // {
+    //   System.out.println(points[i]);
+    // }
+    // System.out.println("incoming");
 
     
-    configureBindings();
-    TrigShell shell = new TrigShell(() -> test.exceedsSpeed());
-    TriggerHandler.set("exceedsSpeed",shell);
-    this.com = new ExceedTheSpeed(test);
-    InstantCommand print = new InstantCommand(() -> LogManager.log("EXCEEDS"),test);
-    TriggerHandler.get("exceedsSpeed").onTrue(print);
+    // configureBindings();
+    // TrigShell shell = new TrigShell(() -> test.exceedsSpeed());
+    // TriggerHandler.set("exceedsSpeed",shell);
+    // this.com = new ExceedTheSpeed(test);
+    // InstantCommand print = new InstantCommand(() -> LogManager.log("EXCEEDS"),test);
+    // TriggerHandler.get("exceedsSpeed").onTrue(print);
+    Translation2d a = new Translation2d(4,8);
+    Translation2d b = new Translation2d(0,4);
+    Translation2d c_pos = new Translation2d(4,4);
+    double r = 4;
+
+    System.out.println("Count : " + PathsConstants.cSegCircleInter(a, b, c_pos, r));
   }
   public double getNum(){ return num;}
   public void setNum(double num){this.num = num;}
