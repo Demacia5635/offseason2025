@@ -39,8 +39,18 @@ public class PathsConstants {
         new Pose2d(new Translation2d(0.866,0.5).times(STATION_RADIUS).plus(STATION_CENTER),new Rotation2d(((Math.PI*2)/12)*11 - Math.PI))
     }; //please arrange it clockwise
 
+    public static double dot_prod(Translation2d v1,Translation2d v2)
+    {
+        return v1.getX()*v2.getX() + v1.getY()*v2.getY();
+    }
+
+    public static double cross_prod(Translation2d v1,Translation2d v2)
+    {
+        return v1.getX()*v2.getY() - v1.getY()*v2.getX();
+    }
+
     public static double proj_scalar_pow2(Translation2d v1, Translation2d v2){
-        double dot1 = v1.getX()*v2.getX() + v1.getY()*v2.getY();
+        double dot1 = dot_prod(v1, v2);
 
         double v1_len_squared = v1.getX()*v1.getX() + v1.getY()*v1.getY();
         
@@ -89,23 +99,23 @@ public class PathsConstants {
             else{
                 //check x of line intersection, make sure x is in range of a&b's x
                 // y = mx + b
-                    double ab_m = (a.getY() - b.getY()) / (a.getX() - b.getX());
-                    double ab_m_norm = -1 / ab_m;
+                double ab_m = (a.getY() - b.getY()) / (a.getX() - b.getX());
+                double ab_m_norm = -1 / ab_m;
 
-                    double ab_b = -ab_m*a.getX() + a.getY();
-                    double ab_b_norm = -ab_m_norm*c_pos.getX() + c_pos.getY();
+                double ab_b = -ab_m*a.getX() + a.getY();
+                double ab_b_norm = -ab_m_norm*c_pos.getX() + c_pos.getY();
 
-                    double inter_x = (ab_b_norm - ab_b) / (ab_m - ab_m_norm);
-                    
-                    System.out.println("Inter x : " + inter_x);
+                double inter_x = (ab_b_norm - ab_b) / (ab_m - ab_m_norm);
+                
+                System.out.println("Inter x : " + inter_x);
 
-                    if(inter_x > min_x && inter_x < max_x)
-                    {
-                        return 1;
-                    }
-                    else{
-                        return 0;
-                    }
+                if(inter_x > min_x && inter_x < max_x)
+                {
+                    return 1;
+                }
+                else{
+                    return 0;
+                }
                 
             }
             
@@ -136,21 +146,21 @@ public class PathsConstants {
                     // y = mx + b
 
 
-                        double ab_m = (a.getY() - b.getY()) / (a.getX() - b.getX());
-                        double ab_m_norm = -1 / ab_m;
+                    double ab_m = (a.getY() - b.getY()) / (a.getX() - b.getX());
+                    double ab_m_norm = -1 / ab_m;
 
-                        double ab_b = -ab_m*a.getX() + a.getY();
-                        double ab_b_norm = -ab_m_norm*c_pos.getX() + c_pos.getY();
+                    double ab_b = -ab_m*a.getX() + a.getY();
+                    double ab_b_norm = -ab_m_norm*c_pos.getX() + c_pos.getY();
 
-                        double inter_x = (ab_b_norm - ab_b) / (ab_m - ab_m_norm);
+                    double inter_x = (ab_b_norm - ab_b) / (ab_m - ab_m_norm);
 
-                        if(inter_x > min_x && inter_x < max_x)
-                        {
-                            return 2;
-                        }
-                        else{
-                            return 0;
-                        }            
+                    if(inter_x > min_x && inter_x < max_x)
+                    {
+                        return 2;
+                    }
+                    else{
+                        return 0;
+                    }            
                 }
 
             }

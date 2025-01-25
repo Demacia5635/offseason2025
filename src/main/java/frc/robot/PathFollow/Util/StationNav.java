@@ -126,14 +126,50 @@ public class StationNav {
         return new PathFollow(points);
     }
 
+    private static int shiftClock(int tan,int close,Translation2d dest)
+    {
+        int station = tan;
+        
+        //intersections counter
+        int inter = PathsConstants.cSegCircleInter(STATIONS[station].getTranslation(), dest, PathsConstants.STATION_CENTER, PathsConstants.STATION_RADIUS);
+        while(station != close && (inter != 1 || inter != 0)){
+            //move clockwise
+            station = (station + 1) % STATIONS.length;
+            inter = PathsConstants.cSegCircleInter(STATIONS[station].getTranslation(), dest, PathsConstants.STATION_CENTER, PathsConstants.STATION_RADIUS);
+        } 
+
+        return station;
+    }
+
+    private static int shiftCounter(int tan,int close,Translation2d dest)
+    {
+        int station = tan;
+        
+        //intersections counter
+        int inter = PathsConstants.cSegCircleInter(STATIONS[station].getTranslation(), dest, PathsConstants.STATION_CENTER, PathsConstants.STATION_RADIUS);
+        while(station != close && (inter != 1 || inter != 0)){
+            //move counter-clockwise
+            if(station - 1 >= 0)
+                station--;
+            else
+                station = STATIONS.length - 1;
+            inter = PathsConstants.cSegCircleInter(STATIONS[station].getTranslation(), dest, PathsConstants.STATION_CENTER, PathsConstants.STATION_RADIUS);
+        } 
+
+        return station;
+    }
+
     public static PathFollow genLineByDis(Translation2d initial,Pose2d fin,double velocity){
         
         int closeInit = 0;
         int closeFin = 0;
+
+        int tanInit = 0;
+        int tanFin = 0;
         
         for(int i = 1; i < STATIONS.length; i++)
         {
-            Pose2d station = STATIONS[i];
+            Pose2d station = STATIONS[i];//TODO:optimize this loop
 
             double d_init = station.getTranslation().minus(initial).getNorm();
             double d_initclose = initial.minus(
@@ -142,12 +178,24 @@ public class StationNav {
             double d_fin = station.getTranslation().minus(fin.getTranslation()).getNorm();
             double d_finclose = fin.getTranslation().minus(
                 STATIONS[closeFin].getTranslation()).getNorm();
+
+            double dot_init = PathsConstants.cross_prod(initial, station.getTranslation());
+            double dot_initclose = PathsConstants.cross_prod(initial, STATIONS[tanInit].getTranslation());
+
+            double dot_fin = PathsConstants.cross_prod(fin.getTranslation(), station.getTranslation());
+            double dot_finclose = PathsConstants.cross_prod(fin.getTranslation(), STATIONS[tanFin].getTranslation());
             
+            if(dot_init < dot_initclose)
+                tanInit = i;
+            if(dot_fin < dot_finclose)
+                tanFin = i;
+
             if (d_init < d_initclose)
                 closeInit = i;
             if(d_fin < d_finclose)
                 closeFin = i;
         }
+
 
         int diff = Math.abs(closeFin-closeInit);
         if (closeInit < closeFin)
@@ -155,13 +203,30 @@ public class StationNav {
             if(diff < STATIONS.length/2)
             {
                 System.out.println("small diff, init - fin");
-                return bridgeClock(closeInit, closeFin, initial, fin);
+
+                int exitStation = tanFin;
+                int enterStation = tanInit;
+                
+                //intersections counter
+                exitStation = shiftClock(tanFin,closeFin,fin.getTranslation());
+
+                enterStation = shiftCounter(tanInit, closeFin, initial);
+
+                return bridgeClock(enterStation, exitStation, initial, fin);
 
             }
             else
             {
                 System.out.println("big diff, init - fin");
-                return bridgeCounter(closeInit, closeFin, initial, fin);
+                int exitStation = tanFin;
+                int enterStation = tanInit;
+                
+                //intersections counter
+                exitStation = shiftCounter(tanFin,closeFin,fin.getTranslation());
+
+                enterStation = shiftClock(tanInit, closeFin, initial);
+
+                return bridgeCounter(enterStation, exitStation, initial, fin);
             }
         }
         else{
@@ -178,13 +243,30 @@ public class StationNav {
                 if(diff < STATIONS.length/2)
                 {
                     System.out.println("small diff, fin - init");
-                    return bridgeCounter(closeInit, closeFin, initial, fin);
+
+                    int exitStation = tanFin;
+                    int enterStation = tanInit;
+                    
+                    //intersections counter
+                    exitStation = shiftCounter(tanFin,closeFin,fin.getTranslation());
+
+                    enterStation = shiftClock(tanInit, closeFin, initial);
+
+                    return bridgeCounter(enterStation, exitStation, initial, fin);
 
                 }
                 else
                 {
                     System.out.println("big diff, fin - init");
-                    return bridgeClock(closeInit, closeFin, initial, fin);
+                    int exitStation = tanFin;
+                    int enterStation = tanInit;
+                
+                    //intersections counter
+                    exitStation = shiftClock(tanFin,closeFin,fin.getTranslation());
+
+                    enterStation = shiftCounter(tanInit, closeFin, initial);
+
+                    return bridgeClock(enterStation, exitStation, initial, fin);
                 }
             }
 
