@@ -132,7 +132,7 @@ public class StationNav {
         
         //intersections counter
         int inter = PathsConstants.cSegCircleInter(STATIONS[station].getTranslation(), dest, PathsConstants.STATION_CENTER, PathsConstants.STATION_RADIUS);
-        while(station != close && (inter != 1 || inter != 0)){
+        while(station != close && !(inter != 1 || inter != 0)){
             //move clockwise
             station = (station + 1) % STATIONS.length;
             inter = PathsConstants.cSegCircleInter(STATIONS[station].getTranslation(), dest, PathsConstants.STATION_CENTER, PathsConstants.STATION_RADIUS);
@@ -147,7 +147,7 @@ public class StationNav {
         
         //intersections counter
         int inter = PathsConstants.cSegCircleInter(STATIONS[station].getTranslation(), dest, PathsConstants.STATION_CENTER, PathsConstants.STATION_RADIUS);
-        while(station != close && (inter != 1 || inter != 0)){
+        while(station != close && !(inter != 1 || inter != 0)){
             //move counter-clockwise
             if(station - 1 >= 0)
                 station--;
@@ -179,11 +179,11 @@ public class StationNav {
             double d_finclose = fin.getTranslation().minus(
                 STATIONS[closeFin].getTranslation()).getNorm();
 
-            double dot_init = PathsConstants.dot_prod(initial, station.getTranslation());
-            double dot_initclose = PathsConstants.dot_prod(initial, STATIONS[tanInit].getTranslation());
+            double dot_init = PathsConstants.dot_prod(initial.minus(station.getTranslation()), station.getTranslation().minus(PathsConstants.STATION_CENTER));
+            double dot_initclose = PathsConstants.dot_prod(initial.minus(STATIONS[tanInit].getTranslation()), STATIONS[tanInit].getTranslation().minus(PathsConstants.STATION_CENTER));
 
-            double dot_fin = PathsConstants.dot_prod(fin.getTranslation(), station.getTranslation());
-            double dot_finclose = PathsConstants.dot_prod(fin.getTranslation(), STATIONS[tanFin].getTranslation());
+            double dot_fin = PathsConstants.dot_prod(fin.getTranslation().minus(station.getTranslation()), station.getTranslation().minus(PathsConstants.STATION_CENTER));
+            double dot_finclose = PathsConstants.dot_prod(fin.getTranslation().minus(STATIONS[tanInit].getTranslation()), STATIONS[tanInit].getTranslation().minus(PathsConstants.STATION_CENTER));
             
             if(Math.abs(dot_init) < Math.abs(dot_initclose))
                 tanInit = i;
@@ -213,6 +213,8 @@ public class StationNav {
                 exitStation = shiftClock(tanFin,closeFin,fin.getTranslation());
 
                 enterStation = shiftCounter(tanInit, closeInit, initial);
+
+                
 
                 return bridgeClock(enterStation, exitStation, initial, fin);
 
