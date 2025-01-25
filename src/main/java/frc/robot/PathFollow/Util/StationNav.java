@@ -197,6 +197,7 @@ public class StationNav {
         }
 
         System.out.println("tanInit : " + tanInit);
+        System.out.println("tanFin : " + tanFin);
 
         int diff = Math.abs(tanFin-tanInit);
         if (tanInit < tanFin)
