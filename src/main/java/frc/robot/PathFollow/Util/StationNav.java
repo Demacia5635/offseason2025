@@ -185,9 +185,9 @@ public class StationNav {
             double dot_fin = PathsConstants.cross_prod(fin.getTranslation(), station.getTranslation());
             double dot_finclose = PathsConstants.cross_prod(fin.getTranslation(), STATIONS[tanFin].getTranslation());
             
-            if(dot_init < dot_initclose)
+            if(Math.abs(dot_init) < Math.abs(dot_initclose))
                 tanInit = i;
-            if(dot_fin < dot_finclose)
+            if(Math.abs(dot_fin) < Math.abs(dot_finclose))
                 tanFin = i;
 
             if (d_init < d_initclose)
