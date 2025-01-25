@@ -250,7 +250,7 @@ public class StationNav {
                     //intersections counter
                     exitStation = shiftCounter(tanFin,closeFin,fin.getTranslation());
 
-                    enterStation = shiftClock(tanInit, closeFin, initial);
+                    enterStation = shiftClock(tanInit, closeInit, initial);
 
                     return bridgeCounter(enterStation, exitStation, initial, fin);
 
