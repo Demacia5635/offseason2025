@@ -54,6 +54,20 @@ public class PathsConstants {
 
     public static int cSegCircleInter(Translation2d a, Translation2d b, Translation2d c_pos, double r)
     {
+        //unable to calculate m
+        if(a.getX() == b.getX() || a.getY() == b.getY())
+        {
+            if(Math.abs(a.getY() - c_pos.getY()) == r)
+                return 1;
+            if(Math.abs(a.getX() - c_pos.getX()) == r)
+                return 1;
+            if(Math.abs(a.getY() - c_pos.getY()) < r)
+                return 2;
+            if(Math.abs(a.getX() - c_pos.getX()) < r)
+                return 2;
+        }
+
+
         Translation2d ab = a.minus(b);
         Translation2d a_cpos = c_pos.minus(a);
 
@@ -75,7 +89,6 @@ public class PathsConstants {
             else{
                 //check x of line intersection, make sure x is in range of a&b's x
                 // y = mx + b
-                if(a.getX() != b.getX() && a.getY() != b.getY()){
                     double ab_m = (a.getY() - b.getY()) / (a.getX() - b.getX());
                     double ab_m_norm = -1 / ab_m;
 
@@ -93,14 +106,7 @@ public class PathsConstants {
                     else{
                         return 0;
                     }
-                }
-                else{
-                    if(Math.abs(a.getY() - c_pos.getY()) == r)
-                        return 1;
-                    if(Math.abs(a.getX() - c_pos.getX()) == r)
-                        return 1;
-                    return 0;
-                } 
+                
             }
             
         }
@@ -109,7 +115,6 @@ public class PathsConstants {
             {
                 if(min_x < (c_pos.getX() - r) && max_x > (c_pos.getX() + r)) 
                 {
-                    System.err.println("e1");
                     return 2;
                 }
                 else
@@ -130,8 +135,7 @@ public class PathsConstants {
                     //check x of line intersection, make sure x is in range of a&b's x
                     // y = mx + b
 
-                    if(a.getX() != b.getX() && a.getY() != b.getY())
-                    {
+
                         double ab_m = (a.getY() - b.getY()) / (a.getX() - b.getX());
                         double ab_m_norm = -1 / ab_m;
 
@@ -146,16 +150,7 @@ public class PathsConstants {
                         }
                         else{
                             return 0;
-                        }
-                    }
-                    else{
-                        if(Math.abs(a.getY() - c_pos.getY()) < r)
-                            return 2;
-                        if(Math.abs(a.getX() - c_pos.getX()) < r)
-                            return 2;
-                        return 0;
-                    }
-                    
+                        }            
                 }
 
             }
