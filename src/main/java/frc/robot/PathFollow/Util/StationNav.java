@@ -196,6 +196,7 @@ public class StationNav {
                 closeFin = i;
         }
 
+        System.out.println("tanInit : " + tanInit);
 
         int diff = Math.abs(closeFin-closeInit);
         if (closeInit < closeFin)
@@ -210,7 +211,7 @@ public class StationNav {
                 //intersections counter
                 exitStation = shiftClock(tanFin,closeFin,fin.getTranslation());
 
-                enterStation = shiftCounter(tanInit, closeFin, initial);
+                enterStation = shiftCounter(tanInit, closeInit, initial);
 
                 return bridgeClock(enterStation, exitStation, initial, fin);
 
@@ -224,7 +225,7 @@ public class StationNav {
                 //intersections counter
                 exitStation = shiftCounter(tanFin,closeFin,fin.getTranslation());
 
-                enterStation = shiftClock(tanInit, closeFin, initial);
+                enterStation = shiftClock(tanInit, closeInit, initial);
 
                 return bridgeCounter(enterStation, exitStation, initial, fin);
             }
@@ -264,7 +265,7 @@ public class StationNav {
                     //intersections counter
                     exitStation = shiftClock(tanFin,closeFin,fin.getTranslation());
 
-                    enterStation = shiftCounter(tanInit, closeFin, initial);
+                    enterStation = shiftCounter(tanInit, closeInit, initial);
 
                     return bridgeClock(enterStation, exitStation, initial, fin);
                 }
