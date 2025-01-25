@@ -179,11 +179,11 @@ public class StationNav {
             double d_finclose = fin.getTranslation().minus(
                 STATIONS[closeFin].getTranslation()).getNorm();
 
-            double dot_init = PathsConstants.cross_prod(initial, station.getTranslation());
-            double dot_initclose = PathsConstants.cross_prod(initial, STATIONS[tanInit].getTranslation());
+            double dot_init = PathsConstants.dot_prod(initial, station.getTranslation());
+            double dot_initclose = PathsConstants.dot_prod(initial, STATIONS[tanInit].getTranslation());
 
-            double dot_fin = PathsConstants.cross_prod(fin.getTranslation(), station.getTranslation());
-            double dot_finclose = PathsConstants.cross_prod(fin.getTranslation(), STATIONS[tanFin].getTranslation());
+            double dot_fin = PathsConstants.dot_prod(fin.getTranslation(), station.getTranslation());
+            double dot_finclose = PathsConstants.dot_prod(fin.getTranslation(), STATIONS[tanFin].getTranslation());
             
             if(Math.abs(dot_init) < Math.abs(dot_initclose))
                 tanInit = i;
@@ -196,8 +196,8 @@ public class StationNav {
                 closeFin = i;
         }
 
-        System.out.println("tanInit : " + tanInit);
-        System.out.println("tanFin : " + tanFin);
+        System.out.println("tanInit : " + STATIONS[tanInit]);
+        System.out.println("tanFin : " + STATIONS[tanFin]);
 
         int diff = Math.abs(tanFin-tanInit);
         if (tanInit < tanFin)
