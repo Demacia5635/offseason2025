@@ -198,8 +198,8 @@ public class StationNav {
 
         System.out.println("tanInit : " + tanInit);
 
-        int diff = Math.abs(closeFin-closeInit);
-        if (closeInit < closeFin)
+        int diff = Math.abs(tanFin-tanInit);
+        if (tanInit < tanFin)
         {
             if(diff < STATIONS.length/2)
             {
@@ -231,7 +231,7 @@ public class StationNav {
             }
         }
         else{
-            if(closeInit == closeFin)
+            if(tanFin == tanInit)
             {
                 pathPoint[] points = new pathPoint[3];
                 points[0] = new pathPoint(initial, fin.getRotation());
