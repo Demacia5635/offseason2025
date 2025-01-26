@@ -46,11 +46,10 @@ public class RobotContainer implements Sendable{
     rc = this;
 
     Translation2d init = new Translation2d(0,0);
-    Pose2d fin = new Pose2d(new Translation2d(20,5), new Rotation2d(0));
+    Pose2d fin = new Pose2d(new Translation2d(5,20), new Rotation2d(0));
     
-    PathFollow path = StationNav.genLineByDis(init, fin, 2);
 
-    pathPoint[] points = path.getPoints();
+    pathPoint[] points = StationNav.genLineByDis(init, fin, 2);
 
     System.out.println("incoming");
     for(int i = 0; i < points.length; i++)
