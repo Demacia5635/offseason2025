@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import static frc.robot.PathFollow.Util.PathsConstants.STATIONS;
+import static frc.robot.PathFollow.Util.PathsConstants.STATION_CENTER;
 import static frc.robot.PathFollow.Util.PathsConstants.STATION_RADIUS;
 
 import java.nio.file.Paths;
@@ -225,8 +226,36 @@ public class StationNav {
             
             if(Math.abs(dot_init) < Math.abs(dot_initclose))
                 tanInit = i;
+            else
+            {
+                if(Math.abs(dot_init) == Math.abs(dot_initclose))
+                {
+                    Translation2d tanToInit = initial.minus(STATIONS[tanInit].getTranslation());
+                    Translation2d tanToFin = fin.getTranslation().minus(STATIONS[tanInit].getTranslation());
+
+                    Translation2d ntanToInit = initial.minus(station.getTranslation());
+                    Translation2d ntanToFin = fin.getTranslation().minus(station.getTranslation());
+
+                    if(PathsConstants.dot_prod(ntanToInit, ntanToFin) < PathsConstants.dot_prod(tanToInit, tanToFin))
+                        tanInit = i;
+                }
+            }
             if(Math.abs(dot_fin) < Math.abs(dot_finclose))
                 tanFin = i;
+            else
+                {
+                    if(Math.abs(dot_init) == Math.abs(dot_finclose))
+                    {
+                        Translation2d tanToInit = initial.minus(STATIONS[tanInit].getTranslation());
+                        Translation2d tanToFin = fin.getTranslation().minus(STATIONS[tanInit].getTranslation());
+    
+                        Translation2d ntanToInit = initial.minus(station.getTranslation());
+                        Translation2d ntanToFin = fin.getTranslation().minus(station.getTranslation());
+    
+                        if(PathsConstants.dot_prod(ntanToInit, ntanToFin) < PathsConstants.dot_prod(tanToInit, tanToFin))
+                            tanInit = i;
+                    }
+                }
 
             if (d_init < d_initclose)
                 closeInit = i;
