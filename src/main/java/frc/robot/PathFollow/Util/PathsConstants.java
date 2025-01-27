@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 
 /** Add your docs here. */
 public class PathsConstants {
+    private static PathsConstants pc = new PathsConstants();
     public final static double FIELD_LENGTH = 16.54; // in meters
     public final static double FIELD_HEIGH = 8.21; // in meters
     public final static double DISTANCE_OFFSET = 0.01;;
@@ -21,23 +22,21 @@ public class PathsConstants {
     public final static double MIN_SEGMENT_LENGTH = 0.15;
     public final static double MAX_RADIAL_ACCEL = -1;
 
-
     public final static Translation2d STATION_CENTER = new Translation2d(4,4);
+
+    private PathsConstants()
+    {
+        PathsConstants.pc = this;
+        STATIONS = new Pose2d[12];
+        for(int i = 0; i < 12; i++)
+        {
+            STATIONS[i] = new Pose2d(new Translation2d(Math.cos((-(Math.PI*2)/12)* i - Math.PI/2) ,Math.sin((-(Math.PI*2)/12)* i - Math.PI/2)).times(STATION_RADIUS).plus(new Translation2d(4,4)),new Rotation2d(0));
+        }
+    }
+
+    
     public final static double STATION_RADIUS = 4;
-    public final static Pose2d[] STATIONS = new Pose2d[]{
-        new Pose2d(new Translation2d(1,0).times(STATION_RADIUS).plus(STATION_CENTER),new Rotation2d(0)),
-        new Pose2d(new Translation2d(0.866,-0.5).times(STATION_RADIUS).plus(STATION_CENTER),new Rotation2d(((Math.PI*2)/12) - Math.PI)),
-        new Pose2d(new Translation2d(0.5,-0.866).times(STATION_RADIUS).plus(STATION_CENTER),new Rotation2d(((Math.PI*2)/12)*2 - Math.PI)),
-        new Pose2d(new Translation2d(0,-1).times(STATION_RADIUS).plus(STATION_CENTER),new Rotation2d(((Math.PI*2)/12)*3 - Math.PI)),
-        new Pose2d(new Translation2d(-0.5,-0.866).times(STATION_RADIUS).plus(STATION_CENTER),new Rotation2d(((Math.PI*2)/12)*4 - Math.PI)),
-        new Pose2d(new Translation2d(-0.866,-0.5).times(STATION_RADIUS).plus(STATION_CENTER),new Rotation2d(((Math.PI*2)/12)*5 - Math.PI)),
-        new Pose2d(new Translation2d(-1,0).times(STATION_RADIUS).plus(STATION_CENTER),new Rotation2d(((Math.PI*2)/12)*6 - Math.PI)),
-        new Pose2d(new Translation2d(-0.866,0.5).times(STATION_RADIUS).plus(STATION_CENTER),new Rotation2d(((Math.PI*2)/12)*7 - Math.PI)),
-        new Pose2d(new Translation2d(-0.5,0.866).times(STATION_RADIUS).plus(STATION_CENTER),new Rotation2d(((Math.PI*2)/12)*8 - Math.PI)),
-        new Pose2d(new Translation2d(0,1).times(STATION_RADIUS).plus(STATION_CENTER),new Rotation2d(((Math.PI*2)/12)*9 - Math.PI)),
-        new Pose2d(new Translation2d(0.5,0.866).times(STATION_RADIUS).plus(STATION_CENTER),new Rotation2d(((Math.PI*2)/12)*10 - Math.PI)),
-        new Pose2d(new Translation2d(0.866,0.5).times(STATION_RADIUS).plus(STATION_CENTER),new Rotation2d(((Math.PI*2)/12)*11 - Math.PI))
-    }; //please arrange it clockwise
+    public static Pose2d[] STATIONS; //please arrange it clockwise
 
     public static double dot_prod(Translation2d v1,Translation2d v2)
     {

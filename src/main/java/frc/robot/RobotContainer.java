@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static frc.robot.PathFollow.Util.PathsConstants.STATIONS;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -45,12 +47,16 @@ public class RobotContainer implements Sendable{
     this.logManager = new LogManager();
     rc = this;
 
-    Translation2d init = new Translation2d(0,0);
-    Pose2d fin = new Pose2d(new Translation2d(5,20), new Rotation2d(0));
+    Translation2d init = new Translation2d(5,-16);
+    Pose2d fin = new Pose2d(new Translation2d(5,10), new Rotation2d(0));
     
 
     pathPoint[] points = StationNav.genLineByDis(init, fin, 2);
 
+    for(int i = 0; i < PathsConstants.STATIONS.length;i++)
+    {
+      System.out.println(STATIONS[i]);
+    }
     System.out.println("incoming");
     for(int i = 0; i < points.length; i++)
     {

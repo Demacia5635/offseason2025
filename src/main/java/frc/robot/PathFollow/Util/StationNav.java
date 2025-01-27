@@ -89,7 +89,7 @@ public class StationNav {
     private static pathPoint[] bridgeClock(int closeInit,int closeFin, Translation2d init, Pose2d fin)
     {
         int diff = Math.abs(closeFin-closeInit);
-        int cPoints = closeFin > closeInit ? diff + 3 : STATIONS.length - diff + 3; 
+         int cPoints = closeFin > closeInit ? diff + 3 : STATIONS.length - diff + 3; 
         pathPoint[] points = new pathPoint[cPoints];
         points[0] = new pathPoint(init,fin.getRotation());
 
@@ -160,6 +160,21 @@ public class StationNav {
         return station;
     }
     
+    private static Boolean decideClock(int station1,int station2)
+    {
+        int diff_clock = Math.abs(station1 - station2);
+        int diff_counter = STATIONS.length - Math.abs(station1 - station2);
+
+        return diff_clock > diff_counter;
+    }
+
+    private static int shiftTan(int tan,int close,Translation2d dest)
+    {
+        if(decideClock(tan, close))
+            return shiftCounter(tan, close, dest);
+        else
+            return shiftClock(tan, close, dest);
+    }
 
     //will return a tuple
     private static int[] optimzeGates(int tanInit,int tanFin,int closeInit,int closeFin)
@@ -173,21 +188,25 @@ public class StationNav {
 
         int[] gates = new int[2];
         if(lowest_diff == diff_closeclose){
+            System.out.println("closeclose");
             gates[0] = closeInit;
             gates[1] = closeFin;
         }
         if(lowest_diff == diff_tanclose)
-        {
+        {  
+            System.out.println("tanclose");
             gates[0] = tanInit;
             gates[1] = closeFin;
         }
         if(lowest_diff == diff_closetan)
         {
+            System.out.println("closetan");
             gates[0] = closeInit;
             gates[1] = tanFin;
         }
         if(lowest_diff == diff_tantan)
         {
+            System.out.println("tantan");
             gates[0] = tanInit;
             gates[1] = tanFin;
         }
@@ -205,6 +224,10 @@ public class StationNav {
 
         int tanInit = 0;
         int tanFin = 0;
+
+        //secound tangents
+        int tanInit2 = 0;
+        int tanFin2 = 0;
         
         for(int i = 1; i < STATIONS.length; i++)
         {
@@ -221,41 +244,29 @@ public class StationNav {
             double dot_init = PathsConstants.dot_prod(initial.minus(station.getTranslation()), station.getTranslation().minus(PathsConstants.STATION_CENTER));
             double dot_initclose = PathsConstants.dot_prod(initial.minus(STATIONS[tanInit].getTranslation()), STATIONS[tanInit].getTranslation().minus(PathsConstants.STATION_CENTER));
 
+            double dot_initclose2 = PathsConstants.dot_prod(initial.minus(STATIONS[tanInit2].getTranslation()), STATIONS[tanInit2].getTranslation().minus(PathsConstants.STATION_CENTER));
+
             double dot_fin = PathsConstants.dot_prod(fin.getTranslation().minus(station.getTranslation()), station.getTranslation().minus(PathsConstants.STATION_CENTER));
-            double dot_finclose = PathsConstants.dot_prod(fin.getTranslation().minus(STATIONS[tanInit].getTranslation()), STATIONS[tanInit].getTranslation().minus(PathsConstants.STATION_CENTER));
+            double dot_finclose = PathsConstants.dot_prod(fin.getTranslation().minus(STATIONS[tanFin].getTranslation()), STATIONS[tanFin].getTranslation().minus(PathsConstants.STATION_CENTER));
+
+            double dot_finclose2 = PathsConstants.dot_prod(fin.getTranslation().minus(STATIONS[tanFin2].getTranslation()), STATIONS[tanFin2].getTranslation().minus(PathsConstants.STATION_CENTER));
             
             if(Math.abs(dot_init) < Math.abs(dot_initclose))
                 tanInit = i;
             else
             {
-                if(Math.abs(dot_init) == Math.abs(dot_initclose))
-                {
-                    Translation2d tanToInit = initial.minus(STATIONS[tanInit].getTranslation());
-                    Translation2d tanToFin = fin.getTranslation().minus(STATIONS[tanInit].getTranslation());
-
-                    Translation2d ntanToInit = initial.minus(station.getTranslation());
-                    Translation2d ntanToFin = fin.getTranslation().minus(station.getTranslation());
-
-                    if(PathsConstants.dot_prod(ntanToInit, ntanToFin) < PathsConstants.dot_prod(tanToInit, tanToFin))
-                        tanInit = i;
-                }
+                if(Math.abs(dot_init) <= Math.abs(dot_initclose2))
+                    tanInit2 = i;
             }
+
             if(Math.abs(dot_fin) < Math.abs(dot_finclose))
                 tanFin = i;
             else
-                {
-                    if(Math.abs(dot_init) == Math.abs(dot_finclose))
-                    {
-                        Translation2d tanToInit = initial.minus(STATIONS[tanInit].getTranslation());
-                        Translation2d tanToFin = fin.getTranslation().minus(STATIONS[tanInit].getTranslation());
-    
-                        Translation2d ntanToInit = initial.minus(station.getTranslation());
-                        Translation2d ntanToFin = fin.getTranslation().minus(station.getTranslation());
-    
-                        if(PathsConstants.dot_prod(ntanToInit, ntanToFin) < PathsConstants.dot_prod(tanToInit, tanToFin))
-                            tanInit = i;
-                    }
-                }
+            {
+                if(Math.abs(dot_fin) <= Math.abs(dot_finclose2))
+                    tanFin2 = i;
+
+            }
 
             if (d_init < d_initclose)
                 closeInit = i;
@@ -263,89 +274,115 @@ public class StationNav {
                 closeFin = i;
         }
 
+        Translation2d tanToInit = initial.minus(STATIONS[tanInit].getTranslation());
+        Translation2d tanToFin = fin.getTranslation().minus(STATIONS[tanInit].getTranslation());
+
+        Translation2d tanToInit2 = initial.minus(STATIONS[tanInit2].getTranslation());
+        Translation2d tanToFin2 = fin.getTranslation().minus(STATIONS[tanInit2].getTranslation());
+
+        if(PathsConstants.dot_prod(tanToInit2, tanToFin2) < PathsConstants.dot_prod(tanToInit, tanToFin))
+            tanInit = tanInit2;
+
+        tanToInit = initial.minus(STATIONS[tanFin].getTranslation());
+        tanToFin = fin.getTranslation().minus(STATIONS[tanFin].getTranslation());
+
+        tanToInit2 = initial.minus(STATIONS[tanFin2].getTranslation());
+        tanToFin2 = fin.getTranslation().minus(STATIONS[tanFin2].getTranslation());
+
+        if(PathsConstants.dot_prod(tanToInit2, tanToFin2) < PathsConstants.dot_prod(tanToInit, tanToFin))
+            tanFin = tanFin2;
+
         System.out.println("tanInit : " + STATIONS[tanInit]);
         System.out.println("tanFin : " + STATIONS[tanFin]);
 
+        tanFin = shiftTan(tanFin,closeFin,fin.getTranslation());
+        tanInit = shiftTan(tanInit, closeInit, initial);
+
+        int[] gates = optimzeGates(tanInit, tanFin, closeInit, closeFin);
         
+        if(decideClock(gates[0], gates[1]))
+            return bridgeCounter(gates[0], gates[1], initial, fin);
+        else
+            return bridgeClock(gates[0], gates[1], initial, fin);
 
-        int diff = Math.abs(tanFin-tanInit);
-        if (tanInit < tanFin)
-        {
-            if(diff < STATIONS.length/2)
-            {
-                System.out.println("small diff, init - fin");
+        // int diff = Math.abs(tanFin-tanInit);
+        // if (tanInit < tanFin)
+        // {
+        //     if(diff < STATIONS.length/2)
+        //     {
+        //         System.out.println("small diff, init - fin");
 
-                //intersections counter
-                tanFin = shiftClock(tanFin,closeFin,fin.getTranslation());
+        //         //intersections counter
+        //         tanFin = shiftClock(tanFin,closeFin,fin.getTranslation());
 
-                tanInit = shiftCounter(tanInit, closeInit, initial);
-
-
-                int[] gates = optimzeGates(tanInit, tanFin, closeInit, closeFin);
+        //         tanInit = shiftCounter(tanInit, closeInit, initial);
 
 
-                return bridgeClock(gates[0], gates[1], initial, fin);
+        //         int[] gates = optimzeGates(tanInit, tanFin, closeInit, closeFin);
 
-            }
-            else
-            {
-                System.out.println("big diff, init - fin");
+
+        //         return bridgeClock(gates[0], gates[1], initial, fin);
+
+        //     }
+        //     else
+        //     {
+        //         System.out.println("big diff, init - fin");
                 
-                //intersections counter
-                tanFin = shiftClock(tanFin,closeFin,fin.getTranslation());
+        //         //intersections counter
+        //         tanFin = shiftCounter(tanFin,closeFin,fin.getTranslation());
 
-                tanInit = shiftCounter(tanInit, closeInit, initial);
+        //         tanInit = shiftClock(tanInit, closeInit, initial);
 
-                int[] gates = optimzeGates(tanInit, tanFin, closeInit, closeFin);
+        //         int[] gates = optimzeGates(tanInit, tanFin, closeInit, closeFin);
 
-                return bridgeClock(gates[0], gates[1], initial, fin);
-            }
-        }
-        else{
-            if(tanFin == tanInit)
-            {
-                pathPoint[] points = new pathPoint[3];
-                points[0] = new pathPoint(initial, fin.getRotation());
-                points[1] = new pathPoint(STATIONS[tanInit].getTranslation(),fin.getRotation());
-                points[2] = new pathPoint(fin.getTranslation(), fin.getRotation());
-                return points;
-            }
-            else{
+        //         return bridgeCounter(gates[0], gates[1], initial, fin);
+        //     }
+        // }
+        // else{
+        //     if(tanFin == tanInit)
+        //     {
+        //         pathPoint[] points = new pathPoint[3];
+        //         points[0] = new pathPoint(initial, fin.getRotation());
+        //         points[1] = new pathPoint(STATIONS[tanInit].getTranslation(),fin.getRotation());
+        //         points[2] = new pathPoint(fin.getTranslation(), fin.getRotation());
+        //         return points;
+        //     }
+        //     else{
 
-                if(diff < STATIONS.length/2)
-                {
-                    System.out.println("small diff, fin - init");
+        //         if(diff < STATIONS.length/2)
+        //         {
+        //             System.out.println("small diff, fin - init");
 
                     
-                    //intersections counter
-                    tanFin = shiftCounter(tanFin,closeFin,fin.getTranslation());
+        //             //intersections counter
+        //             tanFin = shiftCounter(tanFin,closeFin,fin.getTranslation());
 
-                    tanInit = shiftClock(tanInit, closeInit, initial);
+        //             tanInit = shiftClock(tanInit, closeInit, initial);
 
-                    int[] gates = optimzeGates(tanInit, tanFin, closeInit, closeFin);
+        //             int[] gates = optimzeGates(tanInit, tanFin, closeInit, closeFin);
 
-                    return bridgeCounter(gates[0], gates[1], initial, fin);
+        //             return bridgeCounter(gates[0], gates[1], initial, fin);
 
-                }
-                else
-                {
-                    System.out.println("big diff, fin - init");
-                    int exitStation = tanFin;
-                    int enterStation = tanInit;
+        //         }
+        //         else
+        //         {
+        //             System.out.println("big diff, fin - init");
+        //             int exitStation = tanFin;
+        //             int enterStation = tanInit;
                 
-                    //intersections counter
-                    tanFin = shiftClock(tanFin,closeFin,fin.getTranslation());
+        //             //intersections counter
+        //             tanFin = shiftClock(tanFin,closeFin,fin.getTranslation());
 
-                    tanInit = shiftCounter(tanInit, closeInit, initial);
+        //             tanInit = shiftCounter(tanInit, closeInit, initial);
 
-                    int[] gates = optimzeGates(tanInit, tanFin, closeInit, closeFin);
+        //             int[] gates = optimzeGates(tanInit, tanFin, closeInit, closeFin);
 
-                    return bridgeClock(gates[0], gates[1], initial, fin);
-                }
-            }
+        //             return bridgeClock(gates[0], gates[1], initial, fin);
+        //         }
+        //     }
 
            
-        }
+        // }
     }
 
     public static void genLineClockwise(Translation2d initial,Pose2d fin,double velocity)
