@@ -133,7 +133,7 @@ public class StationNav {
         
         //intersections counter
         int inter = PathsConstants.cSegCircleInter(STATIONS[station].getTranslation(), dest, PathsConstants.STATION_CENTER, PathsConstants.STATION_RADIUS);
-        while(station != close && !(inter != 1 || inter != 0)){
+        while(station != close && (inter == 2 || inter == -1)){
             //move clockwise
             station = (station + 1) % STATIONS.length;
             inter = PathsConstants.cSegCircleInter(STATIONS[station].getTranslation(), dest, PathsConstants.STATION_CENTER, PathsConstants.STATION_RADIUS);
@@ -148,7 +148,7 @@ public class StationNav {
         
         //intersections counter
         int inter = PathsConstants.cSegCircleInter(STATIONS[station].getTranslation(), dest, PathsConstants.STATION_CENTER, PathsConstants.STATION_RADIUS);
-        while(station != close && !(inter != 1 || inter != 0)){
+        while(station != close && (inter == 2 || inter == -1)){
             //move counter-clockwise
             if(station - 1 >= 0)
                 station--;
@@ -160,17 +160,22 @@ public class StationNav {
         return station;
     }
     
-    private static Boolean decideClock(int station1,int station2)
+    private static Boolean decideCounter(int station1,int station2)
     {
-        int diff_clock = Math.abs(station1 - station2);
-        int diff_counter = STATIONS.length - Math.abs(station1 - station2);
-
-        return diff_clock > diff_counter;
+        int diff = Math.abs(station1 - station2);
+        if(station1 < station2)
+        {
+            return diff > STATIONS.length/2;
+        }
+        else
+        {
+            return !(diff > STATIONS.length/2);
+        }
     }
 
     private static int shiftTan(int tan,int close,Translation2d dest)
     {
-        if(decideClock(tan, close))
+        if(decideCounter(tan, close))
             return shiftCounter(tan, close, dest);
         else
             return shiftClock(tan, close, dest);
@@ -300,7 +305,7 @@ public class StationNav {
 
         int[] gates = optimzeGates(tanInit, tanFin, closeInit, closeFin);
         
-        if(decideClock(gates[0], gates[1]))
+        if(decideCounter(gates[0], gates[1]))
             return bridgeCounter(gates[0], gates[1], initial, fin);
         else
             return bridgeClock(gates[0], gates[1], initial, fin);
