@@ -47,8 +47,8 @@ public class RobotContainer implements Sendable{
     this.logManager = new LogManager();
     rc = this;
 
-    Translation2d init = new Translation2d(5,-16);
-    Pose2d fin = new Pose2d(new Translation2d(5,10), new Rotation2d(0));
+    Translation2d init = new Translation2d(17,9);
+    Pose2d fin = new Pose2d(new Translation2d(-12,-8), new Rotation2d(0));
     
 
     pathPoint[] points = StationNav.genLineByDis(init, fin, 2);
